@@ -1,0 +1,68 @@
+      program test
+      implicit none
+      integer :: a, b, r, i
+
+!$acc serial copy(a) copy(b)
+!$omp target map(tofrom:a,b)
+#if defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+!$omp target map(a,b)
+#endif // defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+        b = 2*a
+!$acc end serial
+!$omp end target
+#if defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+!$omp end target
+#endif // defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+
+!$acc serial copy(a)
+!$acc1 copy(b)
+!$omp target map(tofrom:a,b)
+#if defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+!$omp target
+!$omp1 map(a,b)
+#endif // defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+        b = 2*a
+!$acc end serial
+!$omp end target
+#if defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+!$omp end target
+#endif // defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+
+!$acc serial copy(a)
+!$acc1 copy(b)
+!$omp target map(tofrom:a,b)
+#if defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+!$omp target
+!$omp1 map(tofrom:a)
+!$omp2 map(tofrom:b)
+#endif // defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+        b = 2*a
+!$acc end serial
+!$omp end target
+#if defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+!$omp end target
+#endif // defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+
+      r = 0
+!$acc parallel
+!$omp target teams
+!$acc loop reduction(+:r)
+!$omp loop reduction(+:r)
+#if defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+!$omp target teams
+#endif // defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+#if defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+!$omp loop reduction(+:r)
+#endif // defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+      do i = a, b
+        r = r + a*a
+      end do
+#if defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+!$omp end target teams
+#endif // defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+!$acc end parallel
+!$omp end target teams
+
+      end program
+
+! Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -fixed acc+omp.f

@@ -1,0 +1,23 @@
+program test
+integer i
+!$acc parallel async(1)
+!$omp target teams nowait
+i = 0
+!$acc end parallel
+!$omp end target teams
+!$acc parallel async(2)
+!$omp target teams nowait
+i = 0
+!$acc end parallel
+!$omp end target teams
+!$acc parallel async(3) wait(1,2)
+!$omp taskwait
+!$omp target teams nowait
+i = 0
+!$acc end parallel
+!$omp end target teams
+!$acc wait
+!$omp taskwait
+end program
+
+! Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -keep-binding-clauses=all -free -async=nowait 0002.f90

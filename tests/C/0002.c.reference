@@ -1,0 +1,25 @@
+int main (int argc, char *argv[])
+{
+	int x;
+
+	#pragma acc parallel
+#pragma omp target teams
+	{
+	x = 1;
+	}
+
+	_Pragma("acc parallel")
+#pragma omp target teams
+	{
+	x = 2;
+	}
+
+	_Pragma("acc \
+	 parallel")
+#pragma omp target teams
+	{
+	x = 3;
+	}
+}
+
+// Code was translated using: ../src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup C/0002.c

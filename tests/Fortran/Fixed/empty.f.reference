@@ -1,0 +1,2 @@
+
+! Code was translated using: ../src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -fixed Fortran/Fixed/empty.f

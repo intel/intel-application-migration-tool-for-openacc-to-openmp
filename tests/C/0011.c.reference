@@ -1,0 +1,25 @@
+float dot (int N, float * x, float * y)
+{
+	float tmp = 0;
+	#pragma acc parallel loop reduction(+:tmp)
+#pragma omp target teams loop reduction(+:tmp)
+	for (int i = 0; i < N; ++i)
+		tmp += x[i] * y[i];
+	return tmp;
+}
+
+void dot2 (int N, float * x, float * y, float *d1, float *d2)
+{
+	float tmp1 = 0, tmp2 = 0;
+	#pragma acc parallel loop reduction(+:tmp1) reduction(+:tmp2)
+#pragma omp target teams loop reduction(+:tmp1) reduction(+:tmp2)
+	for (int i = 0; i < N; ++i)
+	{
+		tmp1 += x[i] * y[i];
+		tmp2 += y[i] * x[i];
+	}
+	*d1 = tmp1;
+	*d2 = tmp2;
+}
+
+// Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup 0011.c

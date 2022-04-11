@@ -1,0 +1,41 @@
+int main (int argc, char *argv[])
+{
+	#define N 10
+	#define M 20
+	#define O 30
+
+	int x[N], Y[M], z[O];
+
+	#pragma acc data present(x)
+#pragma omp target data map(alloc:x)
+	{
+	}
+
+	#pragma acc data present(Y)
+#pragma omp target data map(alloc:Y)
+	{
+	}
+
+	#pragma acc data copy(x) \
+	  copyin(Y) copyout(z)
+#pragma omp target data map(tofrom:x) map(to:Y) map(from:z)
+	{
+	}
+
+	#pragma acc \
+	data \
+present(z)
+#pragma omp target data map(alloc:z)
+	{
+	}
+
+	#pragma acc data \
+  copy(x) copyin (Y) copyout (z)
+#pragma omp target data map(tofrom:x) map(to:Y) map(from:z)
+	{
+	}
+
+	return 0;
+}
+
+// Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup 0010.c

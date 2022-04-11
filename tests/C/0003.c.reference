@@ -1,0 +1,44 @@
+int main (int argc, char *argv[])
+{
+	unsigned N = 1000;
+
+	#pragma acc parallel loop
+#pragma omp target teams loop
+	for (unsigned i = 0; i < N; ++i)
+	{
+	}
+
+	#pragma \
+	  acc parallel loop
+#pragma omp target teams loop
+	for (unsigned i = 0; i < N; ++i)
+	{
+	}
+
+	  #pragma \
+	    acc parallel loop
+#pragma omp target teams loop
+	for (unsigned i = 0; i < N; ++i)
+	{
+	}
+
+	  #pragma \
+	    acc \
+	    parallel loop
+#pragma omp target teams loop
+	for (unsigned i = 0; i < N; ++i)
+	{
+	}
+
+	  #pragma \
+	    acc \
+	    parallel \
+	    loop
+#pragma omp target teams loop
+	for (unsigned i = 0; i < N; ++i)
+	{
+	}
+	return 0;
+}
+
+// Code was translated using: ../src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup C/0003.c

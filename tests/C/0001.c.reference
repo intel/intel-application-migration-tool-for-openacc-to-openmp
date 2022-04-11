@@ -1,0 +1,27 @@
+int main (int argc, char*argv[])
+{
+	int x;
+
+	#pragma acc kernels
+#pragma omp target
+	{
+		x = 2;
+	}
+
+	_Pragma("acc kernels")
+#pragma omp target
+	{
+	x = 3;
+	}
+
+	_Pragma("acc \
+	 kernels")
+#pragma omp target
+	{
+	x = 4;
+	}
+
+	return 0;
+}
+
+// Code was translated using: ../src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup C/0001.c

@@ -1,0 +1,46 @@
+program test
+
+integer, parameter :: N = 10
+integer, parameter :: M = 20
+integer, parameter :: O = 30
+integer x(N),y(M),z(O)
+
+!$acc data present(x)
+!$omp target data map(alloc:x)
+
+!$acc end data
+!$omp end target data
+
+!$acc DATA PRESENT(y)
+!$omp target data map(alloc:y)
+
+!$acc end data
+!$omp end target data
+
+!$acc data &
+!$acc  copy(X) &
+!$acc  copyin(Y) &
+!$acc  copyout(Z)
+!$omp target data map(tofrom:x) map(to:y) map(from:z)
+
+!$acc end data
+!$omp end target data
+
+!$acc data present (x)
+!$omp target data map(alloc:x)
+
+!$acc end data
+!$omp end target data
+
+!$acc data &
+!$acc  copy (x) &
+!$acc  copyin(y) &
+!$acc  copyout (z)
+!$omp target data map(tofrom:x) map(to:y) map(from:z)
+
+!$acc end DATA
+!$omp end target data
+
+end program
+
+! Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -free 0010.f90

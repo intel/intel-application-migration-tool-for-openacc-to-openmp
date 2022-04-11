@@ -1,0 +1,58 @@
+program test
+integer, parameter :: N = 1000
+integer, parameter :: M = 2000
+real v1(N), v2(N), v3(M), v4(N)
+logical condA, condB, condC
+
+!$acc enter data copyin(v1,v2(1:N))
+!$omp target enter data map(to:v1,v2(1:n))
+
+!$acc enter data copyin(v1,v2) &
+!$acc copyin(v3(2:M),v4(5))
+!$omp target enter data map(to:v1,v2,v3(2:m),v4(5))
+
+!$acc enter data copyin(v1,v2) &
+!$acc copyin(v3,v4(1:N))
+!$omp target enter data map(to:v1,v2,v3,v4(1:n))
+
+!$acc enter data copyin(v1,v2) &
+!$acc copyin(v3) &
+!$acc copyin(v4(N:M))
+!$omp target enter data map(to:v1,v2,v3,v4(n:m))
+
+!$acc enter data copyin(v1,v2,&
+!$acc v3,&
+!$acc v4(N:M))
+!$omp target enter data map(to:v1,v2,v3,v4(n:m))
+
+!$acc exit data copyout(v1,v2(1:N))
+!$omp target exit data map(from:v1,v2(1:n))
+
+!$acc exit data copyout(v1,v2) &
+!$acc& copyout(v3(2:M),v4(5))
+!$omp target exit data map(from:v1,v2,v3(2:m),v4(5))
+
+!$acc exit data copyout(v1,v2) &
+!$acc& copyout(v3,v4(1:N))
+!$omp target exit data map(from:v1,v2,v3,v4(1:n))
+
+!$acc exit data copyout(v1,v2) &
+!$acc& copyout(v3) &
+!$acc& copyout(v4(N:M))
+!$omp target exit data map(from:v1,v2,v3,v4(n:m))
+
+!$acc exit data copyout(v1,v2, &
+!$acc v3,&
+!$acc v4(N:M))
+!$omp target exit data map(from:v1,v2,v3,v4(n:m))
+
+!$acc enter data copyin(v1, v2) &
+!$acc& create(v3, v4) &
+!$acc& if ((condA .and. condB) &
+!$acc& .or. (condA .and. condC))
+!$omp target enter data map(to:v1,v2) map(alloc:v3,v4)&
+!$omp if((conda.and.condb).or.(conda.and.condc))
+
+end program
+
+! Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -free 0004.f90

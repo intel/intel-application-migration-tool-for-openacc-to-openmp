@@ -1,0 +1,73 @@
+int main (int argc, char *argv[])
+{
+	#pragma acc kernels
+#pragma omp target
+	{
+		int oneliner_stmt = 0;
+		#pragma acc loop
+#pragma omp loop
+		for (int i = 0; i < 10; ++i)
+		{
+			#pragma acc loop
+#pragma omp loop
+			for (int j = 0; j < 10; ++j)
+			{
+			}
+		}
+		#pragma acc loop
+#pragma omp loop
+		for (int i = 0; i < 10; ++i)
+			#pragma acc loop
+#pragma omp loop
+			for (int j = 0; j < 10; ++j)
+				oneliner_stmt++;
+		oneliner_stmt++;
+		oneliner_stmt++;
+		oneliner_stmt++;
+		#pragma acc loop
+#pragma omp loop
+		for (int i = 0; i < 10; ++i)
+			#pragma acc loop
+#pragma omp loop
+			for (int j = 0; j < 10; ++j)
+				#pragma acc loop
+#pragma omp loop
+				for (int k = 0; k < 3; ++k)
+					oneliner_stmt++;
+		#pragma acc loop
+#pragma omp loop
+		for (int i = 0; i < 10; ++i) {
+			#pragma acc loop
+#pragma omp loop
+			for (int j = 0; j < 10; ++j)
+				oneliner_stmt++;
+		}
+		#pragma acc loop
+#pragma omp loop
+		for (int i = 0; i < 10; ++i)
+			#pragma acc loop
+#pragma omp loop
+			for (int j = 0; j < 10; ++j)
+			{
+			}
+		#pragma acc loop
+#pragma omp loop
+		for (int i = 0; i < 10; ++i)
+		{
+			for (int j = 0; j < 10; ++j)
+			{
+				#pragma acc loop
+#pragma omp loop
+				for (int k = 0; k < 3; ++k)
+					oneliner_stmt++;
+			}
+			#pragma acc loop
+#pragma omp loop
+			for (int j = 0; j < 10; ++j)
+			{
+			}
+		}
+	}
+}
+
+// Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup 0012.c

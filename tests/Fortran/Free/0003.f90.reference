@@ -1,0 +1,30 @@
+program test
+integer N
+integer i
+
+!$acc parallel &
+!$acc & loop
+!$omp target teams loop
+      do i = 1, N
+      enddo
+
+!$acc parallel &
+!$acc loop
+!$omp target teams loop
+      do i = 1, N
+      enddo
+
+!$acc parallel &
+!$acc loop
+!$omp target teams loop
+      do i = 1, N
+      enddo
+
+!$acc parallel &
+!$acc     & loop
+!$omp target teams loop
+      do i = 1, N
+      enddo
+end program
+
+! Code was translated using: ../src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -free Fortran/Free/0003.f90

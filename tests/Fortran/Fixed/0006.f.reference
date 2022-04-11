@@ -1,0 +1,19 @@
+       program test
+       integer, parameter :: N = 10
+       real v1(N), v2(N), v3(N)
+
+!$acc update host(v1)
+!$omp target update from(v1)
+
+!$acc update host(v1)
+!$acc& host(v2,v3)
+!$omp target update from(v1,v2,v3)
+
+!$acc update host(v1)
+!$acc&host(v2)
+!$acc&host(v3)
+!$omp target update from(v1)
+
+      end program
+
+! Code was translated using: ../src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -fixed Fortran/Fixed/0006.f

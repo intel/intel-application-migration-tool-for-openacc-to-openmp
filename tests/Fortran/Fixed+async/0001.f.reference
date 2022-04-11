@@ -1,0 +1,24 @@
+      program test
+      integer i
+!$acc kernels async(1)
+!$omp target nowait
+      i = 0
+!$acc end kernels
+!$omp end target
+!$acc kernels async(2) wait(1)
+!$omp taskwait
+!$omp target nowait
+      i = 0
+!$acc end kernels
+!$omp end target
+!$acc kernels async(3) wait (2)
+!$omp taskwait
+!$omp target nowait
+      i = 0
+!$acc end kernels
+!$omp end target
+!$acc wait
+!$omp taskwait
+      end program
+
+! Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -keep-binding-clauses=all -fixed -async=nowait 0001.f

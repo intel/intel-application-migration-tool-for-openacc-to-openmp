@@ -1,0 +1,18 @@
+       program test
+       integer, parameter :: N = 10
+       real v1(N), v2(N), v3(N)
+
+!$acc update device(v1)
+!$omp target update to(v1)
+
+!$acc update device(v1)
+!$acc& device(v2,v3)
+!$omp target update to(v1,v2,v3)
+
+!$acc update device(v1)
+!$acc1 device(v2)
+!$acc2 device(v3)
+!$omp target update to(v1,v2,v3)
+       end program
+
+! Code was translated using: ../src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -fixed Fortran/Fixed/0005.f

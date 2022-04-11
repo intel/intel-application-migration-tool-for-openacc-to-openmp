@@ -1,0 +1,17 @@
+MODULE M
+  INTEGER :: x
+!$ACC DECLARE COPYIN(x)
+!$omp declare target (x)
+END MODULE M
+
+USE M
+INTEGER :: result
+!$ACC SERIAL COPYOUT(result)
+!$omp target map(from:result)
+  result = x + 1
+!$ACC END SERIAL
+!$omp end target
+PRINT *, result
+END
+
+! Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -free 0013.f90

@@ -1,0 +1,10 @@
+      program test
+      integer i
+!$acc kernels
+!$omp target
+      i = 0
+!$acc end kernels
+!$omp end target
+      end program
+
+! Code was translated using: ../src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -fixed Fortran/Fixed/0001.f

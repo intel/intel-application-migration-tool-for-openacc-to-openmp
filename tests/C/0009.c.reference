@@ -1,0 +1,30 @@
+int main (int argc, char *argv[])
+{
+#define N 10
+	int A[N];
+
+	#pragma acc kernels
+#pragma omp target
+	{
+		#pragma acc loop
+#pragma omp loop
+		for (int i = 0; i < N; ++i)
+			A[i] = i;
+	}
+
+	#pragma acc kernels loop
+#pragma omp target teams loop
+	for (int i = 0; i < N; ++i)
+		A[i] = i;
+
+	#pragma acc kernels
+#pragma omp target
+	#pragma acc loop
+#pragma omp loop
+	for (int i = 0; i < N; ++i)
+		A[i] = i;
+
+	return 0;
+}
+
+// Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup 0009.c

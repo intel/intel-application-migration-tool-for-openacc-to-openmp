@@ -1,0 +1,13 @@
+#!/usr/bin/python3
+
+#
+# Entry point for "Intel(r) Application Migration Tool for OpenACC* to OpenMP*"
+#
+
+import migrate_openacc_2_openmp as MAIN
+import sys
+
+if __name__ == "__main__":
+	MAIN.entry(sys.argv[1:])
+
+# vim:set noexpandtab tabstop=4:

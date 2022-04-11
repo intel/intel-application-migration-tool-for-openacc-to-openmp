@@ -1,0 +1,30 @@
+      program app
+      implicit none
+      integer :: a
+
+      a = 0
+
+!$acc serial ! this is a comment
+c
+!$acc1 copy(a)
+!$omp target map(tofrom:a)
+      a = 1
+!$acc end serial
+!$omp end target
+
+      write (*,*) a
+
+!$acc serial
+c
+!$acc1 copy(a) ! this is another comment
+!$omp target map(tofrom:a)
+      a = 2
+!$acc end
+!$acc1 serial
+!$omp end target
+
+      write (*,*) a
+
+      end program
+
+! Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup ./0017-comments-in-constructs.f

@@ -1,0 +1,10 @@
+program test
+integer i
+!$acc parallel
+!$omp target teams
+i = 0
+!$acc end parallel
+!$omp end target teams
+end program
+
+! Code was translated using: ../src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -free Fortran/Free/0002.f90

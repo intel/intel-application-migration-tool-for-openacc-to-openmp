@@ -1,0 +1,17 @@
+#pragma acc kernels
+#pragma omp target
+{
+}
+
+_Pragma("acc kernels")
+#pragma omp target
+{
+}
+
+_Pragma("acc \
+ kernels")
+#pragma omp target
+{
+}
+
+// Code was translated using: ../src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup C/0001.h

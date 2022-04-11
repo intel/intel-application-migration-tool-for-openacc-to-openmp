@@ -1,0 +1,39 @@
+float foo (int N, float vec[])
+{
+	int VECLEN = 4;
+
+	#pragma acc parallel loop num_workers(10) copy(vec[:N])
+#pragma omp target teams loop bind(thread) map(tofrom:vec[:N]) thread_limit(10)
+	for (int i = 0; i < N; ++i)
+		vec[i] = i + 1.;
+
+	#pragma acc parallel num_gangs(2) copy(vec[:N])
+#pragma omp target teams map(tofrom:vec[:N]) num_teams(2)
+	#pragma acc loop gang
+#pragma omp loop bind(teams)
+	for (int i = 0; i < N; ++i)
+		vec[i] = i + 2.;
+
+	#pragma acc parallel num_gangs(2) num_workers(10) copy(vec[:N])
+#pragma omp target teams map(tofrom:vec[:N]) num_teams(2) thread_limit(10)
+	#pragma acc loop
+#pragma omp loop
+	for (int i = 0; i < N; ++i)
+		vec[i] = i + 3.;
+
+	#pragma acc parallel num_gangs(2) copy(vec[:N]) if(1==1)
+#pragma omp target teams map(tofrom:vec[:N]) if(1==1) num_teams(2)
+	#pragma acc loop vector
+#pragma omp loop
+	for (int i = 0; i < N; ++i)
+		vec[i] = i + 4.;
+
+	#pragma acc parallel loop vector vector_length(VECLEN)
+#pragma omp target teams loop
+	for (int i = 0; i < N; ++i)
+		vec[i] = i + 4.;
+
+	return vec[N-1];
+}
+
+// Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -keep-binding-clauses=all 0016.c

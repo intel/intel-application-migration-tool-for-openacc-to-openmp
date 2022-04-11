@@ -1,0 +1,80 @@
+int main (int argc, char *argv[])
+{
+	int v[3], v2[4][5],v3[6][7][8];
+
+	#pragma acc enter data copyin(v[:2])
+#pragma omp target enter data map(to:v[:2])
+
+	#pragma acc enter data copyin(v)
+#pragma omp target enter data map(to:v)
+
+	#pragma acc enter data copyin(v2[:4][:5])
+#pragma omp target enter data map(to:v2[:4][:5])
+// ATTENTION! The following suggested code is an alternative reference implementation
+// ATTENTION! that could be used if v2 is a non-contiguous allocated multi-dimensional array
+// #pragma omp target enter data map(to:v2[0:4])
+// for (int _idx0 = 0; _idx0 < 4; ++_idx0)
+// {
+//   #pragma omp target enter data map(to:v2[0+_idx0][:5])
+// }
+
+	#pragma acc enter data copyin(v2)
+#pragma omp target enter data map(to:v2)
+
+	#pragma acc enter data copyin(v3[:3][:7][:8])
+#pragma omp target enter data map(to:v3[:3][:7][:8])
+// ATTENTION! The following suggested code is an alternative reference implementation
+// ATTENTION! that could be used if v3 is a non-contiguous allocated multi-dimensional array
+// #pragma omp target enter data map(to:v3[0:3])
+// for (int _idx0 = 0; _idx0 < 3; ++_idx0)
+// {
+//   #pragma omp target enter data map(to:v3[0+_idx0][0:7])
+//   for (int _idx1 = 0; _idx1 < 7; ++_idx1)
+//   {
+//     #pragma omp target enter data map(to:v3[0+_idx0][0+_idx1][:8])
+//   }
+// }
+
+	#pragma acc enter data copyin(v3)
+#pragma omp target enter data map(to:v3)
+
+	#pragma acc exit data copyout(v3[:2][:7][:8])
+#pragma omp target exit data map(from:v3[:2][:7][:8])
+// ATTENTION! The following suggested code is an alternative reference implementation
+// ATTENTION! that could be used if v3 is a non-contiguous allocated multi-dimensional array
+// #pragma omp target exit data map(from:v3[0:2])
+// for (int _idx0 = 0; _idx0 < 2; ++_idx0)
+// {
+//   #pragma omp target exit data map(from:v3[0+_idx0][0:7])
+//   for (int _idx1 = 0; _idx1 < 7; ++_idx1)
+//   {
+//     #pragma omp target exit data map(from:v3[0+_idx0][0+_idx1][:8])
+//   }
+// }
+
+	#pragma acc exit data copyout(v3)
+#pragma omp target exit data map(from:v3)
+
+	#pragma acc exit data copyout(v2[:1][:5])
+#pragma omp target exit data map(from:v2[:1][:5])
+// ATTENTION! The following suggested code is an alternative reference implementation
+// ATTENTION! that could be used if v2 is a non-contiguous allocated multi-dimensional array
+// #pragma omp target exit data map(from:v2[0:1])
+// for (int _idx0 = 0; _idx0 < 1; ++_idx0)
+// {
+//   #pragma omp target exit data map(from:v2[0+_idx0][:5])
+// }
+
+	#pragma acc exit data copyout(v2)
+#pragma omp target exit data map(from:v2)
+
+	#pragma acc exit data copyout(v[:3])
+#pragma omp target exit data map(from:v[:3])
+
+	#pragma acc exit data copyout(v)
+#pragma omp target exit data map(from:v)
+
+	return 0;
+}
+
+// Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -force-backup 0004-extended.c

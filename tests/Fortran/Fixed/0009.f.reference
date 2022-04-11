@@ -1,0 +1,52 @@
+      program test
+
+      integer, parameter :: N = 10
+      integer :: i
+      integer :: A(N)
+
+!$acc kernels
+!$acc loop
+!$omp target teams loop
+      do i = 1,N
+         a(i) = i
+      end do
+!$acc end kernels
+
+!$acc kernels
+
+!$acc loop
+!$omp target teams loop
+      do i = 1,N
+         a(i) = i
+      end do
+
+!$acc end kernels
+
+!$acc kernels loop
+!$omp target teams loop
+      do i = 1,N
+         a(i) = i+1
+      end do
+
+! This is unsupported as of nvfortran 22.2-0
+! !$acc kernels
+!       BLOCK
+!       integer :: j
+! !$acc loop
+!       do j = 1, N
+!         a(j) = i + j
+!       end do
+!       end block
+!
+! !$acc kernels
+!       block
+!       integer :: j
+! !$acc loop
+!       do j = 1, N
+!         a(j) = i + j
+!       end do
+!       endblock
+
+      end program
+
+! Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -keep-binding-clauses=all -fixed 0009.f

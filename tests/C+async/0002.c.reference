@@ -1,0 +1,30 @@
+int main (int argc, char *argv[])
+{
+	int x;
+
+	#pragma acc parallel async(1)
+#pragma omp target teams nowait
+	{
+	x = 1;
+	}
+
+	_Pragma("acc parallel async(2)")
+#pragma omp target teams nowait
+	{
+	x = 2;
+	}
+
+	_Pragma("acc \
+	 parallel async(3)")
+#pragma omp target teams nowait
+	{
+	x = 3;
+	}
+
+	#pragma acc wait (3)
+#pragma omp taskwait
+	#pragma acc wait
+#pragma omp taskwait
+}
+
+// Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -keep-binding-clauses=all -async=nowait 0002.c
