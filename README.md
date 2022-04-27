@@ -47,9 +47,9 @@ In addition to these, the tool generates a report for each migrated file with in
 
 To invoke the translator, use the following command: 
 
-       <path>/src/intel-application-migration-tool-for-openacc-to-openmp <optional-flags> <input-file>
+       <path>/src/intel-application-migration-tool-for-openacc-to-openmp <optional-flags> <input-files>
 
-where `<input-file>` refers to a source-code file containing OpenACC constructs. The tool will generate a translation into a file named `<input-file>.translated` and will also dump a report with translation details into a file named `<input-file>.report`.
+where `<input-files>` refers to source-code files containing OpenACC constructs. For each given input-file, the tool will generate a translation file named `<input-file>.translated` and will also dump a report with translation details into a file named `<input-file>.report`.
 
 The tool supports the following optional flags:
 
