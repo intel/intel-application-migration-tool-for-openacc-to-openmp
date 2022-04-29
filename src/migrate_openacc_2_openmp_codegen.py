@@ -5,6 +5,7 @@
 import migrate_openacc_2_openmp_constants as CONSTANTS
 import migrate_openacc_2_openmp_tools as TT
 import migrate_openacc_2_openmp_parser as PARSER
+import migrate_openacc_2_openmp_convert as OACC2OMP
 
 # findFirstSeparator (s, separators, spos)
 #  returns the first character matching those in separators list
