@@ -118,7 +118,7 @@ F77="ifx -fixed -fiopenmp -fopenmp-targets=spir64"
 # F77="nvfortran -mp -Mfixed"
 F90="ifx -free -fiopenmp -fopenmp-targets=spir64"
 # F90="nvfortran -mp -Mfree"
-CC="icx -fiopenmp -fopenmp-targets=spir64"
+CC="icx -fiopenmp -fopenmp-targets=spir64 -fopenmp-version=51 -std=c99"
 #CC="nvc -mp"
 
 F77COMPILER=${F77%% *}

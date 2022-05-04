@@ -6,13 +6,13 @@ integer, parameter :: O = 30
 integer x(N),y(M),z(O)
 
 !$acc data present(x)
-!$omp target data map(alloc:x)
+!$omp target data map(present,tofrom:x)
 
 !$acc end data
 !$omp end target data
 
 !$acc DATA PRESENT(y)
-!$omp target data map(alloc:y)
+!$omp target data map(present,tofrom:y)
 
 !$acc end data
 !$omp end target data
@@ -27,7 +27,7 @@ integer x(N),y(M),z(O)
 !$omp end target data
 
 !$acc data present (x)
-!$omp target data map(alloc:x)
+!$omp target data map(present,tofrom:x)
 
 !$acc end data
 !$omp end target data
@@ -43,4 +43,4 @@ integer x(N),y(M),z(O)
 
 end program
 
-! Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -free 0010.f90
+! Code was translated using: /nfs/pdx/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -free 0010.f90

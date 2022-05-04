@@ -28,10 +28,12 @@ int main (int argc, char *argv[])
 	 copyout(v4[1:1000])
 #pragma omp target exit data map(from:v1[a:b],v2[0:d],v3[0:e],v4[1:1000])
 
-	#pragma acc enter copyin (v1, v2) \
+	#pragma acc enter data copyin(v1, v2) \
 	  create (v3, v4) \
 	  if ((condA && condB) \
 	      || (condA && condC))
+#pragma omp target enter data map(to:v1,v2) map(alloc:v3,v4)\
+            if((condA&&condB)||(condA&&condC))
 }
 
-// Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all 0004.c
+// Code was translated using: /nfs/pdx/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all 0004.c
