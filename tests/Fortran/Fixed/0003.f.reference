@@ -5,6 +5,13 @@
 !$omp target teams loop
        do i = 1, N
        enddo
+!$acc parallel loop
+!$omp target teams loop
+c comment1
+* comment2
+! comment3
+       do i = 1, N
+       enddo
 !$acc parallel
 !$acc1 loop
 !$omp target teams loop
@@ -12,4 +19,4 @@
        enddo
        end program
 
-! Code was translated using: ../src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -fixed Fortran/Fixed/0003.f
+! Code was translated using: /nfs/pdx/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -fixed 0003.f

@@ -25,6 +25,28 @@ integer i
 !$omp target teams loop
       do i = 1, N
       enddo
+
+!$acc parallel &
+
+!$acc     & loop
+!$omp target teams loop
+      do i = 1, N
+      enddo
+
+!$acc parallel &
+! comment inside
+!$acc     & loop
+!$omp target teams loop
+      do i = 1, N
+      enddo
+
+!$acc parallel &
+!$acc     & loop
+!$omp target teams loop
+! comment outside
+      do i = 1, N
+      enddo
+
 end program
 
-! Code was translated using: ../src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -free Fortran/Free/0003.f90
+! Code was translated using: /nfs/pdx/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -free 0003.f90

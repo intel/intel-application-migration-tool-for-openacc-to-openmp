@@ -255,6 +255,8 @@ def getConstructOnMultiline_FTN_FX(sentinel, lines, curline):
 	construct = ""
 	original = [ ]
 	begin_line = curline
+	last_line_with_contents = curline # We keep track of the last line with contents of interest
+	                                  # This will help us ingnore trailing commented / empty lines
 
 	multiline = True
 	while multiline:
@@ -297,6 +299,8 @@ def getConstructOnMultiline_FTN_FX(sentinel, lines, curline):
 					   lines[curline+1].startswith("!$" + sentinel) or \
 					   lines[curline+1].startswith("*$" + sentinel) ) \
 					  and lines[curline+1][5] != " "
+					if multiline:
+						last_line_with_contents = curline+1
 				# Consider commented out lines as continuation lines, but these cannot
 				# contain sentinels with continuation markers (see if above)
 				# We have to be careful here - we have to check OpenACC and OpenMP
@@ -321,7 +325,7 @@ def getConstructOnMultiline_FTN_FX(sentinel, lines, curline):
 	construct = re.sub('[\\s\\t]+', ' ', construct)
 	construct = re.sub('\\s\\(', '(', construct) # Suppress spaces before parenthesis to help parsing
 
-	return original, construct.strip(), begin_line, curline
+	return original, construct.strip(), begin_line, last_line_with_contents # curline
 
 # parseFile_FTN_FX (filename)
 #  parses a Fortran file (in fixed format) and collects the OpenACC and OpenMP constructs
