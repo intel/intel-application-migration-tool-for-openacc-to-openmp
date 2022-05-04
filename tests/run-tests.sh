@@ -1,6 +1,8 @@
 #!/bin/bash
 
 TESTS="Fortran/Fixed*/*.f Fortran/Free*/*.f90 C*/*.c C*/*.h"
+TESTS+=" specific-tests/preprocessor-guards/*.f specific-tests/preprocessor-guards/*.f90 specific-tests/preprocessor-guards/*.c"
+TESTS+=" specific-tests/async=nowait/*.f specific-tests/async=nowait/*.f90 specific-tests/async=nowait/*.c"
 
 RED="\e[91m"
 GREEN="\e[92m"
@@ -24,20 +26,8 @@ if [[ ${?} -ne 0 ]]; then
 	echo -e Translation ${RED}failed!${NEUTRAL}
 	exit ${?}
 fi
-cd ../Fixed+async
-${THISPWD}/../src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -fixed -async=nowait *.f
-if [[ ${?} -ne 0 ]]; then
-	echo -e Translation ${RED}failed!${NEUTRAL}
-	exit ${?}
-fi
 cd ../Free
 ${THISPWD}/../src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -free *.f90
-if [[ ${?} -ne 0 ]]; then
-	echo -e Translation ${RED}failed!${NEUTRAL}
-	exit ${?}
-fi
-cd ../Free+async
-${THISPWD}/../src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -free -async=nowait *.f90
 if [[ ${?} -ne 0 ]]; then
 	echo -e Translation ${RED}failed!${NEUTRAL}
 	exit ${?}
@@ -48,13 +38,24 @@ if [[ ${?} -ne 0 ]]; then
 	echo -e Translation ${RED}failed!${NEUTRAL}
 	exit ${?}
 fi
-cd ../C+async
-${THISPWD}/../src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -async=nowait *.c
+cd ..
+
+# Execute specific tests.
+
+cd specific-tests
+cd async=nowait
+${THISPWD}/../src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -async=nowait *.c *.f90 *.f
 if [[ ${?} -ne 0 ]]; then
 	echo -e Translation ${RED}failed!${NEUTRAL}
 	exit ${?}
 fi
-cd ..
+cd ../preprocessor-guards
+${THISPWD}/../src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -openacc-conditional-define -translated-openmp-conditional-define *.c *.f90 *.f
+if [[ ${?} -ne 0 ]]; then
+	echo -e Translation ${RED}failed!${NEUTRAL}
+	exit ${?}
+fi
+cd ../..
 echo
 
 nfiles=0

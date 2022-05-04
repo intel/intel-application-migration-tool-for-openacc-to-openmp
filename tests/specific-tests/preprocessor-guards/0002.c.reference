@@ -1,0 +1,37 @@
+int main (int argc, char *argv[])
+{
+	int x;
+
+#if defined(OPENACC2OPENMP_OPENACC)
+	#pragma acc parallel
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#pragma omp target teams
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+	{
+	x = 1;
+	}
+
+#if defined(OPENACC2OPENMP_OPENACC)
+	_Pragma("acc parallel")
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#pragma omp target teams
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+	{
+	x = 2;
+	}
+
+#if defined(OPENACC2OPENMP_OPENACC)
+	_Pragma("acc \
+	 parallel")
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#pragma omp target teams
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+	{
+	x = 3;
+	}
+}
+
+// Code was translated using: /nfs/pdx/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -openacc-conditional-define -translated-openmp-conditional-define 0002.c

@@ -1,0 +1,18 @@
+program test
+integer i
+#if defined(OPENACC2OPENMP_OPENACC)
+!$acc kernels
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+!$omp target
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+i = 0
+#if defined(OPENACC2OPENMP_OPENACC)
+!$acc end kernels
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+!$omp end target
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+end program
+
+! Code was translated using: /nfs/pdx/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -openacc-conditional-define -translated-openmp-conditional-define 0001.f90

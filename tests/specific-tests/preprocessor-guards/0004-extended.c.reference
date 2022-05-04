@@ -1,0 +1,128 @@
+int main (int argc, char *argv[])
+{
+	int v[3], v2[4][5],v3[6][7][8];
+
+#if defined(OPENACC2OPENMP_OPENACC)
+	#pragma acc enter data copyin(v[:2])
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#pragma omp target enter data map(to:v[:2])
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+
+#if defined(OPENACC2OPENMP_OPENACC)
+	#pragma acc enter data copyin(v)
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#pragma omp target enter data map(to:v)
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+
+#if defined(OPENACC2OPENMP_OPENACC)
+	#pragma acc enter data copyin(v2[:4][:5])
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#pragma omp target enter data map(to:v2[:4][:5])
+// ATTENTION! The following suggested code is an alternative reference implementation
+// ATTENTION! that could be used if v2 is a non-contiguous allocated multi-dimensional array
+// #pragma omp target enter data map(to:v2[0:4])
+// for (int _idx0 = 0; _idx0 < 4; ++_idx0)
+// {
+//   #pragma omp target enter data map(to:v2[0+_idx0][:5])
+// }
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+
+#if defined(OPENACC2OPENMP_OPENACC)
+	#pragma acc enter data copyin(v2)
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#pragma omp target enter data map(to:v2)
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+
+#if defined(OPENACC2OPENMP_OPENACC)
+	#pragma acc enter data copyin(v3[:3][:7][:8])
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#pragma omp target enter data map(to:v3[:3][:7][:8])
+// ATTENTION! The following suggested code is an alternative reference implementation
+// ATTENTION! that could be used if v3 is a non-contiguous allocated multi-dimensional array
+// #pragma omp target enter data map(to:v3[0:3])
+// for (int _idx0 = 0; _idx0 < 3; ++_idx0)
+// {
+//   #pragma omp target enter data map(to:v3[0+_idx0][0:7])
+//   for (int _idx1 = 0; _idx1 < 7; ++_idx1)
+//   {
+//     #pragma omp target enter data map(to:v3[0+_idx0][0+_idx1][:8])
+//   }
+// }
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+
+#if defined(OPENACC2OPENMP_OPENACC)
+	#pragma acc enter data copyin(v3)
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#pragma omp target enter data map(to:v3)
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+
+#if defined(OPENACC2OPENMP_OPENACC)
+	#pragma acc exit data copyout(v3[:2][:7][:8])
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#pragma omp target exit data map(from:v3[:2][:7][:8])
+// ATTENTION! The following suggested code is an alternative reference implementation
+// ATTENTION! that could be used if v3 is a non-contiguous allocated multi-dimensional array
+// #pragma omp target exit data map(from:v3[0:2])
+// for (int _idx0 = 0; _idx0 < 2; ++_idx0)
+// {
+//   #pragma omp target exit data map(from:v3[0+_idx0][0:7])
+//   for (int _idx1 = 0; _idx1 < 7; ++_idx1)
+//   {
+//     #pragma omp target exit data map(from:v3[0+_idx0][0+_idx1][:8])
+//   }
+// }
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+
+#if defined(OPENACC2OPENMP_OPENACC)
+	#pragma acc exit data copyout(v3)
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#pragma omp target exit data map(from:v3)
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+
+#if defined(OPENACC2OPENMP_OPENACC)
+	#pragma acc exit data copyout(v2[:1][:5])
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#pragma omp target exit data map(from:v2[:1][:5])
+// ATTENTION! The following suggested code is an alternative reference implementation
+// ATTENTION! that could be used if v2 is a non-contiguous allocated multi-dimensional array
+// #pragma omp target exit data map(from:v2[0:1])
+// for (int _idx0 = 0; _idx0 < 1; ++_idx0)
+// {
+//   #pragma omp target exit data map(from:v2[0+_idx0][:5])
+// }
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+
+#if defined(OPENACC2OPENMP_OPENACC)
+	#pragma acc exit data copyout(v2)
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#pragma omp target exit data map(from:v2)
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+
+#if defined(OPENACC2OPENMP_OPENACC)
+	#pragma acc exit data copyout(v[:3])
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#pragma omp target exit data map(from:v[:3])
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+
+#if defined(OPENACC2OPENMP_OPENACC)
+	#pragma acc exit data copyout(v)
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#pragma omp target exit data map(from:v)
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+
+	return 0;
+}
+
+// Code was translated using: /nfs/pdx/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -openacc-conditional-define -translated-openmp-conditional-define 0004-extended.c

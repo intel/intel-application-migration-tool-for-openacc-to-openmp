@@ -1,0 +1,64 @@
+int main (int argc, char *argv[])
+{
+	unsigned N = 1000;
+
+#if defined(OPENACC2OPENMP_OPENACC)
+	#pragma acc parallel loop
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#pragma omp target teams loop
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+	for (unsigned i = 0; i < N; ++i)
+	{
+	}
+
+#if defined(OPENACC2OPENMP_OPENACC)
+	#pragma \
+	  acc parallel loop
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#pragma omp target teams loop
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+	for (unsigned i = 0; i < N; ++i)
+	{
+	}
+
+#if defined(OPENACC2OPENMP_OPENACC)
+	  #pragma \
+	    acc parallel loop
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#pragma omp target teams loop
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+	for (unsigned i = 0; i < N; ++i)
+	{
+	}
+
+#if defined(OPENACC2OPENMP_OPENACC)
+	  #pragma \
+	    acc \
+	    parallel loop
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#pragma omp target teams loop
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+	for (unsigned i = 0; i < N; ++i)
+	{
+	}
+
+#if defined(OPENACC2OPENMP_OPENACC)
+	  #pragma \
+	    acc \
+	    parallel \
+	    loop
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#pragma omp target teams loop
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+	for (unsigned i = 0; i < N; ++i)
+	{
+	}
+	return 0;
+}
+
+// Code was translated using: /nfs/pdx/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -openacc-conditional-define -translated-openmp-conditional-define 0003.c

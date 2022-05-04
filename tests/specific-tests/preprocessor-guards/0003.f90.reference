@@ -1,0 +1,46 @@
+program test
+integer N
+integer i
+
+#if defined(OPENACC2OPENMP_OPENACC)
+!$acc parallel &
+!$acc & loop
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+!$omp target teams loop
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+      do i = 1, N
+      enddo
+
+#if defined(OPENACC2OPENMP_OPENACC)
+!$acc parallel &
+!$acc loop
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+!$omp target teams loop
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+      do i = 1, N
+      enddo
+
+#if defined(OPENACC2OPENMP_OPENACC)
+!$acc parallel &
+!$acc loop
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+!$omp target teams loop
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+      do i = 1, N
+      enddo
+
+#if defined(OPENACC2OPENMP_OPENACC)
+!$acc parallel &
+!$acc     & loop
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+!$omp target teams loop
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+      do i = 1, N
+      enddo
+end program
+
+! Code was translated using: /nfs/pdx/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -openacc-conditional-define -translated-openmp-conditional-define 0003.f90
