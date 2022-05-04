@@ -1,11 +1,11 @@
 <a name="top"></a>
 
-# Intel&reg; Application Migration Tool for OpenACC* to OpenMP*
+# Intel&reg; Application Migration Tool for OpenACC* to OpenMP* API
 A tool that helps migrating OpenACC-based applications into OpenMP
 
 ## Table of contents
 
-+ [What is Intel Application Migration Tool for OpenACC to OpenMP?](#what-is-intel-application-migration-tool-for-openacc-to-openmp)
++ [What is Intel Application Migration Tool for OpenACC to OpenMP API?](#what-is-intel-application-migration-tool-for-openacc-to-openmp-api)
 + [Requirements](#requirements)
 + [Status](#status)
 + [Using the tool](#using-the-tool)
@@ -14,9 +14,9 @@ A tool that helps migrating OpenACC-based applications into OpenMP
 + [Copyrights](#copyrights)
 
 
-## What is Intel Application Migration Tool for OpenACC to OpenMP?
+## What is Intel Application Migration Tool for OpenACC to OpenMP API?
 
-The Intel Application Migration Tool for OpenACC to OpenMP is a Python3-based tool that helps developers to migrate OpenACC applications into OpenMP by the means of the offloading mechanisms. The tool takes application sources (either C/C++ or Fortran languages) with OpenACC constructs and generates a semantically-equivalent source using OpenMP. Since the tool is under active development, it does not rely on compiler-infrastructures and the existing divergences between OpenACC and OpenMP specifications, the translation may need some tweaking. So, **the user takes the responsability of supervising the generated code**.
+The Intel Application Migration Tool for OpenACC to OpenMP API is a Python3-based tool that helps developers to migrate OpenACC applications into OpenMP by the means of the offloading mechanisms. The tool takes application sources (either C/C++ or Fortran languages) with OpenACC constructs and generates a semantically-equivalent source using OpenMP. Since the tool is under active development, it does not rely on compiler-infrastructures and the existing divergences between OpenACC and OpenMP specifications, the translation may need some tweaking. So, **the user takes the responsability of supervising the generated code**.
 
 The tool does not aim at guaranteeing the best achievable performance but at generating a semantically equivalent translation. The tool tries to generate the most efficient translation but there are a number of performance tweaks (_e.g._ hardware binding (gangs, workers, vector length)) that are unlikely to be performant-portable among other hardware. This is why, once the application has been successfully ported, we encourage developers and users to use performance tools for tuning their application performance.
 
@@ -143,6 +143,6 @@ Intel is a trademark of Intel Corporation or its subsidiaries.
 
 \* Other names and brands may be claimed as the property of others.
 
-We welcome anyone interested in using, developing or contributing to Intel Application Migration Tool for OpenACC to OpenMP!
+We welcome anyone interested in using, developing or contributing to Intel Application Migration Tool for OpenACC to OpenMP API!
 
 Go to [top](#top)
