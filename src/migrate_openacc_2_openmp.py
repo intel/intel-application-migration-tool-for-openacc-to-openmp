@@ -321,6 +321,9 @@ def entry(argv):
 			if inputfile_l[-4:] == ".cxx" or inputfile_l[-4:] == ".cpp" or inputfile_l[-4:] == ".c++" or \
 			   inputfile_l[-4:] == ".hxx" or inputfile_l[-4:] == ".hpp" or inputfile_l[-4:] == ".h++":
 				lang = CONSTANTS.FileLanguage.CPP
+		if len(inputfile) > len(".cc"):
+			if inputfile_l[-3:] == ".cc":
+				lang = CONSTANTS.FileLanguage.CPP
 		if len(inputfile) > len(".c"):
 			if inputfile_l[-2:] == ".c" or inputfile_l[-2:] == ".h":
 				lang = CONSTANTS.FileLanguage.C
