@@ -1,0 +1,66 @@
+      program test
+      integer, parameter :: N = 10
+      integer, parameter :: M = 20
+      integer, parameter :: O = 30
+      real v1(1:N), v2(-1:N,2:M), v3(0:N,1:M,M:O)
+
+#if defined(OPENACC2OPENMP_OPENACC)
+!$acc enter data copyin(v1(:2))
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+!$omp target enter data map(to:v1(:2))
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+
+#if defined(OPENACC2OPENMP_OPENACC)
+!$acc enter data copyin(v1)
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+!$omp target enter data map(to:v1)
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+
+!! !$acc enter data copyin(v2(:4,:5))
+
+#if defined(OPENACC2OPENMP_OPENACC)
+!$acc enter data pcopyin(v2)
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+!$omp target enter data map(present,to:v2)
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+
+#if defined(OPENACC2OPENMP_OPENACC)
+!$acc enter data copyin(v2(:,:))
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+!$omp target enter data map(to:v2(:,:))
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+
+!! !$acc enter data copyin(v3(0:N,2:M/2,M+1:O))
+
+#if defined(OPENACC2OPENMP_OPENACC)
+!$acc enter data present_or_copyin(v3)
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+!$omp target enter data map(present,to:v3)
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+
+!! !$acc exit data copyout(v3(0:2,1:7,M:8))
+
+#if defined(OPENACC2OPENMP_OPENACC)
+!$acc exit data pcopyout(v3)
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+!$omp target exit data map(present,from:v3)
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+
+!! !$acc exit data copyout(v2(-1:1,2:5))
+
+#if defined(OPENACC2OPENMP_OPENACC)
+!$acc exit data present_or_copyout(v,v2)
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+!$omp target exit data map(present,from:v,v2)
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+
+      end program
+
+! Code was translated using: /nfs/pdx/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -openacc-conditional-define -translated-openmp-conditional-define 0004-extended.f
