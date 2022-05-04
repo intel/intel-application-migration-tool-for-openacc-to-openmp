@@ -145,9 +145,10 @@ def generateAlternateMDCode_C(f, c, arraySections):
 #   outfilename = name of the output file
 def generateTranslatedFileC (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, outfilename):
 
+	openacc_ifdefcondition = txConfig.OpenACCConditionalDefine
 	translated_ifdefcondition = txConfig.TranslatedOMPConditionalDefine
 	original_ifdefcondition = txConfig.OriginalOMPConditionalDefine
-	removeOpenACC = txConfig.SupressTranslatedOpenACC
+	removeOpenACC = txConfig.SuppressTranslatedOpenACC
 	generateAlternateMDCode = txConfig.GenerateMultiDimensionalAlternateCode
 
 	try:
@@ -155,7 +156,7 @@ def generateTranslatedFileC (txConfig, lines, ACCconstructs, OMPconstructs, Supp
 
 			# Process lines one by one
 			for i in range(0, len(lines)):
-				# If we have to supress translated OpenACC constructs, check if current line refers to an
+				# If we have to suppress translated OpenACC constructs, check if current line refers to an
 				# OpenACC statement
 				if removeOpenACC:
 					isAnOpenACCConstruct = False
@@ -165,8 +166,17 @@ def generateTranslatedFileC (txConfig, lines, ACCconstructs, OMPconstructs, Supp
 					if not isAnOpenACCConstruct:
 						f.write (lines[i])
 				else:
-				# If we don't have to supress OpenACC constructs, emit the line normally
+				# If we don't have to suppress OpenACC constructs, emit the line. Potentially with #ifdef
+				# guards.
+					if openacc_ifdefcondition:
+						for k, v in ACCconstructs.items():
+							if i+1 == v.bline:
+								f.write ("#if defined(" + str(openacc_ifdefcondition) + ")\n")
 					f.write (lines[i])
+					if openacc_ifdefcondition:
+						for k, v in ACCconstructs.items():
+							if i+1 == v.eline:
+								f.write ("#endif // defined(" + str(openacc_ifdefcondition) + ")\n")
 
 				# If the line refers to an OpenACC construct (indexed by its end line), then emit the translation
 				# Make sure we have a translation, if not pass
@@ -273,9 +283,10 @@ def generateAlternateMDCode_Fortran(f, c, arraySections):
 
 def generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, outfilename):
 
+	openacc_ifdefcondition = txConfig.OpenACCConditionalDefine
 	translated_ifdefcondition = txConfig.TranslatedOMPConditionalDefine
 	original_ifdefcondition = txConfig.OriginalOMPConditionalDefine
-	removeOpenACC = txConfig.SupressTranslatedOpenACC
+	removeOpenACC = txConfig.SuppressTranslatedOpenACC
 	generateAlternateMDCode = txConfig.GenerateMultiDimensionalAlternateCode
 
 	try:
@@ -283,7 +294,7 @@ def generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs
 
 			# Process lines one by one
 			for i in range(0, len(lines)):
-				# If we have to supress translated OpenACC constructs, check if current line refers to an
+				# If we have to suppress translated OpenACC constructs, check if current line refers to an
 				# OpenACC statement
 				if removeOpenACC:
 					isAnOpenACCConstruct = False
@@ -293,8 +304,17 @@ def generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs
 					if not isAnOpenACCConstruct:
 						f.write (lines[i])
 				else:
-				# If we don't have to supress OpenACC constructs, emit the line normally
+				# If we don't have to suppress OpenACC constructs, emit the line. Potentially with #ifdef
+				# guards
+					if openacc_ifdefcondition:
+						for k, v in ACCconstructs.items():
+							if i+1 == v.bline:
+								f.write ("#if defined(" + str(openacc_ifdefcondition) + ")\n")
 					f.write (lines[i])
+					if openacc_ifdefcondition:
+						for k, v in ACCconstructs.items():
+							if i+1 == v.eline:
+								f.write ("#endif // defined(" + str(openacc_ifdefcondition) + ")\n")
 
 				# If the line refers to an OpenACC construct (indexed by its end line), then emit the translation
 				# Make sure we have a translation, if not pass

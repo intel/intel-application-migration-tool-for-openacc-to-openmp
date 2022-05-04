@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 
 #
-# Entry point for "Intel(r) Application Migration Tool for OpenACC* to OpenMP*"
+# Entry point for "Intel(r) Application Migration Tool for OpenACC* to OpenMP* API"
 #
 
 import migrate_openacc_2_openmp as MAIN

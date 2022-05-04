@@ -82,7 +82,7 @@ def findEndOfLoop_FTN (lines, startline):
 	balance = 0
 	while curline < len(lines):
 		l = re.sub('[\\s\\t]+', ' ', lines[curline].lower())
-		l = re.sub('\\s\\(', '(', l) # Supress spaces before parenthesis to help parsing
+		l = re.sub('\\s\\(', '(', l) # Suppress spaces before parenthesis to help parsing
 		# Identifying enddos is easy
 		if l.find("enddo") >= 0 or l.find ("end do") >= 0:
 			balance = balance - 1
@@ -184,8 +184,8 @@ def parseFile_C(filename):
 			original = original[:-1] + lines[curline].strip() # Skip ending \ char
 			multiline = lines[curline].strip().endswith("\\")
 		eline = curline
-		original = re.sub('[\\s\\t]+',' ', original) # Supress multiple spaces and tabs
-		original = re.sub('\\s\\(','(', original) # Supress spaces before parenthesis to help parsing
+		original = re.sub('[\\s\\t]+',' ', original) # Suppress multiple spaces and tabs
+		original = re.sub('\\s\\(','(', original) # Suppress spaces before parenthesis to help parsing
 
 		# Process block comments first
 		statements, isCommentLeftOpen = parseBlockComments_C (original, isCommentLeftOpen)
@@ -261,8 +261,8 @@ def getConstructOnMultiline_FTN_FX(sentinel, lines, curline):
 		l = lines[curline].strip()
 		original.append (l)
 		l_no_spaces = re.sub('[\\s\\t]+', '', l)
-		l = re.sub('[\\s\\t]+', ' ', l.lower()) # Supress extra spaces and tabs, plus lowercase
-		l = re.sub('\\s\\(', '(', l) # Supress spaces before parenthesis to help parsing
+		l = re.sub('[\\s\\t]+', ' ', l.lower()) # Suppress extra spaces and tabs, plus lowercase
+		l = re.sub('\\s\\(', '(', l) # Suppress spaces before parenthesis to help parsing
 
 		# If non-empty line
 		if len(l_no_spaces) > 0:
@@ -319,7 +319,7 @@ def getConstructOnMultiline_FTN_FX(sentinel, lines, curline):
 
 	# Remove superfluous spaces
 	construct = re.sub('[\\s\\t]+', ' ', construct)
-	construct = re.sub('\\s\\(', '(', construct) # Supress spaces before parenthesis to help parsing
+	construct = re.sub('\\s\\(', '(', construct) # Suppress spaces before parenthesis to help parsing
 
 	return original, construct.strip(), begin_line, curline
 
@@ -343,9 +343,9 @@ def parseFile_FTN_FX(filename):
 		construct = ""
 		l = lines[curline].strip()
 		original = [ l ]
-		# Convert to lower case and supress multiple spaces
+		# Convert to lower case and suppress multiple spaces
 		l = re.sub('[\\s\\t]+', ' ', l.lower())
-		l = re.sub('\\s\\(', '(', l) # Supress spaces before parenthesis to help parsing
+		l = re.sub('\\s\\(', '(', l) # Suppress spaces before parenthesis to help parsing
 		if len(l) > len("c$acc ") and \
 		  l.startswith ("c$acc") or l.startswith ("!$acc") or l.startswith("*$acc"):
 			original, construct, begin_line, end_line = getConstructOnMultiline_FTN_FX("acc", lines, curline)
@@ -412,8 +412,8 @@ def getConstructOnMultiline_FTN_FR(sentinel, lines, curline):
 
 		l_no_spaces = re.sub('[\\s\\t]+', '', l) # Line without spaces at all
 
-		l = re.sub('[\\s\\t]+', ' ', l) # Supress extra spaces and tabs
-		l = re.sub('\\s\\(', '(', l) # Supress spaces before parenthesis to help parsing
+		l = re.sub('[\\s\\t]+', ' ', l) # Suppress extra spaces and tabs
+		l = re.sub('\\s\\(', '(', l) # Suppress spaces before parenthesis to help parsing
 
 		# Skip if empty line
 		if len(l_no_spaces) > 0:
@@ -444,7 +444,7 @@ def getConstructOnMultiline_FTN_FR(sentinel, lines, curline):
 
 	# Remove superfluous spaces
 	construct = re.sub('[\\s\\t]+', ' ', construct)
-	construct = re.sub('\\s\\(', '(', construct) # Supress spaces before parenthesis to help parsing
+	construct = re.sub('\\s\\(', '(', construct) # Suppress spaces before parenthesis to help parsing
 
 	return original, construct, begin_line, curline
 
@@ -468,9 +468,9 @@ def parseFile_FTN_FR(filename):
 		construct = ""
 		l = lines[curline].strip()
 		original = [ l ]
-		# Convert to lower case and supress multiple spaces and tabs
+		# Convert to lower case and suppress multiple spaces and tabs
 		l = re.sub('[\\s\\t]+', ' ', l.lower())
-		l = re.sub('\\s\\(', '(', l) # Supress spaces before parenthesis to help parsing
+		l = re.sub('\\s\\(', '(', l) # Suppress spaces before parenthesis to help parsing
 		if len(l) > len("!$acc ") and l.startswith ("!$acc"):
 			original, construct, begin_line, end_line = getConstructOnMultiline_FTN_FR("!$acc", lines, curline)
 			# Append to construct to be processed
@@ -522,7 +522,7 @@ def areEmptyLines (txConfig, lines, start, end):
 		areEmpty = True
 		cpos = start
 		while areEmpty and cpos < end:
-			# supress multiple spaces and tabs for current line
+			# suppress multiple spaces and tabs for current line
 			l = re.sub('[\\s\\t]+', '', lines[cpos])
 			areEmpty = len(l) == 0
 			cpos = cpos + 1

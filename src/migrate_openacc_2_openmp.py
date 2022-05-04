@@ -85,32 +85,34 @@ def showHelp():
 	print (" -async=<ignore,nowait>       : Specifies how to treat ACC ASYNC clauses.                                 (nowait)")
 	print ("                                - ignore refers to not translate the ASYNC clauses.")
 	print ("                                - nowait translates ACC ASYNC clauses into nowait.")
-	print (" -[no-]-translated-openmp-conditional-define : If enabled, wraps translated code with #ifdef OPENACC2OPENMP_TRANSLATED_OPENMP. (disabled)")
-	print (" -translated-openmp-conditional-define=DEF   : If enabled, wraps translated code with #ifdef DEF.")
-	print (" -[no-]-original-openmp-conditional-define   : If enabled, wraps translated code with #ifdef OPENACC2OPENMP_ORIGINAL_OPENMP. (disabled)")
-	print (" -original-openmp-conditional-define=DEF     : If enabled, wraps translated code with #ifdef DEF.")
+	print (" [-no]-openacc-conditional-define           : If enabled, wraps OpenACC source code with #ifdef OPENACC2OPENMP_OPENACC.              (disabled)")
+	print (" -openacc-conditional-define=DEF            : If enabled, wraps OpenACC source code with #ifdef DEF.")
+	print (" [-no]-translated-openmp-conditional-define : If enabled, wraps OpenMP translated code with #ifdef OPENACC2OPENMP_TRANSLATED_OPENMP. (disabled)")
+	print (" -translated-openmp-conditional-define=DEF  : If enabled, wraps OpenMP translated code with #ifdef DEF.")
+	print (" [-no]-original-openmp-conditional-define   : If enabled, wraps OpenMP source code with #ifdef OPENACC2OPENMP_ORIGINAL_OPENMP.       (disabled)")
+	print (" -original-openmp-conditional-define=DEF    : If enabled, wraps OpenMP source code with #ifdef DEF.")
 	print (" -fixed|-free                 : Sets fixed-format or free-format for Fortran translation                  (auto)")
-	print (" -[no-]force-backup           : If enabled, enforce writing a backup of the original file.                (disabled)")
-	print (" -[no-]generate-report        : Enables/Disables report generation about the translation.                 (enabled)")
-	print (" -[no-]generate-multidimensional-alternate-code :                                                         (enabled)")
+	print (" [-no]-force-backup           : If enabled, enforce writing a backup of the original file.                (disabled)")
+	print (" [-no]-generate-report        : Enables/Disables report generation about the translation.                 (enabled)")
+	print (" [-no]-generate-multidimensional-alternate-code :                                                         (enabled)")
 	print ("                                Provides implementation suggestions for ACC ENTER/EXIT DATA constructs to be employed ")
 	print ("                                if the multi-dimensional data is non-contiguous")
 	print (" -keep-binding-clauses=X      : Specifies which hardware binding clauses are kept in OpenMP               (none)")
 	print ("                                Where X can be: all, none, and a combination of gang, worker and vector")
-	print (" -[no-]overwrite-input        : Enables/Disables overwriting the original file with the translation.      (disabled)")
+	print (" [-no]-overwrite-input        : Enables/Disables overwriting the original file with the translation.      (disabled)")
 	print (" -present=<alloc,tofrom,keep> : Specifies how to treat ACC PRESENT constructs.                            (alloc)")
 	print ("                                - alloc refers to mimic PRESENT clauses with MAP(ALLOC:)")
 	print ("                                - tofrom refers to mimic PRESENT clauses with MAP(TOFROM:)")
 	print ("                                - keep refers to use OMP PRESENT clauses (requires OpenMP 5.1+ compiler).")
-	print (" -[no-]supress-openacc        : Enables/Disables supression of OpenACC translated statements in result.   (disabled)")
+	print (" [-no]-suppress-openacc       : Enables/Disables suppression of OpenACC translated statements in result.  (disabled)")
 	print ("")
 	print ("* EXPERIMENTAL FEATURES")
-	print (" -[no-]experimental-kernels-support :                                                                     (enabled)")
+	print (" [-no]-experimental-kernels-support :                                                                     (enabled)")
 	print ("                                When enabled, the tool tries to extract parallelism from loop constructs found")
 	print ("                                within kernels constructs.")
 	print ("                                Only applicable to Fortran codes.")
 	print ("                                NOTE: Explore the code for target/end target empty bubbles.")
-	print (" -[no-]experimental-remove-kernels-bubbles:                                                               (enabled)")
+	print (" [-no]-experimental-remove-kernels-bubbles:                                                               (enabled)")
 	print ("                                When enabled, the tool attempts to remove the target/end target empty bubbles")
 	print ("                                introduced by -[no-]experimental-kernels-support.")
 
@@ -190,9 +192,10 @@ def entry(argv):
 	ForceBackup = False
 	OverwriteInput = False
 	GenerateMultiDimensionalAlternateCode = True
+	OpenACCConditionalDefine = None
 	TranslatedOMPConditionalDefine = None
 	OriginalOMPConditionalDefine = "OPENACC2OPENMP_ORIGINAL_OPENMP"
-	SupressTranslatedOpenACC = False
+	SuppressTranslatedOpenACC = False
 	PresentBehavior = CONSTANTS.PresentBehavior.ALLOC
 	AsyncBehavior = CONSTANTS.AsyncBehavior.NOWAIT
 	FortranV = FortranVariant.AUTO
@@ -220,6 +223,12 @@ def entry(argv):
 			GenerateMultiDimensionalAlternateCode = True
 		elif param == "-no-generate-multidimensional-alternate-code":
 			GenerateMultiDimensionalAlternateCode = False
+		elif param == "-openacc-conditional-define":
+			OpenACCConditionalDefine = "OPENACC2OPENMP_OPENACC"
+		elif param == "-no-openacc-conditional-define":
+			OpenACCConditionalDefine = None
+		elif param.startswith ("-openacc-conditional-define="):
+			OpenACCConditionalDefine = param[len("-openacc-conditional-define="):]
 		elif param == "-translated-openmp-conditional-define":
 			TranslatedOMPConditionalDefine = "OPENACC2OPENMP_TRANSLATED_OPENMP"
 		elif param == "-no-translated-openmp-conditional-define":
@@ -232,10 +241,10 @@ def entry(argv):
 			OriginalOMPConditionalDefine = None
 		elif param.startswith ("-original-openmp-conditional-define="):
 			OriginalOMPConditionalDefine = param[len("-original-openmp-conditional-define="):]
-		elif param == "-supress-openacc":
-			SupressTranslatedOpenACC = True
-		elif param == "-no-supress-openacc":
-			SupressTranslatedOpenACC = False
+		elif param == "-suppress-openacc":
+			SuppressTranslatedOpenACC = True
+		elif param == "-no-suppress-openacc":
+			SuppressTranslatedOpenACC = False
 		elif param == "-present=alloc":
 			PresentBehavior = CONSTANTS.PresentBehavior.ALLOC
 		elif param == "-present=tofrom":
@@ -333,9 +342,10 @@ def entry(argv):
 			sys.exit (-1)
 
 		# Create a configuration for this translation based on the give parameters
-		txConfig = OACC2OMP.txConfiguration (lang, PresentBehavior, AsyncBehavior, KeepBindingClauses,
-		  GenerateMultiDimensionalAlternateCode, TranslatedOMPConditionalDefine, OriginalOMPConditionalDefine,
-		  SupressTranslatedOpenACC, ExperimentalKernelsSupport, ExperimentalRemoveKernelsBubblesSupport)
+		txConfig = OACC2OMP.txConfiguration (lang, PresentBehavior, AsyncBehavior,
+		  KeepBindingClauses, GenerateMultiDimensionalAlternateCode, OpenACCConditionalDefine,
+		  TranslatedOMPConditionalDefine, OriginalOMPConditionalDefine, SuppressTranslatedOpenACC,
+		  ExperimentalKernelsSupport, ExperimentalRemoveKernelsBubblesSupport)
 		TXfile = processFile (inputfile, txConfig, GenerateReport, ForceBackup, OverwriteInput)
 
 		# Append execution details for reproducibility porpuses$a

@@ -37,17 +37,18 @@ class ompConstruct:
 #  -- basically keeps the translation behavior requested by the user
 class txConfiguration:
 	def __init__(self, Lang, PresentBehavior, AsyncBehavior, BindingClauses,
-		  GenerateMultiDimensionalAlternateCode, TranslatedOMPConditionalDefine,
-		  OriginalOMPConditionalDefine, SupressTranslatedOpenACC, expKernelsSupport,
-		  expRemoveKernelsBubblesSupport):
+		  GenerateMultiDimensionalAlternateCode, OpenACCConditionalDefine,
+		  TranslatedOMPConditionalDefine, OriginalOMPConditionalDefine,
+		  SuppressTranslatedOpenACC, expKernelsSupport, expRemoveKernelsBubblesSupport):
 		self.Lang = Lang
 		self.PresentBehavior = PresentBehavior
 		self.AsyncBehavior = AsyncBehavior
 		self.BindingClauses = BindingClauses
 		self.GenerateMultiDimensionalAlternateCode = GenerateMultiDimensionalAlternateCode
+		self.OpenACCConditionalDefine = OpenACCConditionalDefine
 		self.TranslatedOMPConditionalDefine = TranslatedOMPConditionalDefine
 		self.OriginalOMPConditionalDefine = OriginalOMPConditionalDefine
-		self.SupressTranslatedOpenACC = SupressTranslatedOpenACC
+		self.SuppressTranslatedOpenACC = SuppressTranslatedOpenACC
 		self.experimentalKernelsSupport = expKernelsSupport
 		self.experimentalRemoveKernelsBubblesSupport = expRemoveKernelsBubblesSupport
 
