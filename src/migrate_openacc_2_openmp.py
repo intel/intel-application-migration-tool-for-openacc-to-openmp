@@ -98,7 +98,7 @@ def showHelp():
 	print (" -keep-binding-clauses=X      : Specifies which hardware binding clauses are kept in OpenMP               (none)")
 	print ("                                Where X can be: all, none, and a combination of gang, worker and vector")
 	print (" -[no-]overwrite-input        : Enables/Disables overwriting the original file with the translation.      (disabled)")
-	print (" -present=<alloc,tofrom,keep> : Specifies how to treat ACC PRESENT constructs.                            (alloc)")
+	print (" -present=<alloc,tofrom,keep> : Specifies how to treat ACC PRESENT constructs.                            (keep)")
 	print ("                                - alloc refers to mimic PRESENT clauses with MAP(ALLOC:)")
 	print ("                                - tofrom refers to mimic PRESENT clauses with MAP(TOFROM:)")
 	print ("                                - keep refers to use OMP PRESENT clauses (requires OpenMP 5.1+ compiler).")
@@ -193,7 +193,7 @@ def entry(argv):
 	TranslatedOMPConditionalDefine = None
 	OriginalOMPConditionalDefine = "OPENACC2OPENMP_ORIGINAL_OPENMP"
 	SupressTranslatedOpenACC = False
-	PresentBehavior = CONSTANTS.PresentBehavior.ALLOC
+	PresentBehavior = CONSTANTS.PresentBehavior.KEEP
 	AsyncBehavior = CONSTANTS.AsyncBehavior.NOWAIT
 	FortranV = FortranVariant.AUTO
 	KeepBindingClauses = CONSTANTS.BindingClauses.NONE

@@ -1,0 +1,37 @@
+      program test
+      implicit none
+      integer :: v(10)
+      integer :: i
+      v(:) = 0
+
+!$acc data create(v)
+!$omp target data map(alloc:v)
+!$acc parallel loop present(v)
+!$omp target teams loop map(present,tofrom:v)
+        do i = 1, 10
+          v(i) = i
+        end do
+        write (*,*) "v(3) = ", v(3)
+!$acc update host(v)
+!$omp target update from(v)
+        write (*,*) "v(3) = ", v(3)
+!$acc end data
+!$omp end target data
+
+!$acc data create(v)
+!$omp target data map(alloc:v)
+!$acc parallel loop default(present)
+!$omp target teams loop defaultmap(present)
+        do i = 1, 10
+          v(i) = i
+        end do
+        write (*,*) "v(3) = ", v(3)
+!$acc update host(v)
+!$omp target update from(v)
+        write (*,*) "v(3) = ", v(3)
+!$acc end data
+!$omp end target data
+
+      end program
+
+! Code was translated using: /nfs/pdx/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -fixed 0019-present.f

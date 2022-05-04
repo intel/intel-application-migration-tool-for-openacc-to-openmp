@@ -24,8 +24,14 @@ if [[ $? -ne 0 ]]; then
 	exit 1
 fi
 
+if [[ $# -eq 0 ]]; then
+	INPUTFILES="Fortran/Fixed*/*.f Fortran/Free*/*.f90 C*/*.c C*/*.h"
+else
+	INPUTFILES=$@
+fi
+
 echo Compiling ...
-for f in Fortran/Fixed*/*.f Fortran/Free*/*.f90 C*/*.c C*/*.h
+for f in ${INPUTFILES}
 do
 	echo "   "${f}
 	if [[ "${f: -2}" == ".f" ]]; then
@@ -40,6 +46,10 @@ do
 		${CC} -c ${f}
 		COMPILE_STATUS=$?
 		rm -f *.o
+	else
+		echo
+		echo -e ${RED}failed${NEUTRAL} for file ${f}
+		exit 1
 	fi
 	if [[ ${COMPILE_STATUS} -ne 0 ]] ; then
 		echo

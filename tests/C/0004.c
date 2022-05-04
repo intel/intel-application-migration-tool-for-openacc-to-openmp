@@ -22,7 +22,7 @@ int main (int argc, char *argv[])
 	 copyout(v3[0:e]) \
 	 copyout(v4[1:1000])
 
-	#pragma acc enter copyin (v1, v2) \
+	#pragma acc enter data copyin(v1, v2) \
 	  create (v3, v4) \
 	  if ((condA && condB) \
 	      || (condA && condC))
