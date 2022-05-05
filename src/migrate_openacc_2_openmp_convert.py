@@ -36,13 +36,15 @@ class ompConstruct:
 # CLASS: Translation configuration
 #  -- basically keeps the translation behavior requested by the user
 class txConfiguration:
-	def __init__(self, Lang, PresentBehavior, AsyncBehavior, BindingClauses,
-		  GenerateMultiDimensionalAlternateCode, OpenACCConditionalDefine,
-		  TranslatedOMPConditionalDefine, OriginalOMPConditionalDefine,
-		  SuppressTranslatedOpenACC, expKernelsSupport, expRemoveKernelsBubblesSupport):
+	def __init__(self, Lang, PresentBehavior, AsyncBehavior, HostDataBehavior,
+		  BindingClauses, GenerateMultiDimensionalAlternateCode,
+		  OpenACCConditionalDefine, TranslatedOMPConditionalDefine,
+		  OriginalOMPConditionalDefine, SuppressTranslatedOpenACC,
+		  expKernelsSupport, expRemoveKernelsBubblesSupport):
 		self.Lang = Lang
 		self.PresentBehavior = PresentBehavior
 		self.AsyncBehavior = AsyncBehavior
+		self.HostDataBehavior = HostDataBehavior
 		self.BindingClauses = BindingClauses
 		self.GenerateMultiDimensionalAlternateCode = GenerateMultiDimensionalAlternateCode
 		self.OpenACCConditionalDefine = OpenACCConditionalDefine
@@ -444,15 +446,23 @@ def translate_oacc_2_omp_acc_exit_data(txConfig, c):
 	c.warnings = warnings
 
 # Translate: ACC HOST DATA ==> OMP TARGET DATA
-def translate_oacc_2_omp_acc_host_data(c):
-	omp_construct = ["target data"]
+def translate_oacc_2_omp_acc_host_data(txConfig, c, carryOnStatus):
+	omp_construct = []
 	omp_clauses = []
 	warnings = []
 
-	# Process !$acc host_data use_device(sbuf11,sbuf12,rbuf11,rbuf12)
-	variables = getMultiParenthesisContents (c.construct, "use_device")
-	if len(variables) > 0:
-		omp_clauses.append ("use_device_ptr({})".format(variables))
+	if txConfig.HostDataBehavior == CONSTANTS.HostDataBehavior.TARGET_DATA:
+		omp_construct = ["target data"]
+		# Process !$acc host_data use_device(sbuf11,sbuf12,rbuf11,rbuf12)
+		variables = getMultiParenthesisContents (c.construct, "use_device")
+		if len(variables) > 0:
+			omp_clauses.append ("use_device_ptr({})".format(variables))
+	elif txConfig.HostDataBehavior == CONSTANTS.HostDataBehavior.TARGET_UPDATE:
+		omp_construct = ["target update"]
+		# Process !$acc host_data use_device(sbuf11,sbuf12,rbuf11,rbuf12)
+		variables = getMultiParenthesisContents (c.construct, "use_device")
+		if len(variables) > 0:
+			omp_clauses.append ("from({})".format(variables))
 
 	# Process if
 	condition = getSingleParenthesisContents (c.construct, "if")
@@ -462,6 +472,12 @@ def translate_oacc_2_omp_acc_host_data(c):
 	# Store data back into the construct class
 	c.openmp = [ " ".join(omp_construct + omp_clauses) ]
 	c.warnings = warnings
+
+	# The closing (end) acc_host may need the variables in the opening (begin)
+	# acc_host section
+	carryOnStatus["host_data"] = variables
+
+	return carryOnStatus
 
 # Translate: ACC KERNELS ==> OMP TARGET TEAMS
 def translate_oacc_2_omp_acc_kernels (lines, txConfig, c, carryOnStatus):
@@ -1078,10 +1094,35 @@ def translate_oacc_2_omp_acc_end_data(c):
 	c.warnings = []
 
 # Translate: ACC END HOST DATA ==> OMP END TARGET DATA
-def translate_oacc_2_omp_acc_end_host_data(c):
+def translate_oacc_2_omp_acc_end_host_data(txConfig, c, carryOnStatus):
 	# We need to update the data in the device
-	c.openmp = ["end target data"]
-	c.warnings = []
+
+	warnings = []
+	omp_construct = []
+	omp_clauses = []
+
+	if txConfig.HostDataBehavior == CONSTANTS.HostDataBehavior.TARGET_DATA:
+		omp_construct = ["end target data"]
+	elif txConfig.HostDataBehavior == CONSTANTS.HostDataBehavior.TARGET_UPDATE:
+		omp_construct = ["target update"]
+		if "host_data" not in carryOnStatus:
+			print ("Error! Cannot find the matching opening construct for '{}'".format(construct))
+			sys.exit (-1)
+		# Grab the variables used in the opening section
+		variables = carryOnStatus["host_data"]
+		if len(variables) > 0:
+			omp_clauses.append ("to({})".format(variables))
+		else:
+			print ("Error! The matching opening construct for '{}' does not include variables.".format(construct))
+			sys.exit (-1)
+		# Remove the key entry in the carryOnStatus dictionary
+		del carryOnStatus["host_data"]
+
+	# Store data back into the construct class
+	c.openmp = [ " ".join(omp_construct + omp_clauses) ]
+	c.warnings = warnings
+
+	return carryOnStatus
 
 # Translate: ACC END ERNELS [LOOP]
 def translate_oacc_2_omp_acc_end_kernels(c, carryOnStatus):
@@ -1137,7 +1178,7 @@ def translate_oacc_2_omp (lines, txConfig, c, carryOnStatus, SupplementaryConstr
 	elif c.construct.startswith ("exit data"):
 		translate_oacc_2_omp_acc_exit_data (txConfig, c)
 	elif c.construct.startswith ("host_data"):
-		translate_oacc_2_omp_acc_host_data (c)
+		translate_oacc_2_omp_acc_host_data (txConfig, c, carryOnStatus)
 	elif c.construct.startswith ("kernels"):
 		carryOnStatus = translate_oacc_2_omp_acc_kernels (lines, txConfig, c, carryOnStatus)
 	elif c.construct.startswith ("loop"):
@@ -1161,7 +1202,7 @@ def translate_oacc_2_omp (lines, txConfig, c, carryOnStatus, SupplementaryConstr
 	elif c.construct.startswith ("end data"):
 		translate_oacc_2_omp_acc_end_data (c)
 	elif c.construct.startswith ("end host_data"):
-		translate_oacc_2_omp_acc_end_host_data (c)
+		translate_oacc_2_omp_acc_end_host_data (txConfig, c, carryOnStatus)
 	elif c.construct.startswith ("end kernels"):
 		carryOnStatus = translate_oacc_2_omp_acc_end_kernels (c, carryOnStatus)
 	elif c.construct.startswith ("end parallel"):

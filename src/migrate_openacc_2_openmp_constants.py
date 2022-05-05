@@ -13,6 +13,10 @@ class AsyncBehavior(Enum):
 	IGNORE = 0                                   # Do not translate async
 	NOWAIT = 1                                   # Translate async into a nowait
 
+class HostDataBehavior(Enum):
+	TARGET_DATA = 0                              # Translate host_data into target data
+	TARGET_UPDATE = 1                            # Translate host_data into target update
+
 class FileLanguage(Enum):
 	C = 0                                        # C
 	CPP = 1                                      # C++

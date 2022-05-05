@@ -1,5 +1,5 @@
 #
-# Code generation module for "Intel(r) Application Migration Tool for OpenACC* to OpenMP*"
+# Code generation module for "Intel(r) Application Migration Tool for OpenACC* to OpenMP* API"
 #
 
 import migrate_openacc_2_openmp_constants as CONSTANTS

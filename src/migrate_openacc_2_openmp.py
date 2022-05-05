@@ -85,18 +85,15 @@ def showHelp():
 	print (" -async=<ignore,nowait>       : Specifies how to treat ACC ASYNC clauses.                                 (nowait)")
 	print ("                                - ignore refers to not translate the ASYNC clauses.")
 	print ("                                - nowait translates ACC ASYNC clauses into nowait.")
-	print (" [-no]-openacc-conditional-define           : If enabled, wraps OpenACC source code with #ifdef OPENACC2OPENMP_OPENACC.              (disabled)")
-	print (" -openacc-conditional-define=DEF            : If enabled, wraps OpenACC source code with #ifdef DEF.")
-	print (" [-no]-translated-openmp-conditional-define : If enabled, wraps OpenMP translated code with #ifdef OPENACC2OPENMP_TRANSLATED_OPENMP. (disabled)")
-	print (" -translated-openmp-conditional-define=DEF  : If enabled, wraps OpenMP translated code with #ifdef DEF.")
-	print (" [-no]-original-openmp-conditional-define   : If enabled, wraps OpenMP source code with #ifdef OPENACC2OPENMP_ORIGINAL_OPENMP.       (disabled)")
-	print (" -original-openmp-conditional-define=DEF    : If enabled, wraps OpenMP source code with #ifdef DEF.")
 	print (" -fixed|-free                 : Sets fixed-format or free-format for Fortran translation                  (auto)")
 	print (" [-no]-force-backup           : If enabled, enforce writing a backup of the original file.                (disabled)")
 	print (" [-no]-generate-report        : Enables/Disables report generation about the translation.                 (enabled)")
 	print (" [-no]-generate-multidimensional-alternate-code :                                                         (enabled)")
 	print ("                                Provides implementation suggestions for ACC ENTER/EXIT DATA constructs to be employed ")
 	print ("                                if the multi-dimensional data is non-contiguous")
+	print (" -host_data=<target_data,target_update> : Specifies how to convert HOST_DATA clauses                      (target_update)")
+	print ("                                - target_data employs !$omp target data")
+	print ("                                - target_data employs !$omp target update, using host memory.")
 	print (" -keep-binding-clauses=X      : Specifies which hardware binding clauses are kept in OpenMP               (none)")
 	print ("                                Where X can be: all, none, and a combination of gang, worker and vector")
 	print (" [-no]-overwrite-input        : Enables/Disables overwriting the original file with the translation.      (disabled)")
@@ -105,6 +102,14 @@ def showHelp():
 	print ("                                - tofrom refers to mimic PRESENT clauses with MAP(TOFROM:)")
 	print ("                                - keep refers to use OMP PRESENT clauses (requires OpenMP 5.1+ compiler).")
 	print (" [-no]-suppress-openacc       : Enables/Disables suppression of OpenACC translated statements in result.  (disabled)")
+	print ("")
+	print ("* PREPROCESSING GUARDS")
+	print (" [-no]-openacc-conditional-define           : If enabled, wraps OpenACC source code with #ifdef OPENACC2OPENMP_OPENACC.              (disabled)")
+	print (" -openacc-conditional-define=DEF            : If enabled, wraps OpenACC source code with #ifdef DEF.")
+	print (" [-no]-translated-openmp-conditional-define : If enabled, wraps OpenMP translated code with #ifdef OPENACC2OPENMP_TRANSLATED_OPENMP. (disabled)")
+	print (" -translated-openmp-conditional-define=DEF  : If enabled, wraps OpenMP translated code with #ifdef DEF.")
+	print (" [-no]-original-openmp-conditional-define   : If enabled, wraps OpenMP source code with #ifdef OPENACC2OPENMP_ORIGINAL_OPENMP.       (disabled)")
+	print (" -original-openmp-conditional-define=DEF    : If enabled, wraps OpenMP source code with #ifdef DEF.")
 	print ("")
 	print ("* EXPERIMENTAL FEATURES")
 	print (" [-no]-experimental-kernels-support :                                                                     (enabled)")
@@ -198,6 +203,7 @@ def entry(argv):
 	SuppressTranslatedOpenACC = False
 	PresentBehavior = CONSTANTS.PresentBehavior.KEEP
 	AsyncBehavior = CONSTANTS.AsyncBehavior.NOWAIT
+	HostDataBehavior = CONSTANTS.HostDataBehavior.TARGET_UPDATE
 	FortranV = FortranVariant.AUTO
 	KeepBindingClauses = CONSTANTS.BindingClauses.NONE
 	ExperimentalKernelsSupport = True
@@ -255,6 +261,10 @@ def entry(argv):
 			AsyncBehavior = CONSTANTS.AsyncBehavior.IGNORE
 		elif param == "-async=nowait":
 			AsyncBehavior = CONSTANTS.AsyncBehavior.NOWAIT
+		elif param == "-host_data=target_data":
+			HostDataBehavior = CONSTANTS.HostDataBehavior.TARGET_DATA
+		elif param == "-host_data=target_update":
+			HostDataBehavior = CONSTANTS.HostDataBehavior.TARGET_UPDATE
 		elif param == "-fixed":
 			FortranV = FortranVariant.FIXED
 		elif param == "-free":
@@ -342,7 +352,7 @@ def entry(argv):
 			sys.exit (-1)
 
 		# Create a configuration for this translation based on the give parameters
-		txConfig = OACC2OMP.txConfiguration (lang, PresentBehavior, AsyncBehavior,
+		txConfig = OACC2OMP.txConfiguration (lang, PresentBehavior, AsyncBehavior, HostDataBehavior,
 		  KeepBindingClauses, GenerateMultiDimensionalAlternateCode, OpenACCConditionalDefine,
 		  TranslatedOMPConditionalDefine, OriginalOMPConditionalDefine, SuppressTranslatedOpenACC,
 		  ExperimentalKernelsSupport, ExperimentalRemoveKernelsBubblesSupport)
