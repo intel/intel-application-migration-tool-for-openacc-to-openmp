@@ -351,17 +351,28 @@ def translate_oacc_2_omp_acc_data(txConfig, c):
 	# Process default clause -- emit a warning on default(none)
 	defaultv = getSingleParenthesisContents (c.construct, "default")
 	if len(defaultv) > 0:
+		# OpenACC firstprivatizes scalars even when default() is given,
+		# so we apply defaultmap with the requested modified to the
+		# remaining variables (aggregate, pointer and allocatable).
 		if defaultv == "present":
-			# If requested "present" default mapping, obey to user requested
-			# behavior
+			# We have to honor user's request on how to process the
+			# present clause
 			if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
-				omp_clauses.append ("defaultmap(alloc)")
+				omp_clauses.append ("defaultmap(alloc:aggregate)")
+				omp_clauses.append ("defaultmap(alloc:pointer)")
+				omp_clauses.append ("defaultmap(alloc:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
-				omp_clauses.append ("defaultmap(tofrom)")
+				omp_clauses.append ("defaultmap(tofrom:aggregate)")
+				omp_clauses.append ("defaultmap(tofrom:pointer)")
+				omp_clauses.append ("defaultmap(tofrom:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
-				omp_clauses.append ("defaultmap(present)")
+				omp_clauses.append ("defaultmap(present:aggregate)")
+				omp_clauses.append ("defaultmap(present:pointer)")
+				omp_clauses.append ("defaultmap(present:allocatable)")
 		elif defaultv == "none":
-			omp_clauses.append ("defaultmap(none)")
+			omp_clauses.append ("defaultmap(none:aggregate)")
+			omp_clauses.append ("defaultmap(none:pointer)")
+			omp_clauses.append ("defaultmap(none:allocatable)")
 
 	# Store data back into the construct class
 	c.openmp = [ " ".join(omp_construct + omp_clauses) ]
@@ -578,17 +589,28 @@ def translate_oacc_2_omp_acc_kernels (lines, txConfig, c, carryOnStatus):
 	# Process default clause -- emit a warning on default(none)
 	defaultv = getSingleParenthesisContents (c.construct, "default")
 	if len(defaultv) > 0:
+		# OpenACC firstprivatizes scalars even when default() is given,
+		# so we apply defaultmap with the requested modified to the
+		# remaining variables (aggregate, pointer and allocatable).
 		if defaultv == "present":
-			# If requested "present" default mapping, obey to user requested
-			# behavior
+			# We have to honor user's request on how to process the
+			# present clause
 			if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
-				omp_clauses.append ("defaultmap(alloc)")
+				omp_clauses.append ("defaultmap(alloc:aggregate)")
+				omp_clauses.append ("defaultmap(alloc:pointer)")
+				omp_clauses.append ("defaultmap(alloc:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
-				omp_clauses.append ("defaultmap(tofrom)")
+				omp_clauses.append ("defaultmap(tofrom:aggregate)")
+				omp_clauses.append ("defaultmap(tofrom:pointer)")
+				omp_clauses.append ("defaultmap(tofrom:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
-				omp_clauses.append ("defaultmap(present)")
+				omp_clauses.append ("defaultmap(present:aggregate)")
+				omp_clauses.append ("defaultmap(present:pointer)")
+				omp_clauses.append ("defaultmap(present:allocatable)")
 		elif defaultv == "none":
-			omp_clauses.append ("defaultmap(none)")
+			omp_clauses.append ("defaultmap(none:aggregate)")
+			omp_clauses.append ("defaultmap(none:pointer)")
+			omp_clauses.append ("defaultmap(none:allocatable)")
 
 	# Process wait clause
 	if c.construct.find(" wait(") >= 0:
@@ -876,17 +898,28 @@ def translate_oacc_2_omp_acc_parallel(txConfig, c, carryOnStatus):
 	# Process default clause -- emit a warning on default(none)
 	defaultv = getSingleParenthesisContents (c.construct, "default")
 	if len(defaultv) > 0:
+		# OpenACC firstprivatizes scalars even when default() is given,
+		# so we apply defaultmap with the requested modified to the
+		# remaining variables (aggregate, pointer and allocatable).
 		if defaultv == "present":
-			# If requested "present" default mapping, obey to user requested
-			# behavior
+			# We have to honor user's request on how to process the
+			# present clause
 			if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
-				omp_clauses.append ("defaultmap(alloc)")
+				omp_clauses.append ("defaultmap(alloc:aggregate)")
+				omp_clauses.append ("defaultmap(alloc:pointer)")
+				omp_clauses.append ("defaultmap(alloc:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
-				omp_clauses.append ("defaultmap(tofrom)")
+				omp_clauses.append ("defaultmap(tofrom:aggregate)")
+				omp_clauses.append ("defaultmap(tofrom:pointer)")
+				omp_clauses.append ("defaultmap(tofrom:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
-				omp_clauses.append ("defaultmap(present)")
+				omp_clauses.append ("defaultmap(present:aggregate)")
+				omp_clauses.append ("defaultmap(present:pointer)")
+				omp_clauses.append ("defaultmap(present:allocatable)")
 		elif defaultv == "none":
-			omp_clauses.append ("defaultmap(none)")
+			omp_clauses.append ("defaultmap(none:aggregate)")
+			omp_clauses.append ("defaultmap(none:pointer)")
+			omp_clauses.append ("defaultmap(none:allocatable)")
 
 	# Process wait clause
 	if c.construct.find(" wait(") >= 0:
@@ -961,17 +994,28 @@ def translate_oacc_2_omp_acc_serial(txConfig, c, carryOnStatus):
 	# Process default clause -- emit a warning on default(none)
 	defaultv = getSingleParenthesisContents (c.construct, "default")
 	if len(defaultv) > 0:
+		# OpenACC firstprivatizes scalars even when default() is given,
+		# so we apply defaultmap with the requested modified to the
+		# remaining variables (aggregate, pointer and allocatable).
 		if defaultv == "present":
-			# If requested "present" default mapping, obey to user requested
-			# behavior
+			# We have to honor user's request on how to process the
+			# present clause
 			if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
-				omp_clauses.append ("defaultmap(alloc)")
+				omp_clauses.append ("defaultmap(alloc:aggregate)")
+				omp_clauses.append ("defaultmap(alloc:pointer)")
+				omp_clauses.append ("defaultmap(alloc:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
-				omp_clauses.append ("defaultmap(tofrom)")
+				omp_clauses.append ("defaultmap(tofrom:aggregate)")
+				omp_clauses.append ("defaultmap(tofrom:pointer)")
+				omp_clauses.append ("defaultmap(tofrom:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
-				omp_clauses.append ("defaultmap(present)")
+				omp_clauses.append ("defaultmap(present:aggregate)")
+				omp_clauses.append ("defaultmap(present:pointer)")
+				omp_clauses.append ("defaultmap(present:allocatable)")
 		elif defaultv == "none":
-			omp_clauses.append ("defaultmap(none)")
+			omp_clauses.append ("defaultmap(none:aggregate)")
+			omp_clauses.append ("defaultmap(none:pointer)")
+			omp_clauses.append ("defaultmap(none:allocatable)")
 
 	# Process wait clause
 	if c.construct.find(" wait(") >= 0:
