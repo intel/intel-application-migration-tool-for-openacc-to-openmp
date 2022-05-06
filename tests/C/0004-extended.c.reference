@@ -19,7 +19,7 @@ int main (int argc, char *argv[])
 // }
 
 	#pragma acc enter data pcopyin(v2)
-#pragma omp target enter data map(present,to:v2)
+#pragma omp target enter data map(to:v2)
 
 	#pragma acc enter data copyin(v3[:3][:7][:8])
 #pragma omp target enter data map(to:v3[:3][:7][:8])
@@ -36,7 +36,7 @@ int main (int argc, char *argv[])
 // }
 
 	#pragma acc enter data present_or_copyin(v3)
-#pragma omp target enter data map(present,to:v3)
+#pragma omp target enter data map(to:v3)
 
 	#pragma acc exit data copyout(v3[:2][:7][:8])
 #pragma omp target exit data map(from:v3[:2][:7][:8])
@@ -66,13 +66,13 @@ int main (int argc, char *argv[])
 // }
 
 	#pragma acc exit data pcopyout(v2)
-#pragma omp target exit data map(present,from:v2)
+#pragma omp target exit data map(from:v2)
 
 	#pragma acc exit data copyout(v[:3])
 #pragma omp target exit data map(from:v[:3])
 
 	#pragma acc exit data present_or_copyout(v)
-#pragma omp target exit data map(present,from:v)
+#pragma omp target exit data map(from:v)
 
 	return 0;
 }

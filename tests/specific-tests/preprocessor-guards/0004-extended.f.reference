@@ -24,7 +24,7 @@
 !$acc enter data pcopyin(v2)
 #endif // defined(OPENACC2OPENMP_OPENACC)
 #if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
-!$omp target enter data map(present,to:v2)
+!$omp target enter data map(to:v2)
 #endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
 
 #if defined(OPENACC2OPENMP_OPENACC)
@@ -40,7 +40,7 @@
 !$acc enter data present_or_copyin(v3)
 #endif // defined(OPENACC2OPENMP_OPENACC)
 #if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
-!$omp target enter data map(present,to:v3)
+!$omp target enter data map(to:v3)
 #endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
 
 !! !$acc exit data copyout(v3(0:2,1:7,M:8))
@@ -49,7 +49,7 @@
 !$acc exit data pcopyout(v3)
 #endif // defined(OPENACC2OPENMP_OPENACC)
 #if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
-!$omp target exit data map(present,from:v3)
+!$omp target exit data map(from:v3)
 #endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
 
 !! !$acc exit data copyout(v2(-1:1,2:5))
@@ -58,7 +58,7 @@
 !$acc exit data present_or_copyout(v,v2)
 #endif // defined(OPENACC2OPENMP_OPENACC)
 #if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
-!$omp target exit data map(present,from:v,v2)
+!$omp target exit data map(from:v,v2)
 #endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
 
       end program
