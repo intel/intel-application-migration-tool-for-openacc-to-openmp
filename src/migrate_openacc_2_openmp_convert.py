@@ -355,19 +355,27 @@ def translate_oacc_2_omp_acc_data(txConfig, c):
 			if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
 				omp_clauses.append ("defaultmap(alloc:aggregate)")
 				omp_clauses.append ("defaultmap(alloc:pointer)")
-				omp_clauses.append ("defaultmap(alloc:allocatable)")
+				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
+				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
+					omp_clauses.append ("defaultmap(alloc:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
 				omp_clauses.append ("defaultmap(tofrom:aggregate)")
 				omp_clauses.append ("defaultmap(tofrom:pointer)")
-				omp_clauses.append ("defaultmap(tofrom:allocatable)")
+				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
+				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
+					omp_clauses.append ("defaultmap(tofrom:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
 				omp_clauses.append ("defaultmap(present:aggregate)")
 				omp_clauses.append ("defaultmap(present:pointer)")
-				omp_clauses.append ("defaultmap(present:allocatable)")
+				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
+				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
+					omp_clauses.append ("defaultmap(present:allocatable)")
 		elif defaultv == "none":
 			omp_clauses.append ("defaultmap(none:aggregate)")
 			omp_clauses.append ("defaultmap(none:pointer)")
-			omp_clauses.append ("defaultmap(none:allocatable)")
+			if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
+			   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
+				omp_clauses.append ("defaultmap(none:allocatable)")
 
 	# Store data back into the construct class
 	c.openmp = [ " ".join(omp_construct + omp_clauses) ]
@@ -593,19 +601,27 @@ def translate_oacc_2_omp_acc_kernels (lines, txConfig, c, carryOnStatus):
 			if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
 				omp_clauses.append ("defaultmap(alloc:aggregate)")
 				omp_clauses.append ("defaultmap(alloc:pointer)")
-				omp_clauses.append ("defaultmap(alloc:allocatable)")
+				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
+				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
+					omp_clauses.append ("defaultmap(alloc:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
 				omp_clauses.append ("defaultmap(tofrom:aggregate)")
 				omp_clauses.append ("defaultmap(tofrom:pointer)")
-				omp_clauses.append ("defaultmap(tofrom:allocatable)")
+				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
+				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
+					omp_clauses.append ("defaultmap(tofrom:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
 				omp_clauses.append ("defaultmap(present:aggregate)")
 				omp_clauses.append ("defaultmap(present:pointer)")
-				omp_clauses.append ("defaultmap(present:allocatable)")
+				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
+				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
+					omp_clauses.append ("defaultmap(present:allocatable)")
 		elif defaultv == "none":
 			omp_clauses.append ("defaultmap(none:aggregate)")
 			omp_clauses.append ("defaultmap(none:pointer)")
-			omp_clauses.append ("defaultmap(none:allocatable)")
+			if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
+			   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
+				omp_clauses.append ("defaultmap(none:allocatable)")
 
 	# Process wait clause
 	if c.construct.find(" wait(") >= 0:
@@ -902,19 +918,27 @@ def translate_oacc_2_omp_acc_parallel(txConfig, c, carryOnStatus):
 			if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
 				omp_clauses.append ("defaultmap(alloc:aggregate)")
 				omp_clauses.append ("defaultmap(alloc:pointer)")
-				omp_clauses.append ("defaultmap(alloc:allocatable)")
+				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
+				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
+					omp_clauses.append ("defaultmap(alloc:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
 				omp_clauses.append ("defaultmap(tofrom:aggregate)")
 				omp_clauses.append ("defaultmap(tofrom:pointer)")
-				omp_clauses.append ("defaultmap(tofrom:allocatable)")
+				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
+				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
+					omp_clauses.append ("defaultmap(tofrom:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
 				omp_clauses.append ("defaultmap(present:aggregate)")
 				omp_clauses.append ("defaultmap(present:pointer)")
-				omp_clauses.append ("defaultmap(present:allocatable)")
+				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
+				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
+					omp_clauses.append ("defaultmap(present:allocatable)")
 		elif defaultv == "none":
 			omp_clauses.append ("defaultmap(none:aggregate)")
 			omp_clauses.append ("defaultmap(none:pointer)")
-			omp_clauses.append ("defaultmap(none:allocatable)")
+			if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
+			   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
+				omp_clauses.append ("defaultmap(none:allocatable)")
 
 	# Process wait clause
 	if c.construct.find(" wait(") >= 0:
@@ -998,19 +1022,27 @@ def translate_oacc_2_omp_acc_serial(txConfig, c, carryOnStatus):
 			if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
 				omp_clauses.append ("defaultmap(alloc:aggregate)")
 				omp_clauses.append ("defaultmap(alloc:pointer)")
-				omp_clauses.append ("defaultmap(alloc:allocatable)")
+				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
+				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
+					omp_clauses.append ("defaultmap(alloc:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
 				omp_clauses.append ("defaultmap(tofrom:aggregate)")
 				omp_clauses.append ("defaultmap(tofrom:pointer)")
-				omp_clauses.append ("defaultmap(tofrom:allocatable)")
+				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
+				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
+					omp_clauses.append ("defaultmap(tofrom:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
 				omp_clauses.append ("defaultmap(present:aggregate)")
 				omp_clauses.append ("defaultmap(present:pointer)")
-				omp_clauses.append ("defaultmap(present:allocatable)")
+				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
+				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
+					omp_clauses.append ("defaultmap(present:allocatable)")
 		elif defaultv == "none":
 			omp_clauses.append ("defaultmap(none:aggregate)")
 			omp_clauses.append ("defaultmap(none:pointer)")
-			omp_clauses.append ("defaultmap(none:allocatable)")
+			if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
+			   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
+				omp_clauses.append ("defaultmap(none:allocatable)")
 
 	# Process wait clause
 	if c.construct.find(" wait(") >= 0:
