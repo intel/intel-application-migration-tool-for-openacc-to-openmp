@@ -6,7 +6,7 @@ int main (void)
 #pragma omp target data map(alloc:v)
 	{
 		#pragma acc parallel loop present(v)
-#pragma omp target teams loop map(present,tofrom:v)
+#pragma omp target teams loop map(present,alloc:v)
 		for (unsigned i = 0; i < 10; ++i)
 			v[i] = i;
 		#pragma acc update host(v)

@@ -7,12 +7,12 @@ int main (int argc, char *argv[])
 	int x[N], Y[M], z[O];
 
 	#pragma acc data present(x)
-#pragma omp target data map(present,tofrom:x)
+#pragma omp target data map(present,alloc:x)
 	{
 	}
 
 	#pragma acc data present(Y)
-#pragma omp target data map(present,tofrom:Y)
+#pragma omp target data map(present,alloc:Y)
 	{
 	}
 
@@ -25,7 +25,7 @@ int main (int argc, char *argv[])
 	#pragma acc \
 	data \
 present(z)
-#pragma omp target data map(present,tofrom:z)
+#pragma omp target data map(present,alloc:z)
 	{
 	}
 

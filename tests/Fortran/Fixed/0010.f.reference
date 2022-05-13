@@ -6,14 +6,14 @@
       integer x(N),y(M),z(O)
 
 !$acc data present(x)
-!$omp target data map(present,tofrom:x)
+!$omp target data map(present,alloc:x)
 
 !$acc end data
 !$omp end target data
 
 !$acc DATA
 !$acc1 PRESENT(y)
-!$omp target data map(present,tofrom:y)
+!$omp target data map(present,alloc:y)
 
 !$acc end data
 !$omp end target data
@@ -28,7 +28,7 @@
 !$omp end target data
 
 !$acc data present (x)
-!$omp target data map(present,tofrom:x)
+!$omp target data map(present,alloc:x)
 !$acc end data
 !$omp end target data
 
