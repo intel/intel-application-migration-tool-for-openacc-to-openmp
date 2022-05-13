@@ -331,7 +331,7 @@ def translate_oacc_2_omp_acc_data(txConfig, c):
 		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
 			omp_clauses.append ("map(tofrom:{})".format(variables))
 		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
-			omp_clauses.append ("map(present,tofrom:{})".format(variables))
+			omp_clauses.append ("map(present,alloc:{})".format(variables))
 
 	# Process deviceptr clause
 	variables = getMultiParenthesisContents (c.construct, "deviceptr")
@@ -556,7 +556,7 @@ def translate_oacc_2_omp_acc_kernels (lines, txConfig, c, carryOnStatus):
 		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
 			omp_clauses.append ("map(tofrom:{})".format(variables))
 		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
-			omp_clauses.append ("map(present,tofrom:{})".format(variables))
+			omp_clauses.append ("map(present,alloc:{})".format(variables))
 
 	# Process deviceptr clause
 	variables = getMultiParenthesisContents (c.construct, "deviceptr")
@@ -857,7 +857,7 @@ def translate_oacc_2_omp_acc_parallel(txConfig, c, carryOnStatus):
 		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
 			omp_clauses.append ("map(tofrom:{})".format(variables))
 		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
-			omp_clauses.append ("map(present,tofrom:{})".format(variables))
+			omp_clauses.append ("map(present,alloc:{})".format(variables))
 
 	# Process deviceptr clause
 	variables = getMultiParenthesisContents (c.construct, "deviceptr")
@@ -988,7 +988,7 @@ def translate_oacc_2_omp_acc_serial(txConfig, c, carryOnStatus):
 		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
 			omp_clauses.append ("map(tofrom:{})".format(variables))
 		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
-			omp_clauses.append ("map(present,tofrom:{})".format(variables))
+			omp_clauses.append ("map(present,alloc:{})".format(variables))
 
 	# Process deviceptr clause
 	variables = getMultiParenthesisContents (c.construct, "deviceptr")
