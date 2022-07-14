@@ -85,6 +85,7 @@ def showHelp():
 	print (" -async=<ignore,nowait>       : Specifies how to treat ACC ASYNC clauses.                                 (nowait)")
 	print ("                                - ignore refers to not translate the ASYNC clauses.")
 	print ("                                - nowait translates ACC ASYNC clauses into nowait.")
+	print (" [-no]-declare-mapper         : Declares mappers for user-defined data-types (Fortran only)               (enabled)")
 	print (" -fixed|-free                 : Sets fixed-format or free-format for Fortran translation                  (auto)")
 	print (" [-no]-force-backup           : If enabled, enforce writing a backup of the original file.                (disabled)")
 	print (" [-no]-generate-report        : Enables/Disables report generation about the translation.                 (enabled)")
@@ -114,8 +115,7 @@ def showHelp():
 	print ("* EXPERIMENTAL FEATURES")
 	print (" [-no]-experimental-kernels-support :                                                                     (enabled)")
 	print ("                                When enabled, the tool tries to extract parallelism from loop constructs found")
-	print ("                                within kernels constructs.")
-	print ("                                Only applicable to Fortran codes.")
+	print ("                                within kernels constructs (Fortran only).")
 	print ("                                NOTE: Explore the code for target/end target empty bubbles.")
 	print (" [-no]-experimental-remove-kernels-bubbles:                                                               (enabled)")
 	print ("                                When enabled, the tool attempts to remove the target/end target empty bubbles")
@@ -155,7 +155,7 @@ def processFile (inputfile, txConfig, GenerateReport, ForceBackup, OverwriteInpu
 	shutil.copyfile (inputfile, inputfile+str(".original"))
 
 	# Parse input file
-	lines, ACCconstructs, OMPconstructs = PARSER.parseFile (inputfile, txConfig)
+	lines, ACCconstructs, OMPconstructs, UDTdefinitions = PARSER.parseFile (inputfile, txConfig)
 
 	# Run the translation
 	APIwarnings, SupplementaryConstructs = OACC2OMP.translate (txConfig, lines,
@@ -168,7 +168,7 @@ def processFile (inputfile, txConfig, GenerateReport, ForceBackup, OverwriteInpu
 	# Generate the translated file, and if requested, the report
 	TXfile = inputfile+str(".translated")
 	CODEGEN.generateTranslatedFile (txConfig, lines, ACCconstructs, OMPconstructs,
-	  SupplementaryConstructs, TXfile)
+	  SupplementaryConstructs, UDTdefinitions, TXfile)
 
 	if GenerateReport:
 		generateReport (txConfig.Lang, ACCconstructs, inputfile, APIwarnings)
@@ -208,6 +208,7 @@ def entry(argv):
 	KeepBindingClauses = CONSTANTS.BindingClauses.NONE
 	ExperimentalKernelsSupport = True
 	ExperimentalRemoveKernelsBubblesSupport = True
+	DeclareMapper = True
 
 	LastGoodParam = None
 
@@ -225,6 +226,10 @@ def entry(argv):
 			ForceBackup = True
 		elif param == "-no-force-backup":
 			ForceBackup = False
+		elif param == "-declare-mapper":
+			DeclareMapper = True
+		elif param == "-no-declare-mapper":
+			DeclareMapper = False
 		elif param == "-generate-multidimensional-alternate-code":
 			GenerateMultiDimensionalAlternateCode = True
 		elif param == "-no-generate-multidimensional-alternate-code":
@@ -355,6 +360,7 @@ def entry(argv):
 		txConfig = OACC2OMP.txConfiguration (lang, PresentBehavior, AsyncBehavior, HostDataBehavior,
 		  KeepBindingClauses, GenerateMultiDimensionalAlternateCode, OpenACCConditionalDefine,
 		  TranslatedOMPConditionalDefine, OriginalOMPConditionalDefine, SuppressTranslatedOpenACC,
+		  DeclareMapper,
 		  ExperimentalKernelsSupport, ExperimentalRemoveKernelsBubblesSupport)
 		TXfile = processFile (inputfile, txConfig, GenerateReport, ForceBackup, OverwriteInput)
 

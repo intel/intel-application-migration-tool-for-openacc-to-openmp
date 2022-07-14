@@ -33,6 +33,16 @@ class ompConstruct:
 		self.eline = endline                     # End line of the construct
 
 #
+# CLASS: UDTdefinition
+#  -- this class represents a user-derived type (fortran only, for now)
+class UDTdefinition:
+	def __init__(self, typename, members, beginline, endline):
+		self.typename = typename                 # Original code
+		self.members = members                   # Members of the UDT
+		self.bline = beginline                   # Begin line
+		self.eline = endline                     # End line
+
+#
 # CLASS: Translation configuration
 #  -- basically keeps the translation behavior requested by the user
 class txConfiguration:
@@ -40,6 +50,7 @@ class txConfiguration:
 		  BindingClauses, GenerateMultiDimensionalAlternateCode,
 		  OpenACCConditionalDefine, TranslatedOMPConditionalDefine,
 		  OriginalOMPConditionalDefine, SuppressTranslatedOpenACC,
+		  DeclareMapper,
 		  expKernelsSupport, expRemoveKernelsBubblesSupport):
 		self.Lang = Lang
 		self.PresentBehavior = PresentBehavior
@@ -51,6 +62,7 @@ class txConfiguration:
 		self.TranslatedOMPConditionalDefine = TranslatedOMPConditionalDefine
 		self.OriginalOMPConditionalDefine = OriginalOMPConditionalDefine
 		self.SuppressTranslatedOpenACC = SuppressTranslatedOpenACC
+		self.DeclareMapper = DeclareMapper
 		self.experimentalKernelsSupport = expKernelsSupport
 		self.experimentalRemoveKernelsBubblesSupport = expRemoveKernelsBubblesSupport
 

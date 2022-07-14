@@ -3,9 +3,11 @@
 #
 
 import migrate_openacc_2_openmp_constants as CONSTANTS
+import migrate_openacc_2_openmp_udt as UDT
 import migrate_openacc_2_openmp_tools as TT
 import migrate_openacc_2_openmp_parser as PARSER
 import migrate_openacc_2_openmp_convert as OACC2OMP
+import sys
 
 # findFirstSeparator (s, separators, spos)
 #  returns the first character matching those in separators list
@@ -133,7 +135,7 @@ def generateAlternateMDCode_C(f, c, arraySections):
 					f.write ("// " + " "*2*depth + "}\n")
 
 
-# generateTranslatedFileC (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, outfilename)
+# generateTranslatedFileC (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, UDTdefinitions, outfilename)
 #  generates a translation of the input C file.
 #   txConfig = tool configuration plus code details (lang, and tool knobs)
 #   lines = input file lines
@@ -143,7 +145,7 @@ def generateAlternateMDCode_C(f, c, arraySections):
 #   SupplementaryConstructs = supplementary OpenMP constructs to be added into the translated file (with indices
 #       from source file)
 #   outfilename = name of the output file
-def generateTranslatedFileC (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, outfilename):
+def generateTranslatedFileC (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, UDTdefinitions, outfilename):
 
 	openacc_ifdefcondition = txConfig.OpenACCConditionalDefine
 	translated_ifdefcondition = txConfig.TranslatedOMPConditionalDefine
@@ -271,7 +273,7 @@ def generateAlternateMDCode_Fortran(f, c, arraySections):
 				f.write ("! end block\n")
 
 
-# generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, outfilename)
+# generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, UDTdefinitions, outfilename)
 #  generates a translation of the input Fortran file.
 #   txConfig = tool configuration plus code details (lang, and tool knobs)
 #   lines = input file lines
@@ -281,13 +283,14 @@ def generateAlternateMDCode_Fortran(f, c, arraySections):
 #       from source file)
 #   outfilename = name of the output file
 
-def generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, outfilename):
+def generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, UDTdefinitions, outfilename):
 
 	openacc_ifdefcondition = txConfig.OpenACCConditionalDefine
 	translated_ifdefcondition = txConfig.TranslatedOMPConditionalDefine
 	original_ifdefcondition = txConfig.OriginalOMPConditionalDefine
 	removeOpenACC = txConfig.SuppressTranslatedOpenACC
 	generateAlternateMDCode = txConfig.GenerateMultiDimensionalAlternateCode
+	declareMappers = txConfig.DeclareMapper
 
 	try:
 		with open(outfilename, 'w') as f:
@@ -361,6 +364,24 @@ def generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs
 					for s in SupplementaryConstructs[i]:
 						f.write ("!$omp " + s + "\n")
 
+				# Check if we need to emit a declare mapper for an UDT
+				if declareMappers and i+1 in UDTdefinitions and len(UDTdefinitions[i+1].members) > 0:
+					s = "declare mapper ({}::x) map (".format(UDTdefinitions[i+1].typename)
+					isFirst = True
+					for m in UDT.getUDTMembers (UDTdefinitions[i+1]):
+						s = s + ("x%" if isFirst else ",x%") + m
+						isFirst = False
+					s = s + ")"
+					# Split the statement for better readability
+					splitted_lines = splitCodeWords (s.lower(), 64)
+					# Emit the statement, use the appropriate language
+					if txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
+						for l in range(0, len(splitted_lines)):
+							f.write ("!$omp " + splitted_lines[l] + ("&" if l+1 < len(splitted_lines) else "") + "\n")
+					elif txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed:
+						for l in range(0, len(splitted_lines)):
+							f.write ("!$omp" + ("& " if l > 0 else " ") + splitted_lines[l] + "\n")
+
 			f.close()
 	except IOError:
 		print ("Error! File {} is not accessible for writing.".format(outfilename))
@@ -374,13 +395,14 @@ def generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs
 #   OMPconstructs = OpenMP constructs found in original code --> to be protected?
 #   SupplementaryConstructs = supplementary OpenMP constructs to be added into the translated file (with indices
 #       from source file)
+#   UDTdefinitions = user-defined types
 #   outfilename = name of the output file
 
-def generateTranslatedFile (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, outfilename):
+def generateTranslatedFile (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, UDTdefinitions, outfilename):
 
 	if txConfig.Lang == CONSTANTS.FileLanguage.C or txConfig.Lang == CONSTANTS.FileLanguage.CPP:
-		generateTranslatedFileC (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, outfilename)
+		generateTranslatedFileC (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, None, outfilename)
 	else:
-		generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, outfilename)
+		generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, UDTdefinitions, outfilename)
 
 # vim:set noexpandtab tabstop=4:

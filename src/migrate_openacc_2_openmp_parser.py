@@ -243,7 +243,78 @@ def parseFile_C(filename):
 
 		curline = curline + 1
 
-	return lines, ACCconstructs, OMPconstructs
+	return lines, ACCconstructs, OMPconstructs, None # Last None refers to UDT definitions
+
+# getNextStatement_FTN_FX (lines, curline):
+#  parses a fortran statement, which can be splitted in multiple lines on a FTN FX form
+def getNextStatement_FTN_FX(lines, curline):
+
+	l = lines[curline].lower()
+
+	# if this is a commented line, skip it
+	if len(l) == 0 or (len(l) > 0 and l[0] in ['c', 'C', '!', '*']):
+		return "", curline+1
+	else:
+		l = l[6:] # Skip fixed cols
+		# Ignore whatever comes next the comment
+		comment_pos = l.find ('!')
+		if comment_pos >= 0: 
+			l = l[:comment_pos]
+
+	if len(l) > 0:
+		# Process continuation lines
+		while True:
+			tmp = lines[curline+1]
+
+			if len(tmp) > 0 and tmp[0] in ['c', 'C', '!', '*']:
+				# If this is a comment, search for next line
+				curline = curline + 1
+				continue
+			else:
+				# Is next line a continuation line?
+				if len(tmp) > 5 and not (tmp[5] in [' ', '0']):
+					comment_pos = tmp.find ('!')
+					if comment_pos < 0:
+						l = l + tmp[6:] # Append full line into statement
+					else:
+						l = l + tmp[6:comment_pos] # Append up to comment position
+					curline = curline + 1
+				else:
+					# If not and stop
+					break
+
+	l = l.strip()
+	l = re.sub ('[\\s\\t]+', ' ', l.lower())
+	l = re.sub ('\\s\\(', '(', l)
+
+	return l, curline+1
+
+# getUserDerivedType_FTN_FX (lines, curline):
+#  parses a fortran (in fixed) for a user derived type
+def getUserDerivedType_FTN_FX (lines, curline):
+
+	bline = curline
+	typename = None
+	members = []
+
+	stmt, curline = getNextStatement_FTN_FX (lines, curline)
+
+	# Is this an extended derived type using type :: format ?
+	if stmt.find ("::") >= 0:
+		typename = stmt[stmt.find("::")+len("::"):].strip()
+	else:
+		typename = stmt[len("type "):].strip()
+
+	while curline < len(lines):
+		stmt, curline = getNextStatement_FTN_FX (lines, curline)
+		if len(stmt) >= len("end type") and stmt.lower().startswith ("end type"):
+			break
+		elif len(stmt) > 0:
+			members.append (stmt)
+
+	eline = curline
+
+	return typename, members, bline, eline
 
 # getConstructOnMultiline_FTN_FX(sentinel, lines, curline)
 # sentinel = "acc" or "omp"
@@ -333,6 +404,7 @@ def getConstructOnMultiline_FTN_FX(sentinel, lines, curline):
 def parseFile_FTN_FX(filename):
 	ACCconstructs = dict()
 	OMPconstructs = dict()
+	UDTdefinitions = dict()
 	lines = []
 	try:
 		with open (filename, "r") as f:
@@ -350,6 +422,7 @@ def parseFile_FTN_FX(filename):
 		# Convert to lower case and suppress multiple spaces
 		l = re.sub('[\\s\\t]+', ' ', l.lower())
 		l = re.sub('\\s\\(', '(', l) # Suppress spaces before parenthesis to help parsing
+
 		if len(l) > len("c$acc ") and \
 		  l.startswith ("c$acc") or l.startswith ("!$acc") or l.startswith("*$acc"):
 			original, construct, begin_line, end_line = getConstructOnMultiline_FTN_FX("acc", lines, curline)
@@ -375,9 +448,14 @@ def parseFile_FTN_FX(filename):
 			# Continue processing from end_line
 			curline = end_line
 
+		elif len(l) > len("type") and l.startswith("type") \
+		    and not l.startswith ("type("): # skip typed variable creation
+			typename, members, begin_line, end_line = getUserDerivedType_FTN_FX (lines, curline)
+			UDTdefinitions[end_line] = OACC2OMP.UDTdefinition(typename, members, begin_line+1, end_line+1)
+
 		curline = curline + 1
 
-	return lines, ACCconstructs, OMPconstructs
+	return lines, ACCconstructs, OMPconstructs, UDTdefinitions # Last None refers to UDT definitions
 
 
 # getConstructOnMultiline_FTN_FR(sentinel, lines, curline)
@@ -452,12 +530,72 @@ def getConstructOnMultiline_FTN_FR(sentinel, lines, curline):
 
 	return original, construct, begin_line, curline
 
+# getNextStatement_FTN_FR (lines, curline):
+#  parses a fortran statement, which can be splitted in multiple lines on a FTN FR form
+def getNextStatement_FTN_FR(lines, curline):
+
+	l = lines[curline].strip()
+
+	if l.find ("!") >= 0: # Remove comments
+		l = l[:l.find("!")].strip()
+
+	if len(l) > 0 and l.endswith("&"):
+		l = l[:-1] # Remove the ampersand/continuation line
+		# Process continuation lines
+		while True:
+			curline = curline + 1
+			tmp = lines[curline].strip()
+			# given continuation & multi-line char? -- but exclude last for continuation
+			continue_optional_pos = tmp.find ("&", 0, len(tmp)-1)
+			if continue_optional_pos >= 0:
+				tmp = tmp[continue_optional_pos+1:]
+			if tmp.find ("!") >= 0: # Remove comments
+				tmp = tmp[:tmp.find("!")].strip()
+			tmp = tmp.strip()
+			tmp = re.sub('[\\s\\t]+', ' ', tmp.lower())
+			tmp = re.sub('\\s\\(', '(', tmp) # Suppress spaces before parenthesis to help parsing
+			if len(tmp) > 0:
+				if tmp.endswith("&"):
+					l = l + tmp[:-1]
+				else:
+					l = l + tmp
+					break
+	return l, curline + 1
+
+# getUserDerivedType_FTN_FR (lines, curline):
+#  parses a fortran (in free form) for a user derived type
+def getUserDerivedType_FTN_FR (lines, curline):
+
+	bline = curline
+	typename = None
+	members = []
+
+	stmt, curline = getNextStatement_FTN_FR (lines, curline)
+
+	# Is this an extended derived type using type :: format ?
+	if stmt.find ("::") >= 0:
+		typename = stmt[stmt.find("::")+len("::"):].strip()
+	else:
+		typename = stmt[len("type "):].strip()
+
+	while curline < len(lines):
+		stmt, curline = getNextStatement_FTN_FR (lines, curline)
+		if len(stmt) >= len("end type") and stmt.lower().startswith ("end type"):
+			break
+		elif len(stmt) > 0:
+			members.append (stmt)
+
+	eline = curline
+
+	return typename, members, bline, eline
+
 # parseFile_FTN_FR (filename)
 #  parses a Fortran file (in free format) and collects the OpenACC and OpenMP constructs
 #  (not considering those in commented blocks)
 def parseFile_FTN_FR(filename):
 	ACCconstructs = dict()
 	OMPconstructs = dict()
+	UDTdefinitions = dict()
 	lines = []
 	try:
 		with open (filename, "r") as f:
@@ -498,9 +636,14 @@ def parseFile_FTN_FR(filename):
 			# Continue processing from end_line
 			curline = end_line
 
+		elif len(l) > len("type") and l.startswith("type") \
+		    and not l.startswith ("type("): # skip typed variable creation
+			typename, members, begin_line, end_line = getUserDerivedType_FTN_FR (lines, curline)
+			UDTdefinitions[end_line] = OACC2OMP.UDTdefinition(typename, members, begin_line+1, end_line+1)
+
 		curline = curline + 1
 
-	return lines, ACCconstructs, OMPconstructs
+	return lines, ACCconstructs, OMPconstructs, UDTdefinitions
 
 
 # parseFile (filename)
@@ -509,13 +652,13 @@ def parseFile_FTN_FR(filename):
 def parseFile(filename, txConfig):
 
 	if txConfig.Lang == CONSTANTS.FileLanguage.C or txConfig.Lang == CONSTANTS.FileLanguage.CPP:
-		lines, ACCconstructs, OMPconstructs = parseFile_C (filename)
+		lines, ACCconstructs, OMPconstructs, UDTdefinitions = parseFile_C (filename)
 	elif txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed:
-		lines, ACCconstructs, OMPconstructs = parseFile_FTN_FX (filename)
+		lines, ACCconstructs, OMPconstructs, UDTdefinitions = parseFile_FTN_FX (filename)
 	elif txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
-		lines, ACCconstructs, OMPconstructs = parseFile_FTN_FR (filename)
+		lines, ACCconstructs, OMPconstructs, UDTdefinitions = parseFile_FTN_FR (filename)
 
-	return lines, ACCconstructs, OMPconstructs
+	return lines, ACCconstructs, OMPconstructs, UDTdefinitions
 
 # areEmptyLines (txConfig, lines, start, end):
 def areEmptyLines (txConfig, lines, start, end):
