@@ -1,6 +1,6 @@
 <a name="top"></a>
 
-# Examples using the Intel&reg; Application Migration Tool for OpenACC* to OpenMP* API*
+# Examples using the Intel&reg; Application Migration Tool for OpenACC* to OpenMP* API
 
 ## POT3D
 
