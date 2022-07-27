@@ -10,6 +10,7 @@ A tool that helps migrating OpenACC-based applications into OpenMP
 + [Status](#status)
 + [Using the tool](#using-the-tool)
 + [Experimental features](#experimental-features)
++ [Examples](EXAMPLES.md)
 + [Known issues](#known-issues)
 + [Copyrights](#copyrights)
 
