@@ -115,21 +115,21 @@ def generateAlternateMDCode_C(f, c, arraySections):
 			if len(slices) > 1:
 				slicesm1 = slices[0:len(slices)-1]
 				tailrange = slices[len(slices)-1]
-				f.write ("// ATTENTION! The following suggested code is an alternative reference implementation\n")
-				f.write ("// ATTENTION! that could be used if {} is a non-contiguous allocated multi-dimensional array\n".format(varname))
+				f.write ( "// ATTENTION! The following suggested code is an alternative reference implementation\n")
+				f.write (f"// ATTENTION! that could be used if {varname} is a non-contiguous allocated multi-dimensional array\n")
 				depth = 0;
 				sectionprefix = ""
 				for r in slicesm1:
 					offset, length = r[0], r[1]
 					if len(r[0]) == 0:
 						offset = 0
-					f.write ("// " + " "*2*depth + "#pragma omp target {} data map({}:{}{}[{}:{}])\n".format(enter_or_exit,direction,varname,sectionprefix,offset,length))
-					f.write ("// " + " "*2*depth + "for (int _idx{} = 0; _idx{} < {}; ++_idx{})\n".format(depth,depth,length,depth))
-					f.write ("// " + " "*2*depth + "{\n")
-					sectionprefix = sectionprefix + "[{}+_idx{}]".format(offset, depth)
+					f.write ("// " + " "*2*depth + f"#pragma omp target {enter_or_exit} data map({direction}:{varname}{sectionprefix}[{offset}:{length}])\n")
+					f.write ("// " + " "*2*depth + f"for (int _idx{depth} = 0; _idx{depth} < {length}; ++_idx{depth})\n")
+					f.write ("// " + " "*2*depth +  "{\n")
+					sectionprefix = sectionprefix + f"[{offset}+_idx{depth}]"
 					depth = depth + 1
 				offset, length = tailrange[0], tailrange[1]
-				f.write ("// " + " "*2*depth + "#pragma omp target {} data map({}:{}{}[{}:{}])\n".format(enter_or_exit,direction,varname,sectionprefix,offset,length))
+				f.write ("// " + " "*2*depth + f"#pragma omp target {enter_or_exit} data map({direction}:{varname}{sectionprefix}[{offset}:{length}])\n")
 				for r in slicesm1:
 					depth = depth - 1
 					f.write ("// " + " "*2*depth + "}\n")
@@ -233,7 +233,7 @@ def generateTranslatedFileC (txConfig, lines, ACCconstructs, OMPconstructs, Supp
 
 			f.close()
 	except IOError:
-		print ("Error! File {} is not accessible for writing.".format(outfilename))
+		print (f"Error! File {outfilename} is not accessible for writing.")
 #
 # generateAlternateMDCode_Fortran (f, c, arraySections)
 #  f = file where the alternate code will be dumped
@@ -250,26 +250,26 @@ def generateAlternateMDCode_Fortran(f, c, arraySections):
 			if len(slices) > 1:
 				slicesm1 = slices[0:len(slices)-1]
 				tailrange = slices[len(slices)-1]
-				f.write ("! ATTENTION! The following suggested code is an alternative reference implementation\n")
-				f.write ("! ATTENTION! that could be used if {} is a non-contiguous allocated multi-dimensional array\n".format(varname))
+				f.write ( "! ATTENTION! The following suggested code is an alternative reference implementation\n")
+				f.write (f"! ATTENTION! that could be used if {varname} is a non-contiguous allocated multi-dimensional array\n")
 				f.write ("! block\n")
 				cnt = 0
 				for declvar in slicesm1:
-					f.write ("! integer :: idx{}\n".format(cnt))
+					f.write (f"! integer :: idx{cnt}\n")
 					cnt = cnt + 1
 				depth = 0;
 				sectionprefix = ""
 				for r in slicesm1:
 					offset, length = r[0], r[1]
-					f.write ("! " + " "*2*depth + "!$omp target {} data map({}:{}({}{}:{}))\n".format(enter_or_exit,direction,varname,sectionprefix,offset,length))
-					f.write ("! " + " "*2*depth + "do idx{} = 1, {}\n".format(depth,length))
-					sectionprefix = sectionprefix + "idx{},".format(depth)
+					f.write ("! " + " "*2*depth + f"!$omp target {enter_or_exit} data map({direction}:{varname}({sectionprefix}{offset}:{length}))\n")
+					f.write ("! " + " "*2*depth + f"do idx{depth} = 1, {length}\n")
+					sectionprefix = sectionprefix + f"idx{depth},"
 					depth = depth + 1
 				offset, length = tailrange[0], tailrange[1]
-				f.write ("! " + " "*2*depth + "!$omp target {} data map({}:{}({}{}:{}))\n".format(enter_or_exit,direction,varname,sectionprefix,offset,length))
+				f.write ("! " + " "*2*depth + f"!$omp target {enter_or_exit} data map({direction}:{varname}({sectionprefix}{offset}:{length}))\n")
 				for r in slicesm1:
 					depth = depth - 1
-					f.write ("! " + " "*2*depth + "end do ! idx{}\n".format(depth))
+					f.write ("! " + " "*2*depth + f"end do ! idx{depth}\n")
 				f.write ("! end block\n")
 
 
@@ -366,7 +366,7 @@ def generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs
 
 				# Check if we need to emit a declare mapper for an UDT
 				if declareMappers and i+1 in UDTdefinitions and len(UDTdefinitions[i+1].members) > 0:
-					s = "declare mapper ({}::x) map (".format(UDTdefinitions[i+1].typename)
+					s = f"declare mapper ({UDTdefinitions[i+1].typename}::x) map ("
 					isFirst = True
 					for m in UDT.getUDTMembers (UDTdefinitions[i+1]):
 						s = s + ("x%" if isFirst else ",x%") + m
@@ -384,7 +384,7 @@ def generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs
 
 			f.close()
 	except IOError:
-		print ("Error! File {} is not accessible for writing.".format(outfilename))
+		print (f"Error! File {outfilename} is not accessible for writing.")
 
 # generateTranslatedFile (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, outfilename)
 #  generates a translation of the input file.

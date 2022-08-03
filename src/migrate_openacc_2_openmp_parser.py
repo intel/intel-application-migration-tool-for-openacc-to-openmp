@@ -167,7 +167,7 @@ def parseFile_C(filename):
 			lines = f.readlines()
 			f.close()
 	except IOError:
-		print ("Error! File {} is not accessible for reading.".format(filename))
+		print (f"Error! File {filename} is not accessible for reading.")
 		sys.exit(-1)
 
 	curline = 0
@@ -220,7 +220,7 @@ def parseFile_C(filename):
 			# Search for the close parenthesis matching the open parenthesis
 			cp,_ = TT.findClosingParenthesis (statements, op, None, None)
 			if cp == -1:
-				print ("Error! Cannot find closing parenthesis on _Pragma around line {}.".format(curline+1))
+				print (f"Error! Cannot find closing parenthesis on _Pragma around line {curline+1}.")
 				sys.exit (-1)
 			tmp = statements[op+1:cp]
 			# Now search for the starting/ending quotation marks
@@ -344,7 +344,7 @@ def getConstructOnMultiline_FTN_FX(sentinel, lines, curline):
 			        l.startswith ("!$" + sentinel) or \
 			        l.startswith("*$" + sentinel)) and \
 			    l[0] not in ['c','!','*']:
-				print ("Error! Ill-formed construct around line {} when looking for '{}' sentinel".format(begin_line+1, sentinel))
+				print (f"Error! Ill-formed construct around line {begin_line+1} when looking for '{sentinel}' sentinel")
 				sys.exit(-1)
 			# Append into the construct if it contain the sentinel, otherwise the
 			# line refers to a comment
@@ -411,7 +411,7 @@ def parseFile_FTN_FX(filename):
 			lines = f.readlines()
 			f.close()
 	except IOError:
-		print ("Error! File {} is not accessible for reading.".format(filename))
+		print (f"Error! File {filename} is not accessible for reading.")
 		sys.exit(-1)
 
 	curline = 0
@@ -505,7 +505,7 @@ def getConstructOnMultiline_FTN_FR(sentinel, lines, curline):
 			if marker_pos >= 0:
 				l = l[marker_pos+len(sentinel)+1:]
 			else:
-				print ("Error! Missing {} in line {}".format(sentinel,curline+1))
+				print (f"Error! Missing {sentinel} in line {curline+1}")
 				sys.exit(-1)
 			# given continuation & multi-line char? -- but exclude last for continuation
 			continue_optional_pos = l.find ("&", 0, len(l)-1)
@@ -602,7 +602,7 @@ def parseFile_FTN_FR(filename):
 			lines = f.readlines()
 			f.close()
 	except IOError:
-		print ("Error! File {} is not accessible for reading.".format(filename))
+		print (f"Error! File {filename} is not accessible for reading.")
 		sys.exit(-1)
 
 	curline = 0
