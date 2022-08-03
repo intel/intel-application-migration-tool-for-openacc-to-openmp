@@ -31,13 +31,11 @@ def generateReport(lang, construct, infilename, APIwarnings):
 			for line, construct in construct.items():
 				# Emit the original statement
 				if construct.eline == construct.bline:
-					report.write ("* Line {} contains the following statement\n".
-					                  format(construct.bline))
+					report.write (f"* Line {construct.bline} contains the following statement\n")
 				else:
-					report.write ("* Lines {}-{} contains the following statement\n".
-					                  format(construct.bline, construct.eline))
+					report.write (f"* Lines {construct.bline}-{construct.eline} contains the following statement\n")
 				for l in construct.original:
-					report.write ("{}\n".format(l))
+					report.write (f"{l}\n")
 				# Follows the emission of the translated statement, if it was translated
 				if construct.openmp is None:
 					report.write ("that has NOT been as been translated.\n")
@@ -49,7 +47,7 @@ def generateReport(lang, construct, infilename, APIwarnings):
 						elif lang == CONSTANTS.FileLanguage.C or lang == CONSTANTS.FileLanguage.CPP:
 							report.write ("#pragma omp")
 						for p in construct.openmp:
-							report.write (" {}".format(p))
+							report.write (f" {p}")
 						report.write ("\n")
 					else:
 						report.write ("Nothing.\n")
@@ -59,7 +57,7 @@ def generateReport(lang, construct, infilename, APIwarnings):
 					report.write ("* WARNING(s)! Please review the translation.\n")
 					cnt = 1
 					for p in construct.warnings:
-						report.write ("  {}. {}\n".format(cnt,p))
+						report.write (f"  {cnt}. {p}\n")
 						cnt = cnt + 1
 				report.write ("\n\n")
 
@@ -68,12 +66,12 @@ def generateReport(lang, construct, infilename, APIwarnings):
 			if len(APIwarnings) > 0:
 				report.write ("Note the following OpenACC API calls. These have NOT been translated.\n")
 				for w in APIwarnings:
-					report.write ("* {}\n".format(w))
+					report.write (f"* {w}\n")
 				report.write ("\n\n")
 
 			report.close()
 	except IOError:
-		print ("Error! File {} is not accessible for writing.".format(infile))
+		print (f"Error! File {infile} is not accessible for writing.")
 
 def showHelp():
 	print ("Intel(r) Application Migration Tool for OpenACC* to OpenMP*")
@@ -130,19 +128,19 @@ def showHelp():
 def processFile (inputfile, txConfig, GenerateReport, ForceBackup, OverwriteInput):
 
 	inputfile_l = inputfile.lower()
-	print ("Processing file {}".format(inputfile))
+	print (f"Processing file {inputfile}")
 
 	# Check for file existance
 	if os.path.exists(inputfile):
 		if os.path.isfile(inputfile):
 			if not os.access (inputfile, os.R_OK):
-				print ("Error! File {} is not accessible for reading.".format(inputfile))
+				print ("Error! File {inputfile} is not accessible for reading.")
 				sys.exit(-1)
 		else:
-			print ("Error! Path {} does not refer to a file.".format(inputfile))
+			print ("Error! Path {inputfile} does not refer to a file.")
 			sys.exit(-1)
 	else:
-		print ("Error! Path {} does not exist.".format(inputfile))
+		print ("Error! Path {inputfile} does not exist.")
 		sys.exit(-1)
 
 	# If a backup file (suffix .original) is found, then die unless
@@ -293,7 +291,7 @@ def entry(argv):
 					lclauses.remove ("worker")
 					KeepBindingClauses |= CONSTANTS.BindingClauses.WORKER
 				for unused in lclauses:
-					print ("Unused parameter ({}) for -keep-binding-clauses".format(unused))
+					print (f"Unused parameter ({unused}) for -keep-binding-clauses")
 		elif param == "-experimental-kernels-support":
 			ExperimentalKernelsSupport = True
 		elif param == "-no-experimental-kernels-support":
@@ -317,7 +315,7 @@ def entry(argv):
 
 		inputfile = os.path.basename(argv[i])
 		if not os.path.isfile(inputfile):
-			print ("Error! Cannot find file {}.".format(inputfile))
+			print (f"Error! Cannot find file {inputfile}.")
 			sys.exit (-1)
 
 		inputfile_l = inputfile.lower()
@@ -353,7 +351,7 @@ def entry(argv):
 				lang = CONSTANTS.FileLanguage.C
 
 		if lang == None:
-			print ("Error! Unknown language file for file {}.".format(inputfile))
+			print (f"Error! Unknown language file for file {inputfile}.")
 			sys.exit (-1)
 
 		# Create a configuration for this translation based on the give parameters
@@ -381,7 +379,7 @@ def entry(argv):
 				f.write ("\n")
 				f.close()
 		except IOError:
-			print ("Error! File {} is not accessible for appending.".format(TXfile))
+			print (f"Error! File {TXfile} is not accessible for appending.")
 
 		# Overwrite input if requested
 		if OverwriteInput:

@@ -156,7 +156,7 @@ def getMultiParenthesisContents(construct, key, mergedResults = True):
 
 		pos_end,_ = TT.findClosingParenthesis (construct, pos, None, None)
 		if pos_end == -1:
-			print ("Error! Ill-formed construct around '{}'".format(construct))
+			print (f"Error! Ill-formed construct around '{construct}'")
 			sys.exit (-1)
 		else:
 			# Get the content within the parenthesis. Remove spaces, btw.
@@ -193,7 +193,7 @@ def getSingleParenthesisContents(construct, key):
 	if pos >= 0:
 		pos_end,_ = TT.findClosingParenthesis (construct, pos, None, None)
 		if pos_end == -1:
-			print ("Error! Ill-formed construct around '{}'".format(construct))
+			print (f"Error! Ill-formed construct around '{construct}'")
 			sys.exit (-1)
 		else:
 			contents = construct[pos+len(_key):pos_end].replace (" ", "")
@@ -211,72 +211,72 @@ def translate_oacc2_aux_copy_clauses(txConfig, c):
 	# Process copy clause
 	variables = getMultiParenthesisContents (c.construct, "copy")
 	if len(variables) > 0:
-		omp_clauses.append ("map(tofrom:{})".format(variables))
+		omp_clauses.append (f"map(tofrom:{variables})")
 
 	variables = getMultiParenthesisContents (c.construct, "pcopy")
 	if len(variables) > 0:
-		omp_clauses.append ("map(tofrom:{})".format(variables))
+		omp_clauses.append (f"map(tofrom:{variables})")
 		warnings.append (PREDEFINED_WARNINGS["present_or_X"])
 
 	variables = getMultiParenthesisContents (c.construct, "present_or_copy")
 	if len(variables) > 0:
-		omp_clauses.append ("map(tofrom:{})".format(variables))
+		omp_clauses.append (f"map(tofrom:{variables})")
 		warnings.append (PREDEFINED_WARNINGS["present_or_X"])
 
 	# Process copyin clause
 	variables = getMultiParenthesisContents (c.construct, "copyin")
 	if len(variables) > 0:
-		omp_clauses.append ("map(to:{})".format(variables))
+		omp_clauses.append (f"map(to:{variables})")
 
 	variables = getMultiParenthesisContents (c.construct, "pcopyin")
 	if len(variables) > 0:
-		omp_clauses.append ("map(to:{})".format(variables))
+		omp_clauses.append (f"map(to:{variables})")
 		warnings.append (PREDEFINED_WARNINGS["present_or_X"])
 
 	variables = getMultiParenthesisContents (c.construct, "present_or_copyin")
 	if len(variables) > 0:
-		omp_clauses.append ("map(to:{})".format(variables))
+		omp_clauses.append (f"map(to:{variables})")
 		warnings.append (PREDEFINED_WARNINGS["present_or_X"])
 
 	# Process copyout clause
 	variables = getMultiParenthesisContents (c.construct, "copyout")
 	if len(variables) > 0:
-		omp_clauses.append ("map(from:{})".format(variables))
+		omp_clauses.append (f"map(from:{variables})")
 
 	variables = getMultiParenthesisContents (c.construct, "pcopyout")
 	if len(variables) > 0:
-		omp_clauses.append ("map(from:{})".format(variables))
+		omp_clauses.append (f"map(from:{variables})")
 		warnings.append (PREDEFINED_WARNINGS["present_or_X"])
 
 	variables = getMultiParenthesisContents (c.construct, "present_or_copyout")
 	if len(variables) > 0:
-		omp_clauses.append ("map(from:{})".format(variables))
+		omp_clauses.append (f"map(from:{variables})")
 		warnings.append (PREDEFINED_WARNINGS["present_or_X"])
 
 	# Process create clause
 	variables = getMultiParenthesisContents (c.construct, "create")
 	if len(variables) > 0:
-		omp_clauses.append ("map(alloc:{})".format(variables))
+		omp_clauses.append (f"map(alloc:{variables})")
 
 	variables = getMultiParenthesisContents (c.construct, "pcreate")
 	if len(variables) > 0:
-		omp_clauses.append ("map(alloc:{})".format(variables))
+		omp_clauses.append (f"map(alloc:{variables})")
 		warnings.append (PREDEFINED_WARNINGS["present_or_X"])
 
 	variables = getMultiParenthesisContents (c.construct, "present_or_create")
 	if len(variables) > 0:
-		omp_clauses.append ("map(alloc:{})".format(variables))
+		omp_clauses.append (f"map(alloc:{variables})")
 		warnings.append (PREDEFINED_WARNINGS["present_or_X"])
 
 	# Process delete clause
 	variables = getMultiParenthesisContents (c.construct, "delete")
 	if len(variables) > 0:
-		omp_clauses.append ("map(delete:{})".format(variables))
+		omp_clauses.append (f"map(delete:{variables})")
 
 	# Process detach clause
 	variables = getMultiParenthesisContents (c.construct, "detach")
 	if len(variables) > 0:
-		omp_clauses.append ("map(release:{})".format(variables))
+		omp_clauses.append (f"map(release:{variables})")
 
 	return omp_clauses, warnings
 
@@ -339,21 +339,21 @@ def translate_oacc_2_omp_acc_data(txConfig, c):
 	variables = getMultiParenthesisContents (c.construct, "present")
 	if len(variables) > 0:
 		if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
-			omp_clauses.append ("map(alloc:{})".format(variables))
+			omp_clauses.append (f"map(alloc:{variables})")
 		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
-			omp_clauses.append ("map(tofrom:{})".format(variables))
+			omp_clauses.append (f"map(tofrom:{variables})")
 		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
-			omp_clauses.append ("map(present,alloc:{})".format(variables))
+			omp_clauses.append (f"map(present,alloc:{variables})")
 
 	# Process deviceptr clause
 	variables = getMultiParenthesisContents (c.construct, "deviceptr")
 	if len(variables) > 0:
-		omp_clauses.append ("is_device_ptr({})".format(variables))
+		omp_clauses.append (f"is_device_ptr({variables})")
 
 	# Process if
 	condition = getSingleParenthesisContents (c.construct, "if")
 	if len(condition) > 0:
-		omp_clauses.append ("if({})".format(condition))
+		omp_clauses.append (f"if({condition})")
 
 	# Process default clause -- emit a warning on default(none)
 	defaultv = getSingleParenthesisContents (c.construct, "default")
@@ -410,7 +410,7 @@ def translate_oacc_2_omp_acc_enter_data(txConfig, c):
 	# Process if
 	condition = getSingleParenthesisContents (c.construct, "if")
 	if len(condition) > 0:
-		omp_clauses.append ("if({})".format(condition))
+		omp_clauses.append (f"if({condition})")
 
 	# Process wait clause
 	if c.construct.find(" wait(") >= 0:
@@ -449,7 +449,7 @@ def translate_oacc_2_omp_acc_exit_data(txConfig, c):
 	# Process if
 	condition = getSingleParenthesisContents (c.construct, "if")
 	if len(condition) > 0:
-		omp_clauses.append ("if({})".format(condition))
+		omp_clauses.append (f"if({condition})")
 
 	# Process wait clause
 	if c.construct.find(" wait(") >= 0:
@@ -482,18 +482,18 @@ def translate_oacc_2_omp_acc_host_data(txConfig, c, carryOnStatus):
 		# Process !$acc host_data use_device(sbuf11,sbuf12,rbuf11,rbuf12)
 		variables = getMultiParenthesisContents (c.construct, "use_device")
 		if len(variables) > 0:
-			omp_clauses.append ("use_device_ptr({})".format(variables))
+			omp_clauses.append (f"use_device_ptr({variables})")
 	elif txConfig.HostDataBehavior == CONSTANTS.HostDataBehavior.TARGET_UPDATE:
 		omp_construct = ["target update"]
 		# Process !$acc host_data use_device(sbuf11,sbuf12,rbuf11,rbuf12)
 		variables = getMultiParenthesisContents (c.construct, "use_device")
 		if len(variables) > 0:
-			omp_clauses.append ("from({})".format(variables))
+			omp_clauses.append (f"from({variables})")
 
 	# Process if
 	condition = getSingleParenthesisContents (c.construct, "if")
 	if len(condition) > 0:
-		omp_clauses.append ("if({})".format(condition))
+		omp_clauses.append (f"if({condition})")
 
 	# Store data back into the construct class
 	c.openmp = [ " ".join(omp_construct + omp_clauses) ]
@@ -534,7 +534,7 @@ def translate_oacc_2_omp_acc_kernels (lines, txConfig, c, carryOnStatus):
 						end_block = l
 						break
 				if end_block == 0:
-					print ("Error! Cannot find the matching closing end block for block on line {}".format(begin_line+1))
+					print (f"Error! Cannot find the matching closing end block for block on line {begin_line+1}")
 					sys.exit (-1)
 				else:
 					carryOnStatus["within_kernels_range"] = [ begin_block+1, end_block+1 ]
@@ -564,28 +564,28 @@ def translate_oacc_2_omp_acc_kernels (lines, txConfig, c, carryOnStatus):
 	variables = getMultiParenthesisContents (c.construct, "present")
 	if len(variables) > 0:
 		if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
-			omp_clauses.append ("map(alloc:{})".format(variables))
+			omp_clauses.append (f"map(alloc:{variables})")
 		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
-			omp_clauses.append ("map(tofrom:{})".format(variables))
+			omp_clauses.append (f"map(tofrom:{variables})")
 		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
-			omp_clauses.append ("map(present,alloc:{})".format(variables))
+			omp_clauses.append (f"map(present,alloc:{variables})")
 
 	# Process deviceptr clause
 	variables = getMultiParenthesisContents (c.construct, "deviceptr")
 	if len(variables) > 0:
-		omp_clauses.append ("use_device_ptr({})".format(variables))
+		omp_clauses.append (f"use_device_ptr({variables})")
 
 	# Process if(x)
 	condition = getSingleParenthesisContents (c.construct, "if")
 	if len(condition) > 0:
-		omp_clauses.append ("if({})".format(condition))
+		omp_clauses.append (f"if({condition})")
 
 	# Process num_gangs(x)
 	if (CONSTANTS.BindingClauses.GANG & txConfig.BindingClauses) != 0:
 		n = getSingleParenthesisContents (c.construct, "num_gangs")
 		if len(n) > 0:
 			if omp_construct == ["target teams"]:
-				omp_clauses.append ("num_teams({})".format(n))
+				omp_clauses.append (f"num_teams({n})")
 			else:
 				warnings.append (PREDEFINED_WARNINGS["unsupported_num_gangs_kernels"])
 
@@ -593,7 +593,7 @@ def translate_oacc_2_omp_acc_kernels (lines, txConfig, c, carryOnStatus):
 	if (CONSTANTS.BindingClauses.WORKER & txConfig.BindingClauses) != 0:
 		n = getSingleParenthesisContents (c.construct, "num_workers")
 		if len(n) > 0:
-			omp_clauses.append ("thread_limit({})".format(n))
+			omp_clauses.append (f"thread_limit({n})")
 
 	# Process vector_length(x)
 	if (CONSTANTS.BindingClauses.VECTOR & txConfig.BindingClauses) != 0:
@@ -701,7 +701,7 @@ def translate_oacc_2_omp_acc_loop(lines, txConfig, c, carryOnStatus, Supplementa
 			if EndOfLoopLine != -1:
 				carryOnStatus["within_kernels_and_loop_range"] = [c.eline, EndOfLoopLine]
 			else:
-				print ("Error! Cannot determine end of loop starting at line {}".format(c.eline+1))
+				print (f"Error! Cannot determine end of loop starting at line {c.eline+1}")
 				sys.exit (-1)
 
 		# We emit a new code region with a parallel loop in OpenMP
@@ -729,13 +729,13 @@ def translate_oacc_2_omp_acc_loop(lines, txConfig, c, carryOnStatus, Supplementa
 	# Process private clause
 	variables = getMultiParenthesisContents (c.construct, "private")
 	if len(variables) > 0:
-		omp_clauses.append ("private({})".format(variables))
+		omp_clauses.append (f"private({variables})")
 
 	# Process reduction clause
 	reductions = getMultiParenthesisContents (c.construct, "reduction", False)
 	if len(reductions) > 0:
 		for r in reductions:
-			omp_clauses.append ("reduction({})".format(r))
+			omp_clauses.append (f"reduction({r})")
 
 	# Process possible bindings
 	if (CONSTANTS.BindingClauses.GANG & txConfig.BindingClauses) != 0:
@@ -774,7 +774,7 @@ def translate_oacc_2_omp_acc_loop(lines, txConfig, c, carryOnStatus, Supplementa
 			depth = depth[len("force:"):]
 			warnings.append (PREDEFINED_WARNINGS["collapse_force"])
 		if int(depth) >= 1:
-			omp_clauses.append ("collapse({})".format(depth))
+			omp_clauses.append (f"collapse({depth})")
 
 	# Store data back into the construct class
 	c.openmp = pre_constructs + [ " ".join(omp_construct + omp_clauses) ]
@@ -793,20 +793,20 @@ def translate_oacc_2_omp_acc_declare(txConfig, c):
 		# Process copyin clause
 		variables = getMultiParenthesisContents (c.construct, "copyin")
 		if len(variables) > 0:
-			omp_clauses.append ("({})".format(variables))
+			omp_clauses.append (f"({variables})")
 		# Process copy clause
 		variables = getMultiParenthesisContents (c.construct, "copy")
 		if len(variables) > 0:
-			omp_clauses.append ("({})".format(variables))
+			omp_clauses.append (f"({variables})")
 		# Process create clause
 		variables = getMultiParenthesisContents (c.construct, "create")
 		if len(variables) > 0:
-			omp_clauses.append ("({})".format(variables))
+			omp_clauses.append (f"({variables})")
 			warnings.append (PREDEFINED_WARNINGS["unimplemented_declare_create"])
 		# Process link clause
 		variables = getMultiParenthesisContents (c.construct, "link")
 		if len(variables) > 0:
-			omp_clauses.append ("link({})".format(variables))
+			omp_clauses.append (f"link({variables})")
 		# Process deviceptr clause
 		variables = getMultiParenthesisContents (c.construct, "deviceptr")
 		if len(variables) > 0:
@@ -817,7 +817,7 @@ def translate_oacc_2_omp_acc_declare(txConfig, c):
 			omp_construct = []
 			warnings.append (PREDEFINED_WARNINGS["unimplemented_declare_deviceresident"])
 	else:
-		print ("ACC DECLARE construct is only supported in Fortran as of now.\nCheck line {}: '{}'".format(c.bline, c.construct))
+		print (f"ACC DECLARE construct is only supported in Fortran as of now.\nCheck line {c.bline}: '{c.construct}'")
 
 	# Store data back into the construct class
 	c.openmp = [ " ".join(omp_construct + omp_clauses) ]
@@ -833,7 +833,7 @@ def translate_oacc_2_omp_acc_routine(txConfig, c):
 	if c.construct.find("(") >= 0:
 		r = getSingleParenthesisContents (c.construct, "routine")
 		if len(r) > 0:
-			omp_clauses.append ("({})".format(r))
+			omp_clauses.append (f"({r})")
 
 	if c.construct.find (" vector") or \
 	   c.construct.find (" gang") or \
@@ -865,38 +865,38 @@ def translate_oacc_2_omp_acc_parallel(txConfig, c, carryOnStatus):
 	variables = getMultiParenthesisContents (c.construct, "present")
 	if len(variables) > 0:
 		if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
-			omp_clauses.append ("map(alloc:{})".format(variables))
+			omp_clauses.append (f"map(alloc:{variables})")
 		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
-			omp_clauses.append ("map(tofrom:{})".format(variables))
+			omp_clauses.append (f"map(tofrom:{variables})")
 		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
-			omp_clauses.append ("map(present,alloc:{})".format(variables))
+			omp_clauses.append (f"map(present,alloc:{variables})")
 
 	# Process deviceptr clause
 	variables = getMultiParenthesisContents (c.construct, "deviceptr")
 	if len(variables) > 0:
-		omp_clauses.append ("is_device_ptr({})".format(variables))
+		omp_clauses.append (f"is_device_ptr({variables})")
 
 	# Process firstprivate clause
 	variables = getMultiParenthesisContents (c.construct, "firstprivate")
 	if len(variables) > 0:
-		omp_clauses.append ("firstprivate({})".format(variables))
+		omp_clauses.append (f"firstprivate({variables})")
 
 	# Process if(x)
 	condition = getSingleParenthesisContents (c.construct, "if")
 	if len(condition) > 0:
-		omp_clauses.append ("if({})".format(condition))
+		omp_clauses.append (f"if({condition})")
 
 	# Process num_gangs(x)
 	if (CONSTANTS.BindingClauses.GANG & txConfig.BindingClauses) != 0:
 		n = getSingleParenthesisContents (c.construct, "num_gangs")
 		if len(n) > 0:
-			omp_clauses.append ("num_teams({})".format(n))
+			omp_clauses.append (f"num_teams({n})")
 
 	# Process num_workers(x)
 	if (CONSTANTS.BindingClauses.WORKER & txConfig.BindingClauses) != 0:
 		n = getSingleParenthesisContents (c.construct, "num_workers")
 		if len(n) > 0:
-			omp_clauses.append ("thread_limit({})".format(n))
+			omp_clauses.append (f"thread_limit({n})")
 
 	# Process vector_length(x)
 	if (CONSTANTS.BindingClauses.VECTOR & txConfig.BindingClauses) != 0:
@@ -912,11 +912,11 @@ def translate_oacc_2_omp_acc_parallel(txConfig, c, carryOnStatus):
 		reductions = getMultiParenthesisContents (c.construct, "reduction", False)
 		if len(reductions) > 0:
 			for r in reductions:
-				omp_clauses.append ("reduction({})".format(r))
+				omp_clauses.append (f"reduction({r})")
 		# Process private clause
 		variables = getMultiParenthesisContents (c.construct, "private")
 		if len(variables) > 0:
-			omp_clauses.append ("private({})".format(variables))
+			omp_clauses.append (f"private({variables})")
 
 	# Process default clause -- emit a warning on default(none)
 	defaultv = getSingleParenthesisContents (c.construct, "default")
@@ -996,31 +996,31 @@ def translate_oacc_2_omp_acc_serial(txConfig, c, carryOnStatus):
 	variables = getMultiParenthesisContents (c.construct, "present")
 	if len(variables) > 0:
 		if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
-			omp_clauses.append ("map(alloc:{})".format(variables))
+			omp_clauses.append (f"map(alloc:{variables})")
 		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
-			omp_clauses.append ("map(tofrom:{})".format(variables))
+			omp_clauses.append (f"map(tofrom:{variables})")
 		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
-			omp_clauses.append ("map(present,alloc:{})".format(variables))
+			omp_clauses.append (f"map(present,alloc:{variables})")
 
 	# Process deviceptr clause
 	variables = getMultiParenthesisContents (c.construct, "deviceptr")
 	if len(variables) > 0:
-		omp_clauses.append ("is_device_ptr({})".format(variables))
+		omp_clauses.append (f"is_device_ptr({variables})")
 
 	# Process private clause
 	variables = getMultiParenthesisContents (c.construct, "private")
 	if len(variables) > 0:
-		omp_clauses.append ("private({})".format(variables))
+		omp_clauses.append (f"private({variables})")
 
 	# Process firstprivate clause
 	variables = getMultiParenthesisContents (c.construct, "firstprivate")
 	if len(variables) > 0:
-		omp_clauses.append ("firstprivate({})".format(variables))
+		omp_clauses.append (f"firstprivate({variables})")
 
 	# Process if(x)
 	condition = getSingleParenthesisContents (c.construct, "if")
 	if len(condition) > 0:
-		omp_clauses.append ("if({})".format(condition))
+		omp_clauses.append (f"if({condition})")
 
 	# Process default clause -- emit a warning on default(none)
 	defaultv = getSingleParenthesisContents (c.construct, "default")
@@ -1080,11 +1080,11 @@ def translate_oacc_2_omp_acc_serial(txConfig, c, carryOnStatus):
 		reductions = getMultiParenthesisContents (c.construct, "reduction", False)
 		if len(reductions) > 0:
 			for r in reductions:
-				omp_clauses.append ("reduction({})".format(r))
+				omp_clauses.append (f"reduction({r})")
 		# Process private clause
 		variables = getMultiParenthesisContents (c.construct, "private")
 		if len(variables) > 0:
-			omp_clauses.append ("private({})".format(variables))
+			omp_clauses.append (f"private({variables})")
 
 	# Store data back into the construct class
 	#  keep those already collected in c.openmp/warnings if this
@@ -1104,22 +1104,22 @@ def translate_oacc_2_omp_acc_update(txConfig,c):
 	# Process self clause
 	variables = getMultiParenthesisContents (c.construct, "self")
 	if len(variables) > 0:
-		omp_clauses.append ("from({})".format(variables))
+		omp_clauses.append (f"from({variables})")
 
 	# Process host clause
 	variables = getMultiParenthesisContents (c.construct, "host")
 	if len(variables) > 0:
-		omp_clauses.append ("from({})".format(variables))
+		omp_clauses.append (f"from({variables})")
 
 	# Process device clause
 	variables = getMultiParenthesisContents (c.construct, "device")
 	if len(variables) > 0:
-		omp_clauses.append ("to({})".format(variables))
+		omp_clauses.append (f"to({variables})")
 
 	# Process if
 	condition = getSingleParenthesisContents (c.construct, "if")
 	if len(condition) > 0:
-		omp_clauses.append ("if({})".format(condition))
+		omp_clauses.append (f"if({condition})")
 
 	# Process wait clause
 	if c.construct.find(" wait(") >= 0:
@@ -1189,14 +1189,14 @@ def translate_oacc_2_omp_acc_end_host_data(txConfig, c, carryOnStatus):
 	elif txConfig.HostDataBehavior == CONSTANTS.HostDataBehavior.TARGET_UPDATE:
 		omp_construct = ["target update"]
 		if "host_data" not in carryOnStatus:
-			print ("Error! Cannot find the matching opening construct for '{}'".format(construct))
+			print (f"Error! Cannot find the matching opening construct for '{construct}'")
 			sys.exit (-1)
 		# Grab the variables used in the opening section
 		variables = carryOnStatus["host_data"]
 		if len(variables) > 0:
-			omp_clauses.append ("to({})".format(variables))
+			omp_clauses.append (f"to({variables})")
 		else:
-			print ("Error! The matching opening construct for '{}' does not include variables.".format(construct))
+			print (f"Error! The matching opening construct for '{construct}' does not include variables.")
 			sys.exit (-1)
 		# Remove the key entry in the carryOnStatus dictionary
 		del carryOnStatus["host_data"]
@@ -1324,14 +1324,14 @@ def translate (txConfig, lines, construct):
 			# Check for use 
 			if line.find ("use") >= 0:
 				if line[line.find("use"):].find ("openacc") >= 0:
-					w = "Line {} includes the Fortran OpenACC module. Change it into 'USE omplib'.".format(i+1)
+					w = f"Line {i+1} includes the Fortran OpenACC module. Change it into 'USE omplib'."
 					APIwarnings.append (w)
 					pass
 		else:
 			# Check for #include <openacc.h> or "openacc.h"
 			if line.find ("#include") >= 0:
 				if line[line.find("#include"):].find ("openacc.h") >= 0:
-					w = "Line {} includes the C/C++ OpenACC header. Change it into '#include <omp.h>'.".format(i+1)
+					w = f"Line {i+1} includes the C/C++ OpenACC header. Change it into '#include <omp.h>'."
 					APIwarnings.append (w)
 					pass
 
@@ -1341,7 +1341,7 @@ def translate (txConfig, lines, construct):
 			if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
 				line = line.lower()
 			if line.find(call) >= 0:
-				w = "Line {} contains an invocation to '{}'.".format(i+1, call)
+				w = f"Line {i+1} contains an invocation to '{call}'."
 				if len(suggestion) > 0:
 					w += " " + suggestion
 				APIwarnings.append (w)
