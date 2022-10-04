@@ -85,6 +85,8 @@ def showHelp():
 	print ("                                - nowait translates ACC ASYNC clauses into nowait.")
 	print (" [-no]-declare-mapper         : Declares mappers for user-defined data-types (Fortran only)               (enabled)")
 	print (" -fixed|-free                 : Sets fixed-format or free-format for Fortran translation                  (auto)")
+	print (" -specify-language=L          : Forces the parsing of the file for language                               (auto)")
+	print ("                                (auto, C, C++, Fortran/Free or Fortran/Fixed) ")
 	print (" [-no]-force-backup           : If enabled, enforce writing a backup of the original file.                (disabled)")
 	print (" [-no]-generate-report        : Enables/Disables report generation about the translation.                 (enabled)")
 	print (" [-no]-generate-multidimensional-alternate-code :                                                         (enabled)")
@@ -203,6 +205,7 @@ def entry(argv):
 	AsyncBehavior = CONSTANTS.AsyncBehavior.NOWAIT
 	HostDataBehavior = CONSTANTS.HostDataBehavior.TARGET_UPDATE
 	FortranV = FortranVariant.AUTO
+	ForceLanguage = None
 	KeepBindingClauses = CONSTANTS.BindingClauses.NONE
 	ExperimentalKernelsSupport = True
 	ExperimentalRemoveKernelsBubblesSupport = True
@@ -272,6 +275,8 @@ def entry(argv):
 			FortranV = FortranVariant.FIXED
 		elif param == "-free":
 			FortranV = FortranVariant.FREE
+		elif param.startswith ("-specify-language="):
+			ForceLanguage = param[len("-specify-language="):]
 		elif param.startswith ("-keep-binding-clauses="):
 			clauses = param[len("-keep-binding-clauses="):]
 			if clauses == "all":
@@ -323,33 +328,53 @@ def entry(argv):
 		# Determines the language for this file
 		lang = None
 
-		# Can / Should we infer the Fortran variant?
-		if FortranV == FortranVariant.AUTO:
-			if len(inputfile) > len(".f90"):
-				if inputfile_l[-4:] == ".f90":
+		# If the user did not specify a language or chose "auto" we try to identify
+		# the language out of the file extension/suffix.
+		if ForceLanguage is None or ForceLanguage == "auto":
+			# Can / Should we infer the Fortran variant?
+			if FortranV == FortranVariant.AUTO:
+				if len(inputfile) > len(".f90") and \
+				    (inputfile_l[-4:] == ".f90" or inputfile_l[-4:] == ".f95" or \
+				     inputfile_l[-4:] == ".f03" or inputfile_l[-4:] == ".f08"):
 					lang = CONSTANTS.FileLanguage.FortranFree
-			if len(inputfile) > len(".f"):
-				if inputfile_l[-2:] == ".f":
+				if len(inputfile) > len(".f77") and inputfile_l[-4:] == ".f77":
 					lang = CONSTANTS.FileLanguage.FortranFixed
+				if len(inputfile) > len(".f") and inputfile_l[-2:] == ".f":
+					lang = CONSTANTS.FileLanguage.FortranFixed
+			else:
+				if len(inputfile) > len(".f90") and \
+				    (inputfile_l[-4:] == ".f90" or inputfile_l[-4:] == ".f95" or \
+				     inputfile_l[-4:] == ".f03" or inputfile_l[-4:] == ".f08" or \
+				     inputfile_l[-4:] == ".f77"):
+						lang = CONSTANTS.FileLanguage.FortranFree if FortranV == FortranVariant.FREE else CONSTANTS.FileLanguage.FortranFixed
+				if len(inputfile) > len(".f") and inputfile_l[-2:] == ".f":
+						lang = CONSTANTS.FileLanguage.FortranFree if FortranV == FortranVariant.FREE else CONSTANTS.FileLanguage.FortranFixed
+
+			if len(inputfile) > len(".cxx"):
+				if inputfile_l[-4:] == ".cxx" or inputfile_l[-4:] == ".cpp" or inputfile_l[-4:] == ".c++" or \
+				   inputfile_l[-4:] == ".hxx" or inputfile_l[-4:] == ".hpp" or inputfile_l[-4:] == ".h++":
+					lang = CONSTANTS.FileLanguage.CPP
+			if len(inputfile) > len(".cc"):
+				if inputfile_l[-3:] == ".cc":
+					lang = CONSTANTS.FileLanguage.CPP
+			if len(inputfile) > len(".c"):
+				if inputfile_l[-2:] == ".c" or inputfile_l[-2:] == ".h":
+					lang = CONSTANTS.FileLanguage.C
 		else:
-			if len(inputfile) > len(".f90"):
-				if inputfile_l[-4:] == ".f90":
-					lang = CONSTANTS.FileLanguage.FortranFree if FortranV == FortranVariant.FREE else CONSTANTS.FileLanguage.FortranFixed;
-			if len(inputfile) > len(".f"):
-				if inputfile_l[-2:] == ".f":
-					lang = CONSTANTS.FileLanguage.FortranFree if FortranV == FortranVariant.FREE else CONSTANTS.FileLanguage.FortranFixed;
-
-		if len(inputfile) > len(".cxx"):
-			if inputfile_l[-4:] == ".cxx" or inputfile_l[-4:] == ".cpp" or inputfile_l[-4:] == ".c++" or \
-			   inputfile_l[-4:] == ".hxx" or inputfile_l[-4:] == ".hpp" or inputfile_l[-4:] == ".h++":
-				lang = CONSTANTS.FileLanguage.CPP
-		if len(inputfile) > len(".cc"):
-			if inputfile_l[-3:] == ".cc":
-				lang = CONSTANTS.FileLanguage.CPP
-		if len(inputfile) > len(".c"):
-			if inputfile_l[-2:] == ".c" or inputfile_l[-2:] == ".h":
+			# The user suggested the language
+			if ForceLanguage == "C":
 				lang = CONSTANTS.FileLanguage.C
+			elif ForceLanguage == "C++":
+				lang = CONSTANTS.FileLanguage.CPP
+			elif ForceLanguage == "Fortran/Fixed":
+				lang = CONSTANTS.FileLanguage.FortranFixed
+			elif ForceLanguage == "Fortran/Free":
+				lang = CONSTANTS.FileLanguage.FortranFree
+			else:
+				print (f"Error! Incorrect language proposed {ForceLanguage}. Valid alternatives are: C, C++, Fortran/Fixed and Fortran/Free.")
+				sys.exit (-1)
 
+		# Did we get the language for the file?
 		if lang == None:
 			print (f"Error! Unknown language file for file {inputfile}.")
 			sys.exit (-1)
