@@ -4,6 +4,7 @@
 
 def splitEntities (entities):
 
+	# We will keep in res the found entities
 	res = []
 	while True:
 		open_parenthesis_pos = entities.find ("(")
@@ -48,12 +49,18 @@ def splitEntities (entities):
 				if len(tmp) > 0:
 					res = res + [tmp]
 			break
-			
 		else:
 			tmp = entities.strip() # There is a single entity
 			if len(tmp) > 0:
 				res = res + [tmp]
 			break
+
+	# Check if members were initialized, and if so, skip that initialization
+	for i in range(0,len(res)):
+		member = res[i]
+		# Member is initialized if it has a =, which we will drop
+		if member.find ("=") > 0:
+			res[i] = member[0:member.find("=")].strip()
 
 	return res
 
