@@ -1,0 +1,36 @@
+* Line 34 contains the following statement
+!$acc serial copy(tdate)
+that has been as been translated into:
+!$omp target map(tofrom:tdate)
+
+
+* Line 36 contains the following statement
+!$acc end serial
+that has been as been translated into:
+!$omp end target
+
+
+* Line 42 contains the following statement
+!$acc serial copyin(thour1)
+that has been as been translated into:
+!$omp target map(to:thour1)
+
+
+* Line 44 contains the following statement
+!$acc end serial
+that has been as been translated into:
+!$omp end target
+
+
+* Line 46 contains the following statement
+!$acc serial copyout(thour2)
+that has been as been translated into:
+!$omp target map(from:thour2)
+
+
+* Line 51 contains the following statement
+!$acc end serial
+that has been as been translated into:
+!$omp end target
+
+
