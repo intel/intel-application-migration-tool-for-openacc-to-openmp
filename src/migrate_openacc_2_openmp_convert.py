@@ -21,6 +21,9 @@ class accConstruct:
 		self.warnings = None                     # List of warnings associated to this translation
 		self.hasLoop = False                     # Does it include a loop clause/construct?
 		self.AUX = None                          # Auxiliary field. This is specific to the construct
+		self.FakeConstruct = False               # Fake constructs could be copies of constructs that 
+		                                         # need to be created for special cases in which lines
+		                                         # need to be changed -- and thus OpenACC can't be removed
 #
 # CLASS: OpenMPconstruct
 #  -- these are build when parsing the input C/Fortran files

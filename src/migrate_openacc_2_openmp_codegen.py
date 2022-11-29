@@ -7,6 +7,7 @@ import migrate_openacc_2_openmp_udt as UDT
 import migrate_openacc_2_openmp_tools as TT
 import migrate_openacc_2_openmp_parser as PARSER
 import migrate_openacc_2_openmp_convert as OACC2OMP
+import copy
 import sys
 
 # findFirstSeparator (s, separators, spos)
@@ -273,7 +274,7 @@ def generateAlternateMDCode_Fortran(f, c, arraySections):
 				f.write ("! end block\n")
 
 
-# generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, UDTdefinitions, outfilename)
+# generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, UDTdefinitions, ListFortranFunctionsSubroutines, outfilename)
 #  generates a translation of the input Fortran file.
 #   txConfig = tool configuration plus code details (lang, and tool knobs)
 #   lines = input file lines
@@ -281,9 +282,12 @@ def generateAlternateMDCode_Fortran(f, c, arraySections):
 #       been translated
 #   supplines = supplementary constructs to be added into the translated file (with indices
 #       from source file)
+#   ListFortranFunctionsSubroutines = list of triplets pointing to functions/subroutine limits.
+#       triplets are in the form of (b,I,e) where b refers begin line, I refers to last implicit/import/use
+#       statement and e refers end line
 #   outfilename = name of the output file
 
-def generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, UDTdefinitions, outfilename):
+def generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, UDTdefinitions, ListFortranFunctionsSubroutines, outfilename):
 
 	openacc_ifdefcondition = txConfig.OpenACCConditionalDefine
 	translated_ifdefcondition = txConfig.TranslatedOMPConditionalDefine
@@ -291,6 +295,45 @@ def generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs
 	removeOpenACC = txConfig.SuppressTranslatedOpenACC
 	generateAlternateMDCode = txConfig.GenerateMultiDimensionalAlternateCode
 	declareMappers = txConfig.DeclareMapper
+
+	#
+	# !$acc routine can be placed anywhere in the Fortran code, but the OpenmP omp declare target
+	# has to be placed after the function import/implicit/use, if any -- so "acc routine" can move
+	# anywhere in the code
+	#
+	for i in range(0, len(lines)):
+		if i in ACCconstructs and ACCconstructs[i].openmp is not None and \
+		   ACCconstructs[i].openmp == [ "declare target" ] and not ACCconstructs[i].FakeConstruct:
+			# if we found a declare target, we need to go over the FortranFunctionsSubroutines to
+			# 1) identify which routine belongs this line to, and then 2) look #for the proper
+			# place where this declare target should appear in the translated code
+			for j in range(0, len(ListFortranFunctionsSubroutines)):
+				begin, lastimportimplicituse, end = ListFortranFunctionsSubroutines[j]
+				fkACCconstruct = copy.deepcopy (ACCconstructs[i])
+				fkACCconstruct.FakeConstruct = True # Mark as fake so that it is not dumped
+				                                     # twice by codegen
+				if begin <= i and i <= end:
+					# Assign source code line -- depending on whether Import/Implicit/USe
+					# appeared in the source code
+					fkACCconstruct.bline = begin if lastimportimplicituse is None else lastimportimplicituse
+					fkACCconstruct.eline = fkACCconstruct.bline
+
+					# Now add the temporal ACC construct into the set of constructs
+					# Avoid overwriting if the new position matches the original/old position
+					if fkACCconstruct.bline != ACCconstructs[i].bline:
+						# If it didn't match, check that there is no other OpenACC statement
+						# in the destination line
+						if fkACCconstruct.bline-1 in ACCconstructs:
+							print ("Error! OpenACC statement already exists in {fkACCconstruct.bline-1}. Cannot add !$omp declare target in there!")
+							print ("{}".format(ACCconstructs[fkACCconstruct.bline].openmp))
+							sys.exit (0)
+						# Ok, insert the fake ACC construct
+						ACCconstructs[fkACCconstruct.bline-1] = fkACCconstruct
+						# The original OpenACC construct cannot emit any OpenMP translation
+						tmp = ACCconstructs[i]
+						tmp.openmp = None
+						ACCconstructs[i] = tmp
+					break
 
 	try:
 		with open(outfilename, 'w') as f:
@@ -302,7 +345,9 @@ def generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs
 				if removeOpenACC:
 					isAnOpenACCConstruct = False
 					for k, v in ACCconstructs.items():
-						if v.bline <= i+1 and i+1 <= v.eline:
+						# is the current line within the range of this OpenACC construct?
+						#  -- and not is this a fake construct (for declare target, for instance)
+						if v.bline <= i+1 and i+1 <= v.eline and not v.FakeConstruct:
 							isAnOpenACCConstruct = True
 					if not isAnOpenACCConstruct:
 						f.write (lines[i])
@@ -398,11 +443,14 @@ def generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs
 #   UDTdefinitions = user-defined types
 #   outfilename = name of the output file
 
-def generateTranslatedFile (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, UDTdefinitions, outfilename):
+def generateTranslatedFile (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs,
+  UDTdefinitions, ListFortranFunctionsSubroutines, outfilename):
 
 	if txConfig.Lang == CONSTANTS.FileLanguage.C or txConfig.Lang == CONSTANTS.FileLanguage.CPP:
-		generateTranslatedFileC (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, None, outfilename)
+		generateTranslatedFileC (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs,
+		  None, outfilename)
 	else:
-		generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs, UDTdefinitions, outfilename)
+		generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs, SupplementaryConstructs,
+		  UDTdefinitions, ListFortranFunctionsSubroutines, outfilename)
 
 # vim:set noexpandtab tabstop=4:

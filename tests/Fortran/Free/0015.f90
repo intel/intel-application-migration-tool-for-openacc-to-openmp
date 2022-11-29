@@ -10,6 +10,7 @@ integer :: res1, res2
 end program
 
 function meaningoflife(N)
+  implicit none
   integer :: N
   integer :: meaningoflife
   !$acc routine
