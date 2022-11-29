@@ -405,6 +405,14 @@ def parseFile_FTN_FX(filename):
 	ACCconstructs = dict()
 	OMPconstructs = dict()
 	UDTdefinitions = dict()
+	ListFunctionsSubroutines = []
+
+	# We need to take care of functions and subroutines for a good conversion of !$acc routine
+	# since !$omp declare target() have to go after implicit/use/import statements
+	BeginFunction, EndFunction = None, None
+	BeginSubroutine, EndSubroutine = None, None
+	LastImplicit, LastUse, LastImport = None, None, None
+
 	lines = []
 	try:
 		with open (filename, "r") as f:
@@ -453,9 +461,58 @@ def parseFile_FTN_FX(filename):
 			typename, members, begin_line, end_line = getUserDerivedType_FTN_FX (lines, curline)
 			UDTdefinitions[end_line] = OACC2OMP.UDTdefinition(typename, members, begin_line+1, end_line+1)
 
+		elif l.find ("end function") >= 0 or l.find ("endfunction") >= 0:
+			# We need to take care of functions and subroutines for a good conversion of !$acc routine
+			# since !$omp declare target() have to go after implicit/use/import statements
+			if l.startswith ("end function") or l.find (" end function") >= 0 or \
+			   l.startswith ("endfunction") or l.find (" endfunction"):
+				EndFunction = curline + 1
+				x = generateFunctionSubroutineLimits_FTN_FR(BeginFunction, EndFunction, LastImplicit, LastUse, LastImport)
+				ListFunctionsSubroutines.append (x)
+				BeginFunction, EndFunction = None, None
+				LastImplicit, LastUse, LastImport = None, None, None
+
+		elif l.find ("function") >= 0:
+			# We need to take care of functions and subroutines for a good conversion of !$acc routine
+			# since !$omp declare target() have to go after implicit/use/import statements
+			if l.startswith ("function") or l.find (" function ") >= 0:
+				BeginFunction = curline + 1
+
+		elif l.find("end subroutine") >= 0 or l.find ("endsubroutine") >= 0:
+			# We need to take care of functions and subroutines for a good conversion of !$acc routine
+			# since !$omp declare target() have to go after implicit/use/import statements
+			if l.startswith ("end subroutine") or l.find (" end subroutine") >= 0 or \
+			   l.startswith ("endsubroutine") or l.find (" endsubroutine") >= 0:
+				EndSubroutine = curline + 1
+				x = generateFunctionSubroutineLimits_FTN_FR(BeginSubroutine, EndSubroutine, LastImplicit, LastUse, LastImport)
+				ListFunctionsSubroutines.append (x)
+				BeginFunction, EndFunction = None, None
+				LastImplicit, LastUse, LastImport = None, None, None
+
+		elif l.find("subroutine") >= 0:
+			# We need to take care of functions and subroutines for a good conversion of !$acc routine
+			# since !$omp declare target() have to go after implicit/use/import statements
+			if l.startswith ("subroutine") or l.find (" subroutine ") >= 0:
+				BeginSubroutine = curline + 1
+
+		elif l.startswith ("use"):
+			# We need to take care of functions and subroutines for a good conversion of !$acc routine
+			# since !$omp declare target() have to go after implicit/use/import statements
+			LastUse = curline + 1
+
+		elif l.startswith ("implicit"):
+			# We need to take care of functions and subroutines for a good conversion of !$acc routine
+			# since !$omp declare target() have to go after implicit/use/import statements
+			LastImplicit = curline + 1
+
+		elif l.startswith ("import"):
+			# We need to take care of functions and subroutines for a good conversion of !$acc routine
+			# since !$omp declare target() have to go after implicit/use/import statements
+			LastImport = curline + 1
+
 		curline = curline + 1
 
-	return lines, ACCconstructs, OMPconstructs, UDTdefinitions # Last None refers to UDT definitions
+	return lines, ACCconstructs, OMPconstructs, UDTdefinitions, ListFunctionsSubroutines
 
 
 # getConstructOnMultiline_FTN_FR(sentinel, lines, curline)
@@ -589,6 +646,21 @@ def getUserDerivedType_FTN_FR (lines, curline):
 
 	return typename, members, bline, eline
 
+# generateFunctionSubroutineLimits_FTN_FR
+#  generates a triad with information regarding starting and ending line of a function/subroutine
+#  and also taking the highest line for IMPLICIT/USE/IMPORT
+def generateFunctionSubroutineLimits_FTN_FR(beginline, endline, implicitline, useline, importline):
+
+	maxImplicitUseImport = None
+	if implicitline is not None or useline is not None or importline is not None:
+		implicitline = 0 if implicitline is None else implicitline
+		useline = 0 if useline is None else useline
+		importline = 0 if importline is None else importline
+		maxImplicitUseImport = max(implicitline, max(useline, importline))
+
+	return beginline, maxImplicitUseImport, endline
+
+
 # parseFile_FTN_FR (filename)
 #  parses a Fortran file (in free format) and collects the OpenACC and OpenMP constructs
 #  (not considering those in commented blocks)
@@ -596,6 +668,14 @@ def parseFile_FTN_FR(filename):
 	ACCconstructs = dict()
 	OMPconstructs = dict()
 	UDTdefinitions = dict()
+	ListFunctionsSubroutines = []
+
+	# We need to take care of functions and subroutines for a good conversion of !$acc routine
+	# since !$omp declare target() have to go after implicit/use/import statements
+	BeginFunction, EndFunction = None, None
+	BeginSubroutine, EndSubroutine = None, None
+	LastImplicit, LastUse, LastImport = None, None, None
+
 	lines = []
 	try:
 		with open (filename, "r") as f:
@@ -613,6 +693,7 @@ def parseFile_FTN_FR(filename):
 		# Convert to lower case and suppress multiple spaces and tabs
 		l = re.sub('[\\s\\t]+', ' ', l.lower())
 		l = re.sub('\\s\\(', '(', l) # Suppress spaces before parenthesis to help parsing
+
 		if len(l) > len("!$acc ") and l.startswith ("!$acc"):
 			original, construct, begin_line, end_line = getConstructOnMultiline_FTN_FR("!$acc", lines, curline)
 			# Append to construct to be processed
@@ -641,9 +722,58 @@ def parseFile_FTN_FR(filename):
 			typename, members, begin_line, end_line = getUserDerivedType_FTN_FR (lines, curline)
 			UDTdefinitions[end_line] = OACC2OMP.UDTdefinition(typename, members, begin_line+1, end_line+1)
 
+		elif l.find ("end function") >= 0 or l.find ("endfunction") >= 0:
+			# We need to take care of functions and subroutines for a good conversion of !$acc routine
+			# since !$omp declare target() have to go after implicit/use/import statements
+			if l.startswith ("end function") or l.find (" end function") >= 0 or \
+			   l.startswith ("endfunction") or l.find (" endfunction"):
+				EndFunction = curline + 1
+				x = generateFunctionSubroutineLimits_FTN_FR(BeginFunction, EndFunction, LastImplicit, LastUse, LastImport)
+				ListFunctionsSubroutines.append (x)
+				BeginFunction, EndFunction = None, None
+				LastImplicit, LastUse, LastImport = None, None, None
+
+		elif l.find ("function") >= 0:
+			# We need to take care of functions and subroutines for a good conversion of !$acc routine
+			# since !$omp declare target() have to go after implicit/use/import statements
+			if l.startswith ("function") or l.find (" function ") >= 0:
+				BeginFunction = curline + 1
+
+		elif l.find("end subroutine") >= 0 or l.find ("endsubroutine") >= 0:
+			# We need to take care of functions and subroutines for a good conversion of !$acc routine
+			# since !$omp declare target() have to go after implicit/use/import statements
+			if l.startswith ("end subroutine") or l.find (" end subroutine") >= 0 or \
+			   l.startswith ("endsubroutine") or l.find (" endsubroutine") >= 0:
+				EndSubroutine = curline + 1
+				x = generateFunctionSubroutineLimits_FTN_FR(BeginSubroutine, EndSubroutine, LastImplicit, LastUse, LastImport)
+				ListFunctionsSubroutines.append (x)
+				BeginFunction, EndFunction = None, None
+				LastImplicit, LastUse, LastImport = None, None, None
+
+		elif l.find("subroutine") >= 0:
+			# We need to take care of functions and subroutines for a good conversion of !$acc routine
+			# since !$omp declare target() have to go after implicit/use/import statements
+			if l.startswith ("subroutine") or l.find (" subroutine ") >= 0:
+				BeginSubroutine = curline + 1
+
+		elif l.startswith ("use"):
+			# We need to take care of functions and subroutines for a good conversion of !$acc routine
+			# since !$omp declare target() have to go after implicit/use/import statements
+			LastUse = curline + 1
+
+		elif l.startswith ("implicit"):
+			# We need to take care of functions and subroutines for a good conversion of !$acc routine
+			# since !$omp declare target() have to go after implicit/use/import statements
+			LastImplicit = curline + 1
+
+		elif l.startswith ("import"):
+			# We need to take care of functions and subroutines for a good conversion of !$acc routine
+			# since !$omp declare target() have to go after implicit/use/import statements
+			LastImport = curline + 1
+
 		curline = curline + 1
 
-	return lines, ACCconstructs, OMPconstructs, UDTdefinitions
+	return lines, ACCconstructs, OMPconstructs, UDTdefinitions, ListFunctionsSubroutines
 
 
 # parseFile (filename)
@@ -653,12 +783,13 @@ def parseFile(filename, txConfig):
 
 	if txConfig.Lang == CONSTANTS.FileLanguage.C or txConfig.Lang == CONSTANTS.FileLanguage.CPP:
 		lines, ACCconstructs, OMPconstructs, UDTdefinitions = parseFile_C (filename)
+		return lines, ACCconstructs, OMPconstructs, UDTdefinitions, []
 	elif txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed:
-		lines, ACCconstructs, OMPconstructs, UDTdefinitions = parseFile_FTN_FX (filename)
+		lines, ACCconstructs, OMPconstructs, UDTdefinitions, ListFortranFunctionsSubroutines = parseFile_FTN_FX (filename)
+		return lines, ACCconstructs, OMPconstructs, UDTdefinitions, ListFortranFunctionsSubroutines
 	elif txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
-		lines, ACCconstructs, OMPconstructs, UDTdefinitions = parseFile_FTN_FR (filename)
-
-	return lines, ACCconstructs, OMPconstructs, UDTdefinitions
+		lines, ACCconstructs, OMPconstructs, UDTdefinitions, ListFortranFunctionsSubroutines = parseFile_FTN_FR (filename)
+		return lines, ACCconstructs, OMPconstructs, UDTdefinitions, ListFortranFunctionsSubroutines
 
 # areEmptyLines (txConfig, lines, start, end):
 def areEmptyLines (txConfig, lines, start, end):

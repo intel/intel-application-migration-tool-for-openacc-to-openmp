@@ -155,7 +155,7 @@ def processFile (inputfile, txConfig, GenerateReport, ForceBackup, OverwriteInpu
 	shutil.copyfile (inputfile, inputfile+str(".original"))
 
 	# Parse input file
-	lines, ACCconstructs, OMPconstructs, UDTdefinitions = PARSER.parseFile (inputfile, txConfig)
+	lines, ACCconstructs, OMPconstructs, UDTdefinitions, ListFortranFunctionsSubroutines = PARSER.parseFile (inputfile, txConfig)
 
 	# Run the translation
 	APIwarnings, SupplementaryConstructs = OACC2OMP.translate (txConfig, lines,
@@ -168,7 +168,7 @@ def processFile (inputfile, txConfig, GenerateReport, ForceBackup, OverwriteInpu
 	# Generate the translated file, and if requested, the report
 	TXfile = inputfile+str(".translated")
 	CODEGEN.generateTranslatedFile (txConfig, lines, ACCconstructs, OMPconstructs,
-	  SupplementaryConstructs, UDTdefinitions, TXfile)
+	  SupplementaryConstructs, UDTdefinitions, ListFortranFunctionsSubroutines, TXfile)
 
 	if GenerateReport:
 		generateReport (txConfig.Lang, ACCconstructs, inputfile, APIwarnings)

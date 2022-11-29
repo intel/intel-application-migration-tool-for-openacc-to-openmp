@@ -13,19 +13,20 @@ integer :: res1, res2
 end program
 
 function meaningoflife(N)
+  implicit none
+!$omp declare target
   integer :: N
   integer :: meaningoflife
   !$acc routine
-!$omp declare target
   meaningoflife = 42 + N
 end function
 
 subroutine foo (N, R)
+!$omp declare target
   integer, intent(in) :: N
   integer, intent(out) :: R
   !$acc routine
-!$omp declare target
   R = N + R
 end subroutine
 
-! Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -free 0015.f90
+! Code was translated using: /nfs/pdx/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -free 0015.f90

@@ -1,12 +1,14 @@
 module testmodule
   contains
   function meaningoflife(N)
+    !$acc routine
+    implicit none
     integer :: N
     integer :: meaningoflife
-    !$acc routine
     meaningoflife = 42 + N
   end function
   subroutine foo (N, R)
+    implicit none
     integer, intent(in) :: N
     integer, intent(out) :: R
     !$acc routine
