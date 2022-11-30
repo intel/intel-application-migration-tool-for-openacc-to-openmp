@@ -194,6 +194,10 @@ def parseFile_C(filename):
 		if statements.find ("//") >= 0:
 			statements = statements[:statements.find ("//")]
 
+		# Check for inclusion of OpenACC header
+		if re.match ('#\s*include\s*<openacc.h>.*', statements):
+			ACCconstructs[eline] = OACC2OMP.accConstruct( [ original ], '#include <openacc.h>', bline+1, eline+1)
+
 		# Check for OpenACC statements now - preC99 pragmas
 		if '#' in statements:
 			tmp = statements[statements.find("#")+len("#"):].strip()
@@ -430,6 +434,10 @@ def parseFile_FTN_FX(filename):
 		# Convert to lower case and suppress multiple spaces
 		l = re.sub('[\\s\\t]+', ' ', l.lower())
 		l = re.sub('\\s\\(', '(', l) # Suppress spaces before parenthesis to help parsing
+
+		# Check for inclusion of OpenACC header/module
+		if re.match ('\s*use\s*openacc.*', l):
+			ACCconstructs[curline] = OACC2OMP.accConstruct( [ original ], 'use openacc', curline+1, curline+1)
 
 		if len(l) > len("c$acc ") and \
 		  l.startswith ("c$acc") or l.startswith ("!$acc") or l.startswith("*$acc"):
@@ -693,6 +701,10 @@ def parseFile_FTN_FR(filename):
 		# Convert to lower case and suppress multiple spaces and tabs
 		l = re.sub('[\\s\\t]+', ' ', l.lower())
 		l = re.sub('\\s\\(', '(', l) # Suppress spaces before parenthesis to help parsing
+
+		# Check for inclusion of OpenACC header/module
+		if re.match ('\s*use\s*openacc.*', l):
+			ACCconstructs[curline] = OACC2OMP.accConstruct( [ original ], 'use openacc', curline+1, curline+1)
 
 		if len(l) > len("!$acc ") and l.startswith ("!$acc"):
 			original, construct, begin_line, end_line = getConstructOnMultiline_FTN_FR("!$acc", lines, curline)
