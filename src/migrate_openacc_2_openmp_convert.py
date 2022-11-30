@@ -24,6 +24,7 @@ class accConstruct:
 		self.FakeConstruct = False               # Fake constructs could be copies of constructs that 
 		                                         # need to be created for special cases in which lines
 		                                         # need to be changed -- and thus OpenACC can't be removed
+		self.needsOMPprefix = True               # Codegen has to prefix with #pragma omp or !$omp ?
 #
 # CLASS: OpenMPconstruct
 #  -- these are build when parsing the input C/Fortran files
@@ -1249,11 +1250,26 @@ def translate_oacc_2_omp_acc_end_serial (c):
 	else:
 		c.openmp = ["end target"]
 
+# Translate include/module inclusion
+def translate_header_module_inclusion (c):
+	# Store data back into the construct class
+	c.warnings = []
+
+	# do we have a worksharing (loop) construct ?
+	if c.construct == '#include <openacc.h>':
+		c.openmp = ['#include <omp.h>']
+	elif c.construct == 'use openacc':
+		c.openmp = ['use omp_lib']
+	c.needsOMPprefix = False
+
 # Main translation point for ACC constructs
 def translate_oacc_2_omp (lines, txConfig, c, carryOnStatus, SupplementaryConstructs):
 
+	# header/module unclusion
+	if c.construct == '#include <openacc.h>' or c.construct == 'use openacc':
+		translate_header_module_inclusion(c)
 	# begin constructs
-	if c.construct.startswith ("atomic"):
+	elif c.construct.startswith ("atomic"):
 		translate_oacc_2_omp_acc_atomic (c)
 	elif c.construct.startswith ("cache"):
 		translate_oacc_2_omp_acc_cache (c)

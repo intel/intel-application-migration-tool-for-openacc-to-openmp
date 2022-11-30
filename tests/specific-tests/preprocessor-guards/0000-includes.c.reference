@@ -1,0 +1,29 @@
+#if defined(OPENACC2OPENMP_OPENACC)
+#include <openacc.h>
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#include <omp.h>
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#if defined(OPENACC2OPENMP_OPENACC)
+#include<openacc.h>
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#include <omp.h>
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#if defined(OPENACC2OPENMP_OPENACC)
+# include <openacc.h>
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#include <omp.h>
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#if defined(OPENACC2OPENMP_OPENACC)
+#include <openacc.h> 
+#endif // defined(OPENACC2OPENMP_OPENACC)
+#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+#include <omp.h>
+#endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
+
+int main (void)
+{ return 0; }
+
+// Code was translated using: /nfs/pdx/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -openacc-conditional-define -translated-openmp-conditional-define 0000-includes.c

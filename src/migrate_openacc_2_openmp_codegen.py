@@ -192,8 +192,10 @@ def generateTranslatedFileC (txConfig, lines, ACCconstructs, OMPconstructs, Supp
 						# Split the statements for better readability
 						splitted_lines = splitCodeWords (c, 72)
 						# Emit the statement
+						beginpragma = ""
 						for l in range(0, len(splitted_lines)):
-							beginpragma = "#pragma omp " if l == 0 else  ' ' * len("#pragma omp ")
+							if ACCconstructs[i].needsOMPprefix:
+								beginpragma = "#pragma omp " if l == 0 else  ' ' * len("#pragma omp ")
 							continuationchar = "\\" if l+1 < len(splitted_lines) else ""
 							f.write (beginpragma + splitted_lines[l] + continuationchar + "\n")
 						# A 'omp declare target' construct refers to a function offloading. It may
@@ -377,10 +379,16 @@ def generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs
 						# Emit the statement, use the appropriate language
 						if txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
 							for l in range(0, len(splitted_lines)):
-								f.write ("!$omp " + splitted_lines[l] + ("&" if l+1 < len(splitted_lines) else "") + "\n")
+								if ACCconstructs[i].needsOMPprefix:
+									f.write ("!$omp " + splitted_lines[l] + ("&" if l+1 < len(splitted_lines) else "") + "\n")
+								else:
+									f.write (           splitted_lines[l] + ("&" if l+1 < len(splitted_lines) else "") + "\n")
 						elif txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed:
 							for l in range(0, len(splitted_lines)):
-								f.write ("!$omp" + ("& " if l > 0 else " ") + splitted_lines[l] + "\n")
+								if ACCconstructs[i].needsOMPprefix:
+									f.write ("!$omp" + ("& " if l > 0 else " ") + splitted_lines[l] + "\n")
+								else:
+									f.write ("     " + ("& " if l > 0 else " ") + splitted_lines[l] + "\n")
 						# A 'target enter/exit data' construct might have associated some multi-dimensional
 						# data structures. The proposed code should work on contiguous data, but might not
 						# work on non-contiguous data. Here, we propose an alternative reference
