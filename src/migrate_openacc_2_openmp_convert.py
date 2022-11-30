@@ -1334,23 +1334,6 @@ def translate (txConfig, lines, construct):
 	for i in range(0,len(lines)):
 		line = lines[i]
 
-		# Check for headers/modules
-		if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
-			line = line.lower()
-			# Check for use 
-			if line.find ("use") >= 0:
-				if line[line.find("use"):].find ("openacc") >= 0:
-					w = f"Line {i+1} includes the Fortran OpenACC module. Change it into 'USE omplib'."
-					APIwarnings.append (w)
-					pass
-		else:
-			# Check for #include <openacc.h> or "openacc.h"
-			if line.find ("#include") >= 0:
-				if line[line.find("#include"):].find ("openacc.h") >= 0:
-					w = f"Line {i+1} includes the C/C++ OpenACC header. Change it into '#include <omp.h>'."
-					APIwarnings.append (w)
-					pass
-
 		# Check for calls
 		for call, suggestion in ACC_API_calls.items():
 			# convert to lower-case if input is in Fortran
