@@ -19,7 +19,7 @@ def findEndOfLoop_C (lines, startline):
 
 	# TODO: might need to jump some lines to find the opening parenthesis
 	# Search for the current for (..) statement to explore.
-	if l.find ("for") >= 0 and l.find ("(") > l.find("for"):
+	if 'for' in l and l.find ("(") > l.find("for"):
 		# Now, we have to identify whether this is a for with a one-liner (non-block) stmt,
 		# or if it is a for with a code block { }. One way to find between the
 		# two is to find the earliest opening block char "{" and/or the
@@ -84,10 +84,10 @@ def findEndOfLoop_FTN (lines, startline):
 		l = re.sub('[\\s\\t]+', ' ', lines[curline].lower())
 		l = re.sub('\\s\\(', '(', l) # Suppress spaces before parenthesis to help parsing
 		# Identifying enddos is easy
-		if l.find("enddo") >= 0 or l.find ("end do") >= 0:
+		if 'enddo' in l or 'end do' in l:
 			balance = balance - 1
 		# We accept dos such as "do VAR = 1,N" or "do VAR = 1, N, S"
-		elif l.find ("do ") >= 0 and \
+		elif 'do ' in l and \
 		     l.count ('=') == 1 and l.find ("=") > l.find ("do ") and \
 		     l.count (',') >= 1 and l.find (",") > l.find ("="):
 			balance = balance + 1
@@ -113,14 +113,14 @@ def findEndOfLoop (txConfig, lines, startline):
 def parseBlockComments_C(s, isCommentOpen):
 	if not isCommentOpen:
 		commentOpen = False
-		if s.find ("/*") == -1: # Return same string if no start-of block comments found
+		if '/*' not in s: # Return same string if no start-of block comments found
 			return s, commentOpen
 		# Iteratively remove block comments, until we don't find start-of block comments
 		sblock = s.find ("/*")
 		eblock = s.find ("*/", sblock)
 		if eblock >= 0:
 			res = s[:sblock] + s[eblock+len("*/"):]
-			while res.find ("/*") >= 0:
+			while '/*' in res:
 				sblock = res.find ("/*")
 				eblock = res.find ("*/", sblock)
 				if eblock >= 0:
@@ -136,14 +136,14 @@ def parseBlockComments_C(s, isCommentOpen):
 		return res, commentOpen
 	else:
 		commentOpen = True
-		if s.find ("*/") == -1: # Skip the string if we haven't closed the block comments
+		if '*/' not in s: # Skip the string if we haven't closed the block comments
 			return "", commentOpen
 		# find terminating block comment first, and skip till there
 		eblock = s.find ("*/")
 		res = s[eblock+len("*/"):]
 		commentOpen = False
 		# Iteratively remove block comments, until we don't find start-of block comments
-		while res.find ("/*") >= 0:
+		while '/*' in res:
 			sblock = res.find ("/*")
 			eblock = res.find ("*/", sblock)
 			if eblock >= 0:
@@ -191,7 +191,7 @@ def parseFile_C(filename):
 		statements, isCommentLeftOpen = parseBlockComments_C (original, isCommentLeftOpen)
 
 		# Check for one-liner comments, if they exist do not process anything beyond that point
-		if statements.find ("//") >= 0:
+		if '//' in statements:
 			statements = statements[:statements.find ("//")]
 
 		# Check for inclusion of OpenACC header
@@ -202,15 +202,15 @@ def parseFile_C(filename):
 		if '#' in statements:
 			tmp = statements[statements.find("#")+len("#"):].strip()
 			# ... followed by pragma
-			if tmp.find ("pragma") >= 0:
+			if 'pragma' in tmp:
 				tmp = tmp[tmp.find ("pragma")+len("pragma"):].strip()
 				# ... and acc
-				if tmp.find ("acc") >= 0:
+				if 'acc' in tmp:
 					construct = tmp[tmp.find("acc")+len("acc"):].strip()
 					# Append to construct to be processed
 					ACCconstructs[eline] = OACC2OMP.accConstruct( [ original ], construct, bline+1, eline+1)
 					# print (bline+1, eline+1, construct)
-				elif tmp.find ("omp") >= 0:
+				elif 'omp' in tmp:
 					construct = tmp[tmp.find("omp")+len("omp"):].strip()
 					# Add two construct "markers", one on begin and one on end lines
 					OMPconstructs[bline] = OACC2OMP.ompConstruct( [ original ], construct, bline+1, eline+1)
@@ -218,7 +218,7 @@ def parseFile_C(filename):
 					# print (bline+1, eline+1, construct)
 
 		# Check for OpenACC statements now - C99 pragmas
-		if statements.find('_Pragma') >= 0:
+		if '_Pragma' in statements:
 			# Search for the open-parenthesis after the _Pragma(
 			op = statements.find("(", statements.find('_Pragma'))
 			# Search for the close parenthesis matching the open parenthesis
@@ -233,12 +233,12 @@ def parseFile_C(filename):
 			if cq >= 0 and oq >= 0 and oq < cq:
 				tmp = tmp[oq+1:cq].strip()
 				# ... and acc
-				if tmp.find ("acc") >= 0:
+				if 'acc' in tmp:
 					construct = tmp[tmp.find("acc")+len("acc"):].strip()
 					# Append to construct to be processed
 					ACCconstructs[eline] = OACC2OMP.accConstruct( [ original ], construct, bline+1, eline+1)
 					# print (bline+1, eline+1, construct)
-				elif tmp.find ("omp") >= 0:
+				elif 'omp' in tmp:
 					construct = tmp[tmp.find("omp")+len("omp"):].strip()
 					# Add two construct "markers", one on begin and one on end lines
 					OMPconstructs[bline] = OACC2OMP.ompConstruct( [ original ], construct, bline+1, eline+1)
@@ -304,7 +304,7 @@ def getUserDerivedType_FTN_FX (lines, curline):
 	stmt, curline = getNextStatement_FTN_FX (lines, curline)
 
 	# Is this an extended derived type using type :: format ?
-	if stmt.find ("::") >= 0:
+	if '::' in stmt:
 		typename = stmt[stmt.find("::")+len("::"):].strip()
 	else:
 		typename = stmt[len("type "):].strip()
@@ -359,7 +359,7 @@ def getConstructOnMultiline_FTN_FX(sentinel, lines, curline):
 				end_pos = len(l)
 				# Skip any possible comment in the line, but skip first which may
 				# belong to the sentinel
-				if l.find ('!', 1) >= 0:
+				if '!' in l[1:]:
 					end_pos = l.find ('!', 1)
 				construct = construct + l[start_pos:end_pos]
 			# Process fortran multi-line (i.e. text in col 6)
@@ -469,38 +469,38 @@ def parseFile_FTN_FX(filename):
 			typename, members, begin_line, end_line = getUserDerivedType_FTN_FX (lines, curline)
 			UDTdefinitions[end_line] = OACC2OMP.UDTdefinition(typename, members, begin_line+1, end_line+1)
 
-		elif l.find ("end function") >= 0 or l.find ("endfunction") >= 0:
+		elif 'end function' in l or 'endfunction' in l:
 			# We need to take care of functions and subroutines for a good conversion of !$acc routine
 			# since !$omp declare target() have to go after implicit/use/import statements
-			if l.startswith ("end function") or l.find (" end function") >= 0 or \
-			   l.startswith ("endfunction") or l.find (" endfunction"):
+			if l.startswith ("end function") or ' end function' in l or \
+			   l.startswith ("endfunction") or ' endfunction' in l:
 				EndFunction = curline + 1
 				x = generateFunctionSubroutineLimits_FTN_FR(BeginFunction, EndFunction, LastImplicit, LastUse, LastImport)
 				ListFunctionsSubroutines.append (x)
 				BeginFunction, EndFunction = None, None
 				LastImplicit, LastUse, LastImport = None, None, None
 
-		elif l.find ("function") >= 0:
+		elif 'function' in l:
 			# We need to take care of functions and subroutines for a good conversion of !$acc routine
 			# since !$omp declare target() have to go after implicit/use/import statements
-			if l.startswith ("function") or l.find (" function ") >= 0:
+			if l.startswith ("function") or ' function' in l:
 				BeginFunction = curline + 1
 
-		elif l.find("end subroutine") >= 0 or l.find ("endsubroutine") >= 0:
+		elif 'end subroutine' in l or 'endsubroutine' in l:
 			# We need to take care of functions and subroutines for a good conversion of !$acc routine
 			# since !$omp declare target() have to go after implicit/use/import statements
-			if l.startswith ("end subroutine") or l.find (" end subroutine") >= 0 or \
-			   l.startswith ("endsubroutine") or l.find (" endsubroutine") >= 0:
+			if l.startswith ("end subroutine") or ' end subroutine' in l or \
+			   l.startswith ("endsubroutine") or ' endsubroutine' in l:
 				EndSubroutine = curline + 1
 				x = generateFunctionSubroutineLimits_FTN_FR(BeginSubroutine, EndSubroutine, LastImplicit, LastUse, LastImport)
 				ListFunctionsSubroutines.append (x)
 				BeginFunction, EndFunction = None, None
 				LastImplicit, LastUse, LastImport = None, None, None
 
-		elif l.find("subroutine") >= 0:
+		elif 'subroutine' in l:
 			# We need to take care of functions and subroutines for a good conversion of !$acc routine
 			# since !$omp declare target() have to go after implicit/use/import statements
-			if l.startswith ("subroutine") or l.find (" subroutine ") >= 0:
+			if l.startswith ("subroutine") or ' subroutine' in l:
 				BeginSubroutine = curline + 1
 
 		elif l.startswith ("use"):
@@ -549,7 +549,7 @@ def getConstructOnMultiline_FTN_FR(sentinel, lines, curline):
 
 		# Remove comments if present, but remind to search after  the sentinel if it exists
 		comment_pos = None
-		if l.find (sentinel) >= 0:
+		if sentinel in l:
 			comment_pos = l.find ('!', l.find(sentinel)+1)
 		else:
 			comment_pos = l.find ('!')
@@ -601,7 +601,7 @@ def getNextStatement_FTN_FR(lines, curline):
 
 	l = lines[curline].strip()
 
-	if l.find ("!") >= 0: # Remove comments
+	if '!' in l: # Remove comments
 		l = l[:l.find("!")].strip()
 
 	if len(l) > 0 and l.endswith("&"):
@@ -614,7 +614,7 @@ def getNextStatement_FTN_FR(lines, curline):
 			continue_optional_pos = tmp.find ("&", 0, len(tmp)-1)
 			if continue_optional_pos >= 0:
 				tmp = tmp[continue_optional_pos+1:]
-			if tmp.find ("!") >= 0: # Remove comments
+			if '!' in tmp: # Remove comments
 				tmp = tmp[:tmp.find("!")].strip()
 			tmp = tmp.strip()
 			tmp = re.sub('[\\s\\t]+', ' ', tmp.lower())
@@ -638,7 +638,7 @@ def getUserDerivedType_FTN_FR (lines, curline):
 	stmt, curline = getNextStatement_FTN_FR (lines, curline)
 
 	# Is this an extended derived type using type :: format ?
-	if stmt.find ("::") >= 0:
+	if '::' in stmt:
 		typename = stmt[stmt.find("::")+len("::"):].strip()
 	else:
 		typename = stmt[len("type "):].strip()
@@ -734,38 +734,38 @@ def parseFile_FTN_FR(filename):
 			typename, members, begin_line, end_line = getUserDerivedType_FTN_FR (lines, curline)
 			UDTdefinitions[end_line] = OACC2OMP.UDTdefinition(typename, members, begin_line+1, end_line+1)
 
-		elif l.find ("end function") >= 0 or l.find ("endfunction") >= 0:
+		elif 'end function' in l or 'endfunction' in l:
 			# We need to take care of functions and subroutines for a good conversion of !$acc routine
 			# since !$omp declare target() have to go after implicit/use/import statements
-			if l.startswith ("end function") or l.find (" end function") >= 0 or \
-			   l.startswith ("endfunction") or l.find (" endfunction"):
+			if l.startswith ("end function") or ' end function' in l or \
+			   l.startswith ("endfunction") or ' endfunction' in l:
 				EndFunction = curline + 1
 				x = generateFunctionSubroutineLimits_FTN_FR(BeginFunction, EndFunction, LastImplicit, LastUse, LastImport)
 				ListFunctionsSubroutines.append (x)
 				BeginFunction, EndFunction = None, None
 				LastImplicit, LastUse, LastImport = None, None, None
 
-		elif l.find ("function") >= 0:
+		elif 'function' in l:
 			# We need to take care of functions and subroutines for a good conversion of !$acc routine
 			# since !$omp declare target() have to go after implicit/use/import statements
-			if l.startswith ("function") or l.find (" function ") >= 0:
+			if l.startswith ("function") or ' function ' in l:
 				BeginFunction = curline + 1
 
-		elif l.find("end subroutine") >= 0 or l.find ("endsubroutine") >= 0:
+		elif 'end subroutine' in l or 'endsubroutine' in l:
 			# We need to take care of functions and subroutines for a good conversion of !$acc routine
 			# since !$omp declare target() have to go after implicit/use/import statements
-			if l.startswith ("end subroutine") or l.find (" end subroutine") >= 0 or \
-			   l.startswith ("endsubroutine") or l.find (" endsubroutine") >= 0:
+			if l.startswith ("end subroutine") or ' end subroutine' in l or \
+			   l.startswith ("endsubroutine") or ' endsubroutine':
 				EndSubroutine = curline + 1
 				x = generateFunctionSubroutineLimits_FTN_FR(BeginSubroutine, EndSubroutine, LastImplicit, LastUse, LastImport)
 				ListFunctionsSubroutines.append (x)
 				BeginFunction, EndFunction = None, None
 				LastImplicit, LastUse, LastImport = None, None, None
 
-		elif l.find("subroutine") >= 0:
+		elif 'subroutine' in l:
 			# We need to take care of functions and subroutines for a good conversion of !$acc routine
 			# since !$omp declare target() have to go after implicit/use/import statements
-			if l.startswith ("subroutine") or l.find (" subroutine ") >= 0:
+			if l.startswith ("subroutine") or 'subroutine' in l:
 				BeginSubroutine = curline + 1
 
 		elif l.startswith ("use"):

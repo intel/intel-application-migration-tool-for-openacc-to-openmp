@@ -59,8 +59,9 @@ def splitEntities (entities):
 	for i in range(0,len(res)):
 		member = res[i]
 		# Member is initialized if it has a =, which we will drop
-		if member.find ("=") > 0:
-			res[i] = member[0:member.find("=")].strip()
+		member_initialize_pos = member.find ("=")
+		if member_initialize_pos >= 0:
+			res[i] = member[0:member_initialize_pos].strip()
 
 	return res
 
@@ -73,7 +74,7 @@ def getUDTMembers (UDT):
 	# Process them line-by-line, and aggregate results into sentitites -- which is a set of splitted entities
 	sentities = []
 	for m in UDT.members:
-		if m.find ("::") >= 0:
+		if '::' in m:
 			parts = m.split ("::")
 		else:
 			parts = m.split (" ")

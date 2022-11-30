@@ -127,9 +127,9 @@ def extractArraySectionComponents_C(var_component):
 	var_regex = re.compile(r'\w+(\[[-/\+\*\w]*:[-/\+\*\w]+\])+', re.IGNORECASE) # varname[x*:y]
 	array_sections_regex = re.compile(r'\[[-/\+\*\w]*:[-/\+\*\w]+\]', re.IGNORECASE) # [x*:y]
 	result = []
-	if var_component.find ("[") >= 0:
+	if '[' in var_component:
 		v = var_regex.findall (var_component)
-		if var_component.find ("[") >= 0:
+		if '[' in var_component:
 			varname = var_component[0:var_component.find ("[")]
 			array_sections = array_sections_regex.findall (var_component[var_component.find("["):])
 			sections_result = []
@@ -153,9 +153,9 @@ def extractArraySectionComponents_C(var_component):
 def extractArraySectionComponents_Fortran(var_component):
 	var_regex = re.compile(r'\w+\([-/\+\*\w]*:[-/\+\*\w]+(,\([-/\+\*\w]*:[-/\+\*\w]+)\)*', re.IGNORECASE) # varname (x1*:y1,x2*:y2)
 	result = []
-	if var_component.find ("(") >= 0:
+	if '(' in var_component:
 		v = var_regex.findall (var_component)
-		if var_component.find ("(") >= 0:
+		if '(' in var_component:
 			varname = var_component[0:var_component.find ("(")]
 			sections = var_component[var_component.find("(")+1:-1]
 			sections_result = []
@@ -217,13 +217,13 @@ def extractArraySections_Fortran (omp_construct):
 		portion_end,_ = findClosingParenthesis (portion, portion_begin, None, None)
 		portion_direction = portion[portion_begin+1:portion.find(":")]
 		remaining = portion[portion.find(":")+1:]
-		while remaining.find("(") >= 0:
+		while '(' in remaining:
 			section_begin = remaining.find("(")
 			section_end,_ = findClosingParenthesis (remaining, section_begin, None, None)
 			s = remaining[:section_end+1]
 			result.append ( (portion_direction, extractArraySectionComponents_Fortran (s) ) )
 			remaining = remaining[section_end+1:]
-			if remaining.find(",") == -1:
+			if ',' not in remaining:
 				break
 			remaining = remaining[remaining.find(",")+1:]
 	return result

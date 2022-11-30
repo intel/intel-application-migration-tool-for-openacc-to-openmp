@@ -6,7 +6,7 @@
 !$acc end parallel
 !$omp end target teams
 !$acc parallel async
-!$omp target teams
+!$omp target teams nowait
        i = 0
 !$acc end parallel
 !$omp end target teams
@@ -19,4 +19,4 @@
 !$omp taskwait
        end program
 
-! Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -keep-binding-clauses=all -fixed -async=nowait 0002.f
+! Code was translated using: /nfs/pdx/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -async=nowait 0002.f

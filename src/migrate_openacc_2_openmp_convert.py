@@ -417,7 +417,7 @@ def translate_oacc_2_omp_acc_enter_data(txConfig, c):
 		omp_clauses.append (f"if({condition})")
 
 	# Process wait clause
-	if c.construct.find(" wait(") >= 0:
+	if ' wait(' in c.construct:
 		if txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.IGNORE:
 			warnings.append (PREDEFINED_WARNINGS["ignored_wait"])
 		else:
@@ -425,7 +425,7 @@ def translate_oacc_2_omp_acc_enter_data(txConfig, c):
 			warnings.append (PREDEFINED_WARNINGS["mismatch_depend_wait_semantics"])
 
 	# Process unhandled / async clause
-	if c.construct.find(" async(") >= 0:
+	if ' async' in c.construct:
 		if txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.IGNORE:
 			pass
 		elif txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.NOWAIT:
@@ -456,7 +456,7 @@ def translate_oacc_2_omp_acc_exit_data(txConfig, c):
 		omp_clauses.append (f"if({condition})")
 
 	# Process wait clause
-	if c.construct.find(" wait(") >= 0:
+	if ' wait(' in c.construct:
 		if txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.IGNORE:
 			warnings.append (PREDEFINED_WARNINGS["ignored_wait"])
 		else:
@@ -464,7 +464,7 @@ def translate_oacc_2_omp_acc_exit_data(txConfig, c):
 			warnings.append (PREDEFINED_WARNINGS["mismatch_depend_wait_semantics"])
 
 	# Process unhandled / async clause
-	if c.construct.find(" async(") >= 0:
+	if ' async' in c.construct:
 		if txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.IGNORE:
 			pass
 		elif txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.NOWAIT:
@@ -517,7 +517,7 @@ def translate_oacc_2_omp_acc_kernels (lines, txConfig, c, carryOnStatus):
 	warnings = [ PREDEFINED_WARNINGS["hint_kernels"] ]
 
 	# do we have a worksharing (loop) construct ?
-	if c.construct.find (" loop") >= 0:
+	if ' loop' in c.construct:
 		omp_construct = ["target teams"]
 		c.hasLoop = True
 		carryOnStatus, _ = translate_oacc_2_omp_acc_loop(None, txConfig, c, carryOnStatus, None)
@@ -529,12 +529,11 @@ def translate_oacc_2_omp_acc_kernels (lines, txConfig, c, carryOnStatus):
 		# parsing C/C++
 		if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
 			# Look if a BLOCK/END_BLOCK follows.
-			if lines[c.eline].lower().find (" block") >= 0:
+			if ' block' in lines[c.eline].lower():
 				begin_block = c.eline
 				end_block = 0
 				for l in range(c.eline+1, len(lines)):
-					if lines[l].lower().find ("end block") >= 0 or \
-					   lines[l].lower().find ("endblock") >= 0:
+					if 'end block' in lines[l].lower() or 'endblock' in lines[l].lower():
 						end_block = l
 						break
 				if end_block == 0:
@@ -640,7 +639,7 @@ def translate_oacc_2_omp_acc_kernels (lines, txConfig, c, carryOnStatus):
 				omp_clauses.append ("defaultmap(none:allocatable)")
 
 	# Process wait clause
-	if c.construct.find(" wait(") >= 0:
+	if ' wait(' in c.construct:
 		if txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.IGNORE:
 			warnings.append (PREDEFINED_WARNINGS["ignored_wait"])
 		else:
@@ -648,7 +647,7 @@ def translate_oacc_2_omp_acc_kernels (lines, txConfig, c, carryOnStatus):
 			warnings.append (PREDEFINED_WARNINGS["mismatch_depend_wait_semantics"])
 
 	# Process unhandled / async clause
-	if c.construct.find(" async(") >= 0:
+	if ' async' in c.construct:
 		if txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.IGNORE:
 			pass
 		elif txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.NOWAIT:
@@ -743,29 +742,29 @@ def translate_oacc_2_omp_acc_loop(lines, txConfig, c, carryOnStatus, Supplementa
 
 	# Process possible bindings
 	if (CONSTANTS.BindingClauses.GANG & txConfig.BindingClauses) != 0:
-		if c.construct.find ("gang") >= 0:
+		if 'gang' in c.construct:
 			omp_clauses.append ("bind(teams)")
 	if (CONSTANTS.BindingClauses.WORKER & txConfig.BindingClauses) != 0:
-		if c.construct.find ("worker") >= 0:
+		if 'worker' in c.construct:
 			omp_clauses.append ("bind(thread)")
 	if (CONSTANTS.BindingClauses.VECTOR & txConfig.BindingClauses) != 0:
 		# Check first if vector has a given parameter
-		if c.construct.find ("vector(") >= 0:
+		if 'vector(' in c.construct:
 			warnings.append (PREDEFINED_WARNINGS["loop_vector_not_supported"])
 		# Check now if vector has no parameters
-		elif c.construct.find ("vector") >= 0:
+		elif 'vector' in c.construct:
 			warnings.append (PREDEFINED_WARNINGS["loop_vector_not_supported"])
 
 	# Process other clauses
-	if c.construct.find ("auto") >= 0:
+	if 'auto' in c.construct:
 		warnings.append ( PREDEFINED_WARNINGS["loop_auto_not_supported"] )
-	if c.construct.find ("seq") >= 0:
+	if 'seq' in c.construct:
 		warnings.append ( PREDEFINED_WARNINGS["loop_seq_not_supported"] )
-	if c.construct.find ("tile") >= 0:
+	if 'tile' in c.construct:
 		warnings.append ( PREDEFINED_WARNINGS["loop_tile_not_supported"] )
 
 	# Check for independent clause
-	if c.construct.find ("independent") >= 0:
+	if 'independent' in c.construct:
 		omp_clauses.append ("order(concurrent)")
 
 	# Process collapse clause
@@ -834,15 +833,13 @@ def translate_oacc_2_omp_acc_routine(txConfig, c):
 	warnings = []
 
 	# is there a list coming after the acc routine, if so, forward it.
-	if c.construct.find("(") >= 0:
+	if '(' in c.construct:
 		r = getSingleParenthesisContents (c.construct, "routine")
 		if len(r) > 0:
 			omp_clauses.append (f"({r})")
 
-	if c.construct.find (" vector") or \
-	   c.construct.find (" gang") or \
-	   c.construct.find (" worker") or \
-	   c.construct.find (" seq"):
+	if ' vector' in c.construct or ' gang' in c.construct or \
+	   ' worker' in c.construct or ' seq' in c.construct:
 		warnings.append (PREDEFINED_WARNINGS["unimplemented_routine_parallelism"])
 
 	# Store data back into the construct class
@@ -857,7 +854,7 @@ def translate_oacc_2_omp_acc_parallel(txConfig, c, carryOnStatus):
 	warnings = []
 
 	# do we have a worksharing (loop) construct ?
-	if c.construct.find (" loop") >= 0:
+	if ' loop' in c.construct:
 		c.hasLoop = True
 		carryOnStatus, _ = translate_oacc_2_omp_acc_loop(None, txConfig, c, carryOnStatus, None)
 
@@ -957,7 +954,7 @@ def translate_oacc_2_omp_acc_parallel(txConfig, c, carryOnStatus):
 				omp_clauses.append ("defaultmap(none:allocatable)")
 
 	# Process wait clause
-	if c.construct.find(" wait(") >= 0:
+	if ' wait(' in c.construct:
 		if txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.IGNORE:
 			warnings.append (PREDEFINED_WARNINGS["ignored_wait"])
 		else:
@@ -965,7 +962,7 @@ def translate_oacc_2_omp_acc_parallel(txConfig, c, carryOnStatus):
 			warnings.append (PREDEFINED_WARNINGS["mismatch_depend_wait_semantics"])
 
 	# Process unhandled / async clause
-	if c.construct.find(" async(") >= 0:
+	if ' async' in c.construct:
 		if txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.IGNORE:
 			pass
 		elif txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.NOWAIT:
@@ -988,7 +985,7 @@ def translate_oacc_2_omp_acc_serial(txConfig, c, carryOnStatus):
 	warnings = []
 
 	# do we have a worksharing (loop) construct ?
-	if c.construct.find (" loop") >= 0:
+	if ' loop' in c.construct:
 		c.hasLoop = True
 		carryOnStatus, _ = translate_oacc_2_omp_acc_loop(None, txConfig, c, carryOnStatus, None)
 
@@ -1061,7 +1058,7 @@ def translate_oacc_2_omp_acc_serial(txConfig, c, carryOnStatus):
 				omp_clauses.append ("defaultmap(none:allocatable)")
 
 	# Process wait clause
-	if c.construct.find(" wait(") >= 0:
+	if ' wait(' in c.construct:
 		if txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.IGNORED:
 			warnings.append (PREDEFINED_WARNINGS["ignored_wait"])
 		else:
@@ -1069,7 +1066,7 @@ def translate_oacc_2_omp_acc_serial(txConfig, c, carryOnStatus):
 			warnings.append (PREDEFINED_WARNINGS["mismatch_depend_wait_semantics"])
 
 	# Process unhandled / async clause
-	if c.construct.find(" async(") >= 0:
+	if ' async' in c.construct:
 		if txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.IGNORE:
 			pass
 		elif txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.NOWAIT:
@@ -1126,7 +1123,7 @@ def translate_oacc_2_omp_acc_update(txConfig,c):
 		omp_clauses.append (f"if({condition})")
 
 	# Process wait clause
-	if c.construct.find(" wait(") >= 0:
+	if ' wait(' in c.construct:
 		if txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.IGNORE:
 			warnings.append (PREDEFINED_WARNINGS["ignored_wait"])
 		else:
@@ -1134,7 +1131,7 @@ def translate_oacc_2_omp_acc_update(txConfig,c):
 			warnings.append (PREDEFINED_WARNINGS["mismatch_depend_wait_semantics"])
 
 	# Process unhandled / async clause
-	if c.construct.find(" async(") >= 0:
+	if ' async' in c.construct:
 		if txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.IGNORE:
 			pass
 		elif txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.NOWAIT:
@@ -1157,7 +1154,7 @@ def translate_oacc_2_omp_acc_wait(txConfig, c):
 		warnings.append (PREDEFINED_WARNINGS["mismatch_depend_wait_semantics"])
 
 	# Process unhandled / if directives
-	if c.construct.find(" if(") >= 0:
+	if ' if(' in c.construct:
 		warnings.append (PREDEFINED_WARNINGS["mismatch_depend_wait_semantics_if"])
 
 	# Store data back into the construct class
@@ -1217,7 +1214,7 @@ def translate_oacc_2_omp_acc_end_kernels(c, carryOnStatus):
 	c.warnings = []
 
 	# do we have a worksharing (loop) construct ?
-	if c.construct.find (" loop") >= 0:
+	if ' loop' in c.construct:
 		c.openmp = ["end target teams loop"]
 	else:
 		c.openmp = ["end target"]
@@ -1234,7 +1231,7 @@ def translate_oacc_2_omp_acc_end_parallel(c):
 	c.warnings = []
 
 	# do we have a worksharing (loop) construct ?
-	if c.construct.find (" loop") >= 0:
+	if ' loop' in c.construct:
 		c.openmp = ["end target teams loop"]
 	else:
 		c.openmp = ["end target teams"]
@@ -1245,7 +1242,7 @@ def translate_oacc_2_omp_acc_end_serial (c):
 	c.warnings = []
 
 	# do we have a worksharing (loop) construct ?
-	if c.construct.find (" loop") >= 0:
+	if ' loop' in c.construct:
 		c.openmp = ["end target loop"]
 	else:
 		c.openmp = ["end target"]
@@ -1359,7 +1356,7 @@ def translate (txConfig, lines, construct):
 			# convert to lower-case if input is in Fortran
 			if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
 				line = line.lower()
-			if line.find(call) >= 0:
+			if call in line:
 				w = f"Line {i+1} contains an invocation to '{call}'."
 				if len(suggestion) > 0:
 					w += " " + suggestion
