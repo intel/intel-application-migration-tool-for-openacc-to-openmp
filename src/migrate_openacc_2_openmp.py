@@ -317,8 +317,16 @@ def entry(argv):
 	# All params after the last good param are considered file.
 	# Process them one by one.
 	for i in range(LastGoodParam, len(argv)):
+		# Store current directory
+		currentdir = os.getcwd()
 
+		# Change to new directory if necessary, and work/generate
+		# files there
+		inputdir = os.path.dirname(argv[i])
+		if inputdir is not None and len(inputdir) > 0:
+			os.chdir (inputdir)
 		inputfile = os.path.basename(argv[i])
+
 		if not os.path.isfile(inputfile):
 			print (f"Error! Cannot find file {inputfile}.")
 			sys.exit (-1)
@@ -409,5 +417,8 @@ def entry(argv):
 		# Overwrite input if requested
 		if OverwriteInput:
 			shutil.copyfile (TXfile, inputfile)
+
+		# Return to original directory
+		os.chdir (currentdir)
 
 # vim:set noexpandtab tabstop=4:
