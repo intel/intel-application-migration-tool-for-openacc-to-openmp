@@ -6,7 +6,11 @@ module m_test
   type :: t_date
     integer :: year = 1992, month = 07, day = 01
   end type
-!$omp declare mapper (t_date::x) map (x%year,x%month,x%day)
+!$omp declare mapper (t_date::x) map ( &
+!$omp  x%year &
+!$omp , x%month &
+!$omp , x%day &
+!$omp )
 
   type :: t_hour
     integer :: hour, &
@@ -14,12 +18,18 @@ module m_test
   ! ignore me
     second ! ignore me
   end type
-!$omp declare mapper (t_hour::x) map (x%hour,x%minute,x%second)
+!$omp declare mapper (t_hour::x) map ( &
+!$omp  x%hour &
+!$omp , x%minute &
+!$omp , x%second &
+!$omp )
 
   type, extends(t_hour) :: t_hour_ns
     integer :: nanosecond
   end type
-!$omp declare mapper (t_hour_ns::x) map (x%nanosecond)
+!$omp declare mapper (t_hour_ns::x) map ( &
+!$omp  x%nanosecond &
+!$omp )
 
 end module m_test
 
@@ -61,4 +71,4 @@ program test
 
 end program test
 
-! Code was translated using: /nfs/pdx/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -free 0022-userdefinedtypes-init.f90
+! Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -free 0022-userdefinedtypes-init.f90

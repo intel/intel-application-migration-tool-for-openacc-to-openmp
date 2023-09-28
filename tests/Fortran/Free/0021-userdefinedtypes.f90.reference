@@ -4,12 +4,18 @@ module m_test
     integer n
     real, allocatable :: datum(:)
     end type
-!$omp declare mapper (test_type_allocatable::x) map (x%n,x%datum(:))
+!$omp declare mapper (test_type_allocatable::x) map ( &
+!$omp  x%n &
+!$omp , x%datum(:) &
+!$omp )
     type test_type_pointer
     integer n
     real, allocatable :: datum(:)
     end type
-!$omp declare mapper (test_type_pointer::x) map (x%n,x%datum(:))
+!$omp declare mapper (test_type_pointer::x) map ( &
+!$omp  x%n &
+!$omp , x%datum(:) &
+!$omp )
 end module
 
 program test
@@ -52,4 +58,4 @@ program test
 
 end program
 
-! Code was translated using: /nfs/pdx/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -free 0021-userdefinedtypes.f90
+! Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -free 0021-userdefinedtypes.f90
