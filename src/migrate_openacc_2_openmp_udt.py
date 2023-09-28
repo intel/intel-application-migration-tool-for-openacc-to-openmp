@@ -65,7 +65,7 @@ def splitEntities (entities):
 
 	return res
 
-# getUDTMemberS (UDT)
+# getUDTMembers (UDT)
 #  Parses a Fortran user defined type and extracts the entity names and their
 #  array sections (if any)
 def getUDTMembers (UDT):
@@ -74,13 +74,16 @@ def getUDTMembers (UDT):
 	# Process them line-by-line, and aggregate results into sentitites -- which is a set of splitted entities
 	sentities = []
 	for m in UDT.members:
-		if '::' in m:
-			parts = m.split ("::")
+		if m.startswith ("#"):
+			sentities = sentities + [ m ]
 		else:
-			parts = m.split (" ")
-		entities = ""
-		for e in parts[1:]:
-			entities = entities + e
-		sentities = sentities + splitEntities(entities)
+			if '::' in m:
+				parts = m.split ("::")
+			else:
+				parts = m.split (" ")
+			entities = ""
+			for e in parts[1:]:
+				entities = entities + e
+			sentities = sentities + splitEntities(entities)
 
 	return sentities

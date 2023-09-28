@@ -419,21 +419,19 @@ def generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs
 
 				# Check if we need to emit a declare mapper for an UDT
 				if declareMappers and i+1 in UDTdefinitions and len(UDTdefinitions[i+1].members) > 0:
-					s = f"declare mapper ({UDTdefinitions[i+1].typename}::x) map ("
+					f.write ( (f"!$omp declare mapper ({UDTdefinitions[i+1].typename}::x) map (") +
+					          ("" if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed else " &") + "\n")
 					isFirst = True
 					for m in UDT.getUDTMembers (UDTdefinitions[i+1]):
-						s = s + ("x%" if isFirst else ",x%") + m
-						isFirst = False
-					s = s + ")"
-					# Split the statement for better readability
-					splitted_lines = splitCodeWords (s.lower(), 64)
-					# Emit the statement, use the appropriate language
-					if txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
-						for l in range(0, len(splitted_lines)):
-							f.write ("!$omp " + splitted_lines[l] + ("&" if l+1 < len(splitted_lines) else "") + "\n")
-					elif txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed:
-						for l in range(0, len(splitted_lines)):
-							f.write ("!$omp" + ("& " if l > 0 else " ") + splitted_lines[l] + "\n")
+						if m.startswith ("#"):
+							f.write (m + "\n")
+						else:
+							if txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
+								f.write (("!$omp ") + ("," if not isFirst else "") + (f" x%{m} &\n"))
+							elif txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed:
+								f.write (("!$omp& ") + ("," if not isFirst else "") + (f" x%{m}\n"))
+							isFirst = False
+					f.write ("!$omp" + ("&" if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed else "") + " )\n")
 
 			f.close()
 	except IOError:

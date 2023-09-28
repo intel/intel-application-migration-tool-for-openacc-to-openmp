@@ -4,32 +4,25 @@
         public t_date, t_hour, t_hour_ns
 
         type :: t_date
-          integer :: year, month, day
+          integer :: year
+          integer :: month
+#if defined(A) && \
+    defined(B)
+          integer :: day
+#endif // A & B
         end type
-!$omp declare mapper (t_date::x) map (
-!$omp&  x%year
-!$omp& , x%month
-!$omp& , x%day
-!$omp& )
 
         type :: t_hour
           integer :: hour,
-     1    minute,
-C ignore me
-     2    second ! ignore me
+     1    minute
+#ifdef C
+          integer :: second ! ignore me
+#endif // C
         end type
-!$omp declare mapper (t_hour::x) map (
-!$omp&  x%hour
-!$omp& , x%minute
-!$omp& , x%second
-!$omp& )
 
         type, extends(t_hour) :: t_hour_ns
           integer :: nanosecond
         end type
-!$omp declare mapper (t_hour_ns::x) map (
-!$omp&  x%nanosecond
-!$omp& )
 
       end module m_test
 
@@ -42,33 +35,31 @@ C ignore me
 
         tdate%year = 2022
         tdate%month = 7
+#if defined(A) && defined(B)
         tdate%day = 13
+#endif
 
         !$acc serial copy(tdate)
-!$omp target map(tofrom:tdate)
         tdate%month = tdate%month + 1
         !$acc end serial
-!$omp end target
 
         thour1%hour = 23
         thour1%minute = 59
+#ifdef C
         thour1%second = 58
+#endif
 
         !$acc serial copyin(thour1)
-!$omp target map(to:thour1)
         thour1%hour = thour1%hour - 1
         !$acc end serial
-!$omp end target
 
         !$acc serial copyout(thour2)
-!$omp target map(from:thour2)
         thour2%hour = 23
         thour2%minute = 59
+#if defined(C)
         thour2%second = 58
+#endif
         thour2%nanosecond = 100
         !$acc end serial
-!$omp end target
 
       end program test
-
-! Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -fixed 0020-userdefinedtypes.f
