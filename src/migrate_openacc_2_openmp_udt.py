@@ -74,7 +74,7 @@ def getUDTMembers (UDT):
 	# Process them line-by-line, and aggregate results into sentitites -- which is a set of splitted entities
 	sentities = []
 	for m in UDT.members:
-		if m.startswith ("#if ") or m.startswith ("#ifdef") or m.startswith ("#endif"):
+		if m.startswith ("#"):
 			sentities = sentities + [ m ]
 		else:
 			if '::' in m:

@@ -251,13 +251,11 @@ def parseFile_C(filename):
 
 # getNextStatement_FTN_FX (lines, curline, breakOnPreprocessor):
 #  parses a fortran statement, which can be splitted in multiple lines on a FTN FX form
-#  if breakOnPreprocessor, would stop parsing when finding a CPP preprocessor 
+#  if breakOnPreprocessor, would stop parsing when finding a CPP preprocessor
 #  such as #ifdef or #define .
 def getNextStatement_FTN_FX(lines, curline, breakOnPreprocessor = False):
 
 	l = lines[curline]
-
-	isPreprocessor = False
 
 	# if this is a commented line, skip it
 	if len(l) == 0 or (len(l) > 0 and l[0] in ['c', 'C', '!', '*']):
@@ -265,7 +263,14 @@ def getNextStatement_FTN_FX(lines, curline, breakOnPreprocessor = False):
 	else:
 		# Do we have to halt parsing because of CPP
 		if breakOnPreprocessor and len(l.strip()) > 1 and (l.strip())[0] == "#":
-			isPreprocessor = True # This might be more convoluted if preprocessor is multiple lines long
+			# if there is one or more continuation lines, consume them by joining into
+			# a single line
+			l = l.strip()
+			while (curline+1 < len(lines)) and (l[-1] == "\\"):
+				curline = curline + 1
+				# Ignore the ending new-line char and concatenate the following line
+				l = l[:-1] + lines[curline].strip()
+			return l, curline + 1
 		else:
 			l = l[6:] # Skip fixed cols
 			# Ignore whatever comes next the comment
@@ -273,7 +278,7 @@ def getNextStatement_FTN_FX(lines, curline, breakOnPreprocessor = False):
 			if comment_pos >= 0: 
 				l = l[:comment_pos]
 
-	if len(l) > 0 and not (breakOnPreprocessor and isPreprocessor):
+	if len(l) > 0:
 		# Process continuation lines
 		while True:
 			tmp = lines[curline+1]
@@ -283,9 +288,6 @@ def getNextStatement_FTN_FX(lines, curline, breakOnPreprocessor = False):
 				curline = curline + 1
 				continue
 			else:
-				# Do we have to halt parsing because of CPP
-				if breakOnPreprocessor and len(tmp.strip()) > 1 and (tmp.strip())[0] == "#":
-					break
 				# Is next line a continuation line?
 				if len(tmp) > 5 and not (tmp[5] in [' ', '0']):
 					comment_pos = tmp.find ('!')
@@ -299,7 +301,7 @@ def getNextStatement_FTN_FX(lines, curline, breakOnPreprocessor = False):
 					break
 
 	l = l.strip()
-	l = re.sub ('[\\s\\t]+', ' ', l if isPreprocessor else l.lower() )
+	l = re.sub ('[\\s\\t]+', ' ', l.lower() )
 	l = re.sub ('\\s\\(', '(', l)
 
 	return l, curline+1
@@ -606,11 +608,22 @@ def getConstructOnMultiline_FTN_FR(sentinel, lines, curline):
 
 	return original, construct, begin_line, curline
 
-# getNextStatement_FTN_FR (lines, curline):
+# getNextStatement_FTN_FR (lines, curline, breakOnPreprocessor):
 #  parses a fortran statement, which can be splitted in multiple lines on a FTN FR form
-def getNextStatement_FTN_FR(lines, curline):
+#  if breakOnPreprocessor, would stop parsing when finding a CPP preprocessor
+#  such as #ifdef or #define .
+def getNextStatement_FTN_FR(lines, curline, breakOnPreprocessor = False):
 
 	l = lines[curline].strip()
+
+	if breakOnPreprocessor and len(l) > 1 and l[0] == "#":
+		# if there is one or more continuation lines, consume them by joining into
+		# a single line
+		while (curline+1 < len(lines)) and (l[-1] == "\\"):
+			curline = curline + 1
+			# Ignore the ending new-line char and concatenate the following line
+			l = l[:-1] + lines[curline].strip()
+		return l, curline + 1
 
 	if '!' in l: # Remove comments
 		l = l[:l.find("!")].strip()
@@ -646,7 +659,7 @@ def getUserDerivedType_FTN_FR (lines, curline):
 	typename = None
 	members = []
 
-	stmt, curline = getNextStatement_FTN_FR (lines, curline)
+	stmt, curline = getNextStatement_FTN_FR (lines, curline, True)
 
 	# Is this an extended derived type using type :: format ?
 	if '::' in stmt:
@@ -655,7 +668,7 @@ def getUserDerivedType_FTN_FR (lines, curline):
 		typename = stmt[len("type "):].strip()
 
 	while curline < len(lines):
-		stmt, curline = getNextStatement_FTN_FR (lines, curline)
+		stmt, curline = getNextStatement_FTN_FR (lines, curline, True)
 		if len(stmt) >= len("end type") and stmt.lower().startswith ("end type"):
 			break
 		elif len(stmt) > 0:

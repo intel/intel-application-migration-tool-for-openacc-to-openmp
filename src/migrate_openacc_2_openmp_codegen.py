@@ -420,7 +420,7 @@ def generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs
 				# Check if we need to emit a declare mapper for an UDT
 				if declareMappers and i+1 in UDTdefinitions and len(UDTdefinitions[i+1].members) > 0:
 					f.write ( (f"!$omp declare mapper ({UDTdefinitions[i+1].typename}::x) map (") +
-					          ("" if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed else "&") + "\n")
+					          ("" if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed else " &") + "\n")
 					isFirst = True
 					for m in UDT.getUDTMembers (UDTdefinitions[i+1]):
 						if m.startswith ("#"):
