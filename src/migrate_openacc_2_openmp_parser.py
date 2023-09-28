@@ -288,6 +288,9 @@ def getNextStatement_FTN_FX(lines, curline, breakOnPreprocessor = False):
 				curline = curline + 1
 				continue
 			else:
+				# If there is a preprocessor and we need to stop, do not process further
+				if len(tmp.strip()) > 0 and (tmp.strip())[0] == "#" and breakOnPreprocessor:
+					break
 				# Is next line a continuation line?
 				if len(tmp) > 5 and not (tmp[5] in [' ', '0']):
 					comment_pos = tmp.find ('!')
