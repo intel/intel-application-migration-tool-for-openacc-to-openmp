@@ -113,11 +113,11 @@ def showHelp():
 	print (" -original-openmp-conditional-define=DEF    : If enabled, wraps OpenMP source code with #ifdef DEF.")
 	print ("")
 	print ("* EXPERIMENTAL FEATURES")
-	print (" [-no]-experimental-kernels-support :                                                                     (enabled)")
+	print (" [-no]-experimental-kernels-support :                                                                     (disabled)")
 	print ("                                When enabled, the tool tries to extract parallelism from loop constructs found")
 	print ("                                within kernels constructs (Fortran only).")
 	print ("                                NOTE: Explore the code for target/end target empty bubbles.")
-	print (" [-no]-experimental-remove-kernels-bubbles:                                                               (enabled)")
+	print (" [-no]-experimental-remove-kernels-bubbles:                                                               (disabled)")
 	print ("                                When enabled, the tool attempts to remove the target/end target empty bubbles")
 	print ("                                introduced by -[no-]experimental-kernels-support.")
 
@@ -207,8 +207,8 @@ def entry(argv):
 	FortranV = FortranVariant.AUTO
 	ForceLanguage = None
 	KeepBindingClauses = CONSTANTS.BindingClauses.NONE
-	ExperimentalKernelsSupport = True
-	ExperimentalRemoveKernelsBubblesSupport = True
+	ExperimentalKernelsSupport = False # True
+	ExperimentalRemoveKernelsBubblesSupport = False # True
 	DeclareMapper = True
 
 	LastGoodParam = None

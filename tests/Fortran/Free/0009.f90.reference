@@ -5,22 +5,26 @@ integer :: i
 integer :: A(N)
 
 !$acc kernels
+!$omp target
 
 !$acc loop
-!$omp target teams loop
+!$omp loop
    do i = 1,N
     a(i) = i
    end do
 
 !$acc end kernels
+!$omp end target
 
 !$acc kernels
+!$omp target
 !$acc loop
-!$omp target teams loop
+!$omp loop
    do i = 1,N
     a(i) = i
    end do
 !$acc end kernels
+!$omp end target
 
 !$acc kernels loop
 !$omp target teams loop
@@ -49,4 +53,4 @@ integer :: A(N)
 
 end program
 
-! Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -keep-binding-clauses=all -free 0009.f90
+! Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -free 0009.f90

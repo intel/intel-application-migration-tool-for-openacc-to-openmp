@@ -3,20 +3,19 @@ implicit none
 integer i, j, k, l, m
 
   !$acc kernels
+!$omp target
   !$acc loop
-!$omp target teams loop
+!$omp loop
   do i = 1, 10
     !$acc loop
 !$omp loop
     do j = 1, 10
     end do
   end do
-!$omp target
   l = 1
   m = 2
   !$acc loop
-!$omp end target
-!$omp target teams loop
+!$omp loop
   do i = 1, 10
     !$acc loop
 !$omp loop
@@ -24,7 +23,7 @@ integer i, j, k, l, m
     end do
   end do
   !$acc loop
-!$omp target teams loop
+!$omp loop
   do i = 1, 10
     !$acc loop
 !$omp loop
@@ -38,7 +37,8 @@ integer i, j, k, l, m
     enddo
   enddo
   !$acc end kernels
+!$omp end target
 
 end program
 
-! Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -free 0012.f90
+! Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -free 0012.f90
