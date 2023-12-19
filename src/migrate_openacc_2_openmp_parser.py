@@ -325,12 +325,16 @@ def getUserDerivedType_FTN_FX (lines, curline):
 	else:
 		typename = stmt[len("type "):].strip()
 
+	inContainsSection = False
 	while curline < len(lines):
 		stmt, curline = getNextStatement_FTN_FX (lines, curline, True)
-		if len(stmt) >= len("end type") and stmt.lower().startswith ("end type"):
+		if len(stmt) >= len("contains") and stmt.lower().startswith ("contains"):
+			inContainsSection = True
+		elif len(stmt) >= len("end type") and stmt.lower().startswith ("end type"):
 			break
 		elif len(stmt) > 0:
-			members.append (stmt)
+			if not inContainsSection:
+				members.append (stmt)
 
 	eline = curline
 
@@ -670,12 +674,16 @@ def getUserDerivedType_FTN_FR (lines, curline):
 	else:
 		typename = stmt[len("type "):].strip()
 
+	inContainsSection = False
 	while curline < len(lines):
 		stmt, curline = getNextStatement_FTN_FR (lines, curline, True)
-		if len(stmt) >= len("end type") and stmt.lower().startswith ("end type"):
+		if len(stmt) >= len("contains") and stmt.lower().startswith ("contains"):
+			inContainsSection = True
+		elif len(stmt) >= len("end type") and stmt.lower().startswith ("end type"):
 			break
 		elif len(stmt) > 0:
-			members.append (stmt)
+			if not inContainsSection:
+				members.append (stmt)
 
 	eline = curline
 
