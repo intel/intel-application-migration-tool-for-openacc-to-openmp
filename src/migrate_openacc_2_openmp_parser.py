@@ -484,10 +484,15 @@ def parseFile_FTN_FX(filename):
 			# Continue processing from end_line
 			curline = end_line
 
-		elif len(l) > len("type") and l.startswith("type") \
-		    and not l.startswith ("type("): # skip typed variable creation
-			typename, members, begin_line, end_line = getUserDerivedType_FTN_FX (lines, curline)
-			UDTdefinitions[end_line] = OACC2OMP.UDTdefinition(typename, members, begin_line+1, end_line+1)
+		elif len(l) > len("type") and l.startswith("type"):
+			skipType = False # By default, don't skip types
+			if 'type(' in l:
+				skipType = True # Skip typed-variable declaration e.g. type(T) var
+			if '=' in l:
+				skipType = True # Is this a variable named "type*" ?
+			if not skipType:
+				typename, members, begin_line, end_line = getUserDerivedType_FTN_FX (lines, curline)
+				UDTdefinitions[end_line] = OACC2OMP.UDTdefinition(typename, members, begin_line+1, end_line+1)
 
 		elif 'end function' in l or 'endfunction' in l:
 			# We need to take care of functions and subroutines for a good conversion of !$acc routine
@@ -764,10 +769,15 @@ def parseFile_FTN_FR(filename):
 			# Continue processing from end_line
 			curline = end_line
 
-		elif len(l) > len("type") and l.startswith("type") \
-		    and not l.startswith ("type("): # skip typed variable creation
-			typename, members, begin_line, end_line = getUserDerivedType_FTN_FR (lines, curline)
-			UDTdefinitions[end_line] = OACC2OMP.UDTdefinition(typename, members, begin_line+1, end_line+1)
+		elif len(l) > len("type") and l.startswith("type"):
+			skipType = False # By default, don't skip types
+			if 'type(' in l:
+				skipType = True # Skip typed-variable declaration e.g. type(T) var
+			if '=' in l:
+				skipType = True # Is this a variable named "type*" ?
+			if not skipType:
+				typename, members, begin_line, end_line = getUserDerivedType_FTN_FR (lines, curline)
+				UDTdefinitions[end_line] = OACC2OMP.UDTdefinition(typename, members, begin_line+1, end_line+1)
 
 		elif 'end function' in l or 'endfunction' in l:
 			# We need to take care of functions and subroutines for a good conversion of !$acc routine

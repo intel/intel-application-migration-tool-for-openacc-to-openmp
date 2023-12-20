@@ -24,8 +24,8 @@ C ignore me
         use m_test
         implicit none
         type(t_date) :: tdate
-        type(t_hour) :: thour1
-        type(t_hour_ns) :: thour2
+        type (t_hour) :: thour1
+        type  (t_hour_ns) :: thour2
 
         tdate%year = 2022
         tdate%month = 7
