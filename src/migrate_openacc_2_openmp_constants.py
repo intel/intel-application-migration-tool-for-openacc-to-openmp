@@ -23,6 +23,25 @@ class FileLanguage(Enum):
 	FortranFixed = 2                             # Fortran (fixed)
 	FortranFree = 3                              # Fortran (free)
 
+class FileSuffixToFileLanguage:
+	_map = {
+	         ".f90": FileLanguage.FortranFree,
+	         ".f95": FileLanguage.FortranFree,
+	         ".f03": FileLanguage.FortranFree,
+	         ".f08": FileLanguage.FortranFree,
+	         ".f":   FileLanguage.FortranFixed,
+	         ".f77": FileLanguage.FortranFixed,
+	         ".cxx": FileLanguage.CPP,
+	         ".c++": FileLanguage.CPP,
+	         ".cpp": FileLanguage.CPP,
+	         ".cc":  FileLanguage.CPP,
+	         ".hxx": FileLanguage.CPP,
+	         ".h++": FileLanguage.CPP,
+	         ".hpp": FileLanguage.CPP,
+	         ".c":   FileLanguage.C,
+	         ".h":   FileLanguage.C
+	  }
+
 class BindingClauses(IntEnum):
 	NONE = 0                                     # No binding clause translated
 	GANG = 1 << 0                                # gang / num_gangs

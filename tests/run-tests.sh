@@ -20,42 +20,13 @@ if [[ "${DIFF}" == "" ]]; then
 fi
 
 echo Running the translations --
-cd Fortran/Fixed
-${THISPWD}/../src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -fixed *.f
-if [[ ${?} -ne 0 ]]; then
-	echo -e Translation ${RED}failed!${NEUTRAL}
-	exit ${?}
-fi
-cd ../Free
-${THISPWD}/../src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -free *.f90
-if [[ ${?} -ne 0 ]]; then
-	echo -e Translation ${RED}failed!${NEUTRAL}
-	exit ${?}
-fi
-cd ../../C
-${THISPWD}/../src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all *.c *.h
-if [[ ${?} -ne 0 ]]; then
-	echo -e Translation ${RED}failed!${NEUTRAL}
-	exit ${?}
-fi
-cd ..
+${THISPWD}/../src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all Fortran
+${THISPWD}/../src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all C
 
 # Execute specific tests.
 
-cd specific-tests
-cd async=nowait
-${THISPWD}/../src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -async=nowait *.c *.f90 *.f
-if [[ ${?} -ne 0 ]]; then
-	echo -e Translation ${RED}failed!${NEUTRAL}
-	exit ${?}
-fi
-cd ../preprocessor-guards
-${THISPWD}/../src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -openacc-conditional-define -translated-openmp-conditional-define *.c *.f90 *.f
-if [[ ${?} -ne 0 ]]; then
-	echo -e Translation ${RED}failed!${NEUTRAL}
-	exit ${?}
-fi
-cd ../..
+${THISPWD}/../src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -async=nowait specific-tests/async=nowait
+${THISPWD}/../src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -openacc-conditional-define -translated-openmp-conditional-define specific-tests/preprocessor-guards
 echo
 
 nfiles=0

@@ -175,6 +175,30 @@ def processFile (inputfile, txConfig, GenerateReport, ForceBackup, OverwriteInpu
 
 	return TXfile
 
+def listSourceFilesInDir(folder):
+	# List to store source files found in folder
+
+	# Get the CWD before changing it, to restore at the end of the call
+	cwd = os.getcwd()
+	os.chdir(folder)
+
+	res = []
+	for path in os.scandir ("."):
+		if path.is_file():
+			# If this is a file, is it a source code file? If so, add for further processing
+			inputfile   = path.name
+			inputfile_l = inputfile.lower()
+			for _suffix in CONSTANTS.FileSuffixToFileLanguage._map.keys():
+				if len(inputfile) > len(_suffix) and inputfile_l[-len(_suffix):] == _suffix:
+					res.append (os.path.join (os.getcwd(), path.name))
+					break
+		elif path.is_dir():
+			# If this is a directory, keep searching recursively
+			res += listSourceFilesInDir(path.name)
+
+	os.chdir (cwd)
+	return res
+
 #
 #
 # MAIN ENTRY POINT
@@ -314,18 +338,28 @@ def entry(argv):
 		print ("Error! No input files given. Aborting.")
 		sys.exit(-1)
 
-	# All params after the last good param are considered file.
-	# Process them one by one.
+	# Create a list of files using the given parameters.
+	# If a parameter is a file, add it to the list. If a parameter is a directory,
+	# add the contained (recursive) "known" files into the list.
+	lFiles = []
 	for i in range(LastGoodParam, len(argv)):
+		if os.path.isfile(argv[i]):
+			lFiles.append (argv[i])
+		elif os.path.isdir (argv[i]):
+			lFiles += listSourceFilesInDir(argv[i])
+
+	# All params after the last good param are considered file.
+	# Process them one by one
+	for f in lFiles:
 		# Store current directory
 		currentdir = os.getcwd()
 
 		# Change to new directory if necessary, and work/generate
 		# files there
-		inputdir = os.path.dirname(argv[i])
+		inputdir = os.path.dirname(f)
 		if inputdir is not None and len(inputdir) > 0:
 			os.chdir (inputdir)
-		inputfile = os.path.basename(argv[i])
+		inputfile = os.path.basename(f)
 
 		if not os.path.isfile(inputfile):
 			print (f"Error! Cannot find file {inputfile}.")
@@ -339,35 +373,14 @@ def entry(argv):
 		# If the user did not specify a language or chose "auto" we try to identify
 		# the language out of the file extension/suffix.
 		if ForceLanguage is None or ForceLanguage == "auto":
-			# Can / Should we infer the Fortran variant?
-			if FortranV == FortranVariant.AUTO:
-				if len(inputfile) > len(".f90") and \
-				    (inputfile_l[-4:] == ".f90" or inputfile_l[-4:] == ".f95" or \
-				     inputfile_l[-4:] == ".f03" or inputfile_l[-4:] == ".f08"):
-					lang = CONSTANTS.FileLanguage.FortranFree
-				if len(inputfile) > len(".f77") and inputfile_l[-4:] == ".f77":
-					lang = CONSTANTS.FileLanguage.FortranFixed
-				if len(inputfile) > len(".f") and inputfile_l[-2:] == ".f":
-					lang = CONSTANTS.FileLanguage.FortranFixed
-			else:
-				if len(inputfile) > len(".f90") and \
-				    (inputfile_l[-4:] == ".f90" or inputfile_l[-4:] == ".f95" or \
-				     inputfile_l[-4:] == ".f03" or inputfile_l[-4:] == ".f08" or \
-				     inputfile_l[-4:] == ".f77"):
-						lang = CONSTANTS.FileLanguage.FortranFree if FortranV == FortranVariant.FREE else CONSTANTS.FileLanguage.FortranFixed
-				if len(inputfile) > len(".f") and inputfile_l[-2:] == ".f":
-						lang = CONSTANTS.FileLanguage.FortranFree if FortranV == FortranVariant.FREE else CONSTANTS.FileLanguage.FortranFixed
 
-			if len(inputfile) > len(".cxx"):
-				if inputfile_l[-4:] == ".cxx" or inputfile_l[-4:] == ".cpp" or inputfile_l[-4:] == ".c++" or \
-				   inputfile_l[-4:] == ".hxx" or inputfile_l[-4:] == ".hpp" or inputfile_l[-4:] == ".h++":
-					lang = CONSTANTS.FileLanguage.CPP
-			if len(inputfile) > len(".cc"):
-				if inputfile_l[-3:] == ".cc":
-					lang = CONSTANTS.FileLanguage.CPP
-			if len(inputfile) > len(".c"):
-				if inputfile_l[-2:] == ".c" or inputfile_l[-2:] == ".h":
-					lang = CONSTANTS.FileLanguage.C
+			# Does the file suffix match any of the "known" suffixes? We have a map of them
+			# in CONSTANTS.FileSuffixToFileLanguage._map
+			for _suffix, _lang in CONSTANTS.FileSuffixToFileLanguage._map.items():
+				if len(inputfile) > len(_suffix) and inputfile_l[-len(_suffix):] == _suffix:
+					lang = _lang
+					break
+
 		else:
 			# The user suggested the language
 			if ForceLanguage == "C":
