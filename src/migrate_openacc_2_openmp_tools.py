@@ -109,7 +109,7 @@ def searchForEndOfDeclarationOrImplementation_C (startlineno, lines):
 		endlineno = findClosingBrackets (startlineno, implementation_pos, lines)
 	elif declaration_pos < 0 and implementation_pos < 0:
 		if startlineno+1 < len(lines):
-			return C_search_for_end_of_declaration_or_implementation (startlineno+1, lines)
+			return searchForEndOfDeclarationOrImplementation_C (startlineno+1, lines)
 		else:
 			pass
 	return endlineno
