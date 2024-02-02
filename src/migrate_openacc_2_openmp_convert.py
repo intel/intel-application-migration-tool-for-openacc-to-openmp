@@ -133,7 +133,7 @@ PREDEFINED_WARNINGS = dict ([
 	( "loop_tile_not_supported", "The TILE clause in the loop construct is not currently supported."),
 	( "loop_seq_not_supported", "The SEQ clause in the loop construct is not currently supported."),
 	( "loop_vector_not_supported", "The VECTOR clause in the loop construct is not currently supported."),
-	( "ignored_wait", "The wait construct has been gnored because of the command-line parameters."),
+	( "ignored_wait", "The wait construct has been ignored because of the command-line parameters."),
 	( "missing_serial_reduction", "Cannot translate the reduction clause in a serial section."),
 	( "mismatch_depend_wait_semantics", "Different semantics on depend/wait constructs."),
 	( "mismatch_depend_wait_semantics_if", "wait if() has no direct translation into OpenMP."),
