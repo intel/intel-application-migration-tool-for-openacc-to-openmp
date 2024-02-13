@@ -1247,6 +1247,14 @@ def translate_oacc_2_omp_acc_end_serial (c):
 	else:
 		c.openmp = ["end target"]
 
+# Translate: ACC END LOOP
+def translate_oacc_2_omp_acc_end_loop (c):
+	# Store data back into the construct class
+	c.warnings = []
+
+	# do we have a worksharing (loop) construct ?
+	c.openmp = ["end loop"]
+
 # Translate include/module inclusion
 def translate_header_module_inclusion (c):
 	# Store data back into the construct class
@@ -1306,6 +1314,8 @@ def translate_oacc_2_omp (lines, txConfig, c, carryOnStatus, SupplementaryConstr
 		carryOnStatus = translate_oacc_2_omp_acc_end_kernels (c, carryOnStatus)
 	elif c.construct.startswith ("end parallel"):
 		translate_oacc_2_omp_acc_end_parallel (c)
+	elif c.construct.startswith ("end loop"):
+		translate_oacc_2_omp_acc_end_loop (c)
 	elif c.construct.startswith ("end serial"):
 		translate_oacc_2_omp_acc_end_serial (c)
 
