@@ -42,12 +42,13 @@ def generateReport(lang, construct, infilename, APIwarnings):
 				else:
 					report.write("that has been as been translated into:\n")
 					if construct.openmp != []:
-						if lang == CONSTANTS.FileLanguage.FortranFree or lang == CONSTANTS.FileLanguage.FortranFixed:
-							report.write ("!$omp")
-						elif lang == CONSTANTS.FileLanguage.C or lang == CONSTANTS.FileLanguage.CPP:
-							report.write ("#pragma omp")
+						if construct.needsOMPprefix:
+							if lang == CONSTANTS.FileLanguage.FortranFree or lang == CONSTANTS.FileLanguage.FortranFixed:
+								report.write ("!$omp ")
+							elif lang == CONSTANTS.FileLanguage.C or lang == CONSTANTS.FileLanguage.CPP:
+								report.write ("#pragma omp ")
 						for p in construct.openmp:
-							report.write (f" {p}")
+							report.write (f"{p}")
 						report.write ("\n")
 					else:
 						report.write ("Nothing.\n")

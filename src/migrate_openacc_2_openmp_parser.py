@@ -196,7 +196,7 @@ def parseFile_C(filename):
 
 		# Check for inclusion of OpenACC header
 		if re.match ('#\s*include\s*<openacc.h>.*', statements):
-			ACCconstructs[eline] = OACC2OMP.accConstruct( [ original ], '#include <openacc.h>', bline+1, eline+1)
+			ACCconstructs[eline] = OACC2OMP.accConstruct( original, '#include <openacc.h>', bline+1, eline+1)
 
 		# Check for OpenACC statements now - preC99 pragmas
 		if '#' in statements:
@@ -457,7 +457,7 @@ def parseFile_FTN_FX(filename):
 
 		# Check for inclusion of OpenACC header/module
 		if re.match ('\s*use\s*openacc.*', l):
-			ACCconstructs[curline] = OACC2OMP.accConstruct( [ original ], 'use openacc', curline+1, curline+1)
+			ACCconstructs[curline] = OACC2OMP.accConstruct( original, 'use openacc', curline+1, curline+1)
 
 		if len(l) > len("c$acc ") and \
 		  l.startswith ("c$acc") or l.startswith ("!$acc") or l.startswith("*$acc"):
@@ -744,7 +744,7 @@ def parseFile_FTN_FR(filename):
 
 		# Check for inclusion of OpenACC header/module
 		if re.match ('\s*use\s*openacc.*', l):
-			ACCconstructs[curline] = OACC2OMP.accConstruct( [ original ], 'use openacc', curline+1, curline+1)
+			ACCconstructs[curline] = OACC2OMP.accConstruct( original, 'use openacc', curline+1, curline+1)
 
 		if len(l) > len("!$acc ") and l.startswith ("!$acc"):
 			original, construct, begin_line, end_line = getConstructOnMultiline_FTN_FR("!$acc", lines, curline)
