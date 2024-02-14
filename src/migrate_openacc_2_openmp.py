@@ -110,7 +110,7 @@ def showHelp():
 	print (" -openacc-conditional-define=DEF            : If enabled, wraps OpenACC source code with #ifdef DEF.")
 	print (" [-no]-translated-openmp-conditional-define : If enabled, wraps OpenMP translated code with #ifdef OPENACC2OPENMP_TRANSLATED_OPENMP. (disabled)")
 	print (" -translated-openmp-conditional-define=DEF  : If enabled, wraps OpenMP translated code with #ifdef DEF.")
-	print (" [-no]-original-openmp-conditional-define   : If enabled, wraps OpenMP source code with #ifdef OPENACC2OPENMP_ORIGINAL_OPENMP.       (disabled)")
+	print (" [-no]-original-openmp-conditional-define   : If enabled, wraps OpenMP source code with #ifdef OPENACC2OPENMP_ORIGINAL_OPENMP.       (enabled)")
 	print (" -original-openmp-conditional-define=DEF    : If enabled, wraps OpenMP source code with #ifdef DEF.")
 	print ("")
 	print ("* EXPERIMENTAL FEATURES")
