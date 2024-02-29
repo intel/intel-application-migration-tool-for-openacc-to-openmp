@@ -484,9 +484,13 @@ def translate_oacc_2_omp_acc_host_data(txConfig, c, carryOnStatus):
 	if txConfig.HostDataBehavior == CONSTANTS.HostDataBehavior.TARGET_DATA:
 		omp_construct = ["target data"]
 		# Process !$acc host_data use_device(sbuf11,sbuf12,rbuf11,rbuf12)
-		variables = getMultiParenthesisContents (c.construct, "use_device")
+		# convert into use_device_addr in Fortran and use_device_ptr in C/C++
+		variables = getMultiParenthesisContents (c.construct, "host_data")
 		if len(variables) > 0:
-			omp_clauses.append (f"use_device_ptr({variables})")
+			if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
+				omp_clauses.append (f"use_device_addr({variables})")
+		elif txConfig.Lang == CONSTANTS.FileLanguage.C or txConfig.Lang == CONSTANTS.FileLanguage.CPP:
+				omp_clauses.append (f"use_device_ptr({variables})")
 	elif txConfig.HostDataBehavior == CONSTANTS.HostDataBehavior.TARGET_UPDATE:
 		omp_construct = ["target update"]
 		# Process !$acc host_data use_device(sbuf11,sbuf12,rbuf11,rbuf12)
@@ -1197,7 +1201,7 @@ def translate_oacc_2_omp_acc_end_host_data(txConfig, c, carryOnStatus):
 		if len(variables) > 0:
 			omp_clauses.append (f"to({variables})")
 		else:
-			print (f"Error! The matching opening construct for '{construct}' does not include variables.")
+			print (f"Error! The matching opening construct for '{c.construct}' does not include variables.")
 			sys.exit (-1)
 		# Remove the key entry in the carryOnStatus dictionary
 		del carryOnStatus["host_data"]
