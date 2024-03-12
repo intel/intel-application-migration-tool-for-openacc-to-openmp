@@ -485,11 +485,11 @@ def translate_oacc_2_omp_acc_host_data(txConfig, c, carryOnStatus):
 		omp_construct = ["target data"]
 		# Process !$acc host_data use_device(sbuf11,sbuf12,rbuf11,rbuf12)
 		# convert into use_device_addr in Fortran and use_device_ptr in C/C++
-		variables = getMultiParenthesisContents (c.construct, "host_data")
+		variables = getMultiParenthesisContents (c.construct, "use_device")
 		if len(variables) > 0:
 			if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
 				omp_clauses.append (f"use_device_addr({variables})")
-		elif txConfig.Lang == CONSTANTS.FileLanguage.C or txConfig.Lang == CONSTANTS.FileLanguage.CPP:
+			elif txConfig.Lang == CONSTANTS.FileLanguage.C or txConfig.Lang == CONSTANTS.FileLanguage.CPP:
 				omp_clauses.append (f"use_device_ptr({variables})")
 	elif txConfig.HostDataBehavior == CONSTANTS.HostDataBehavior.TARGET_UPDATE:
 		omp_construct = ["target update"]
