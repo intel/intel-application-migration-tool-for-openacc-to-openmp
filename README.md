@@ -54,12 +54,18 @@ where `<input-files>` refers to source-code files containing OpenACC constructs.
 
 The tool supports the following optional flags:
 
+* `-[no-]declare-mapper` (default: **enabled**)
+Declares mappers for user-defined data-types (Fortran only).
 * `-[no-]force-backup` (default: **disabled**)
 Enforces the translator to write a backup file with .original extension of the processed file even if a backed up file exists. If disabled, the tool will refuse to proceed with the translation.
 * `-[no-]generate-report` (default: **enabled**)
 Generates a translation report into a separate file with the .report extension.
 * `-[no-]generate-multidimensional-alternate-code` (default: **enabled**)
 Provides implementation suggestions for _acc enter_/_acc exit_ constructs to be employed if the multi-dimensional data is non-contiguous (only in C).
+* `-host_data=<target_data,target_update>` (default: **target_update**)
+Specifies how to convert HOST_DATA clauses:
+    * `target_data` employs _!$omp target data_.
+    * `target_update` employs _!$omp target update_ using host memory.
 * `-keep-binding-clauses=[none,all,gang,worker,vector]` (defaut: **none**)
 Specifies which OpenACC hardware binding clauses (none, all, or a comma-separated combination of:_gang_, _worker_ or _vector_) are kept in the translation.
 * `-[no-]overwrite-input` (default: **disabled**)
@@ -73,8 +79,14 @@ Specifies how the tool translates OpenACC's present clause:
 Selects how the async OpenACC clauses are translated.
    * `ignore` -- do ignore the _async_ and _wait_ clauses -- note that this might have a performance impact.
    * `nowait` -- convert into _nowait_ and _taskwait_ clauses but this is not semantically equivalent to OpenACC.
+* `-specify-language=<auto,C,C++,Fortran/Free,Fortran/Fixed>` (default: **auto**)
+Forces the parsing of the file for language.
 * `-[no-]suppress-openacc` (default: **disabled**)
 The translator removes the OpenACC constructs in the translated file.
+* `-[no-]openacc-conditional-define` (default: **disabled**)
+The tool wraps the OpenACC source code with `#ifdef OPENACC2OPENMP_OPENACC` pre-processing macros.
+* `-openacc-conditional-define=X`
+The tool wraps the OpenACC source code with `#if defined(X)` pre-processing macros.
 * `-[no-]translated-openmp-conditional-define` (default: **disabled**)
 The tool wraps the translated OpenMP code with `#if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)` pre-processing macros.
 * `-translated-openmp-conditional-define=X`
