@@ -95,7 +95,7 @@ def showHelp():
 	print ("                                if the multi-dimensional data is non-contiguous")
 	print (" -host_data=<target_data,target_update> : Specifies how to convert HOST_DATA clauses                      (target_update)")
 	print ("                                - target_data employs !$omp target data")
-	print ("                                - target_data employs !$omp target update, using host memory.")
+	print ("                                - target_update employs !$omp target update, using host memory.")
 	print (" -keep-binding-clauses=X      : Specifies which hardware binding clauses are kept in OpenMP               (none)")
 	print ("                                Where X can be: all, none, and a combination of gang, worker and vector")
 	print (" [-no]-overwrite-input        : Enables/Disables overwriting the original file with the translation.      (disabled)")
