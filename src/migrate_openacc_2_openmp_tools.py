@@ -2,7 +2,6 @@
 # Helper tools module for "Intel(r) Application Migration Tool for OpenACC* to OpenMP*"
 #
 
-import migrate_openacc_2_openmp_constants as CONSTANTS
 import re
 
 # findClosingParenthesis (s, pos, line, lines)
@@ -86,7 +85,7 @@ def findClosingBrackets (line, pos, lines):
 #
 # searchForEndOfDeclarationOrImplementation_C (startline, lines)
 #  checks from startline whether the following symbol is a declaration symbol
-#  or an function implementation
+#  or a function implementation
 #
 def searchForEndOfDeclarationOrImplementation_C (startlineno, lines):
 	endlineno = startlineno
@@ -177,7 +176,7 @@ def extractArraySectionComponents_Fortran(var_component):
 #   generates a list of tuples of variable names and the array sections indicated.
 #   For instance:
 #     map(to:_filter[0:_size][0:_size]) map(alloc:_var[1:_size1][2:_size2][3:_size3],_var2[10:20])
-#   gets splitted into two components (one for to and for alloc directions), and then each
+#   gets split into two components (one for to and for alloc directions), and then each
 #   record it generates a tuple of variable + list of rangemin/rangemax pairs
 #     1) [('to', [('_filter', [('0', '_size'), ('0', '_size')])])
 #     2) ('alloc', [('_var', [('1', '_size1'), ('2', '_size2'), ('3', '_size3')])]), ('alloc', [('_var2', [('10', '20')])])]

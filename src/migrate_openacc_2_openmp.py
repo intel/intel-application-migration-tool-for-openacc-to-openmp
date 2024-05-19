@@ -9,7 +9,6 @@ import migrate_openacc_2_openmp_parser as PARSER
 import sys
 import os
 import shutil
-import re
 from enum import Enum
 
 class FortranVariant(Enum):
@@ -72,7 +71,7 @@ def generateReport(lang, construct, infilename, APIwarnings):
 
 			report.close()
 	except IOError:
-		print (f"Error! File {infile} is not accessible for writing.")
+		print (f"Error! File {infilename} is not accessible for writing.")
 
 def showHelp():
 	print ("Intel(r) Application Migration Tool for OpenACC* to OpenMP*")
@@ -422,7 +421,7 @@ def entry(argv):
 					f.write (" ")
 					f.write (sys.argv[j])
 				f.write (" ")
-				f.write (argv[i])
+				f.write (argv[-1])
 				f.write ("\n")
 				f.close()
 		except IOError:

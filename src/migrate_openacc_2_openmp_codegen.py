@@ -106,7 +106,7 @@ def removeTargetEndTargetBubbles (txConfig, lines, constructs, supplementaryCons
 #  c = construct
 #  arraySections = description of the array and sections
 def generateAlternateMDCode_C(f, c, arraySections):
-	enter_or_exit = "enter" if c.startswith ("target enter data") else "exit";
+	enter_or_exit = "enter" if c.startswith ("target enter data") else "exit"
 	for part in TT.extractArraySections_C (arraySections):
 		direction, varslices = part
 		for varslice in varslices:
@@ -118,7 +118,7 @@ def generateAlternateMDCode_C(f, c, arraySections):
 				tailrange = slices[len(slices)-1]
 				f.write ( "// ATTENTION! The following suggested code is an alternative reference implementation\n")
 				f.write (f"// ATTENTION! that could be used if {varname} is a non-contiguous allocated multi-dimensional array\n")
-				depth = 0;
+				depth = 0
 				sectionprefix = ""
 				for r in slicesm1:
 					offset, length = r[0], r[1]
@@ -243,7 +243,7 @@ def generateTranslatedFileC (txConfig, lines, ACCconstructs, OMPconstructs, Supp
 #  c = construct
 #  arraySections = description of the array and slices
 def generateAlternateMDCode_Fortran(f, c, arraySections):
-	enter_or_exit = "enter" if c.startswith ("target enter data") else "exit";
+	enter_or_exit = "enter" if c.startswith ("target enter data") else "exit"
 	for part in TT.extractArraySections_Fortran (arraySections):
 		direction, varslices = part
 		for varslice in varslices:
@@ -260,7 +260,7 @@ def generateAlternateMDCode_Fortran(f, c, arraySections):
 				for declvar in slicesm1:
 					f.write (f"! integer :: idx{cnt}\n")
 					cnt = cnt + 1
-				depth = 0;
+				depth = 0
 				sectionprefix = ""
 				for r in slicesm1:
 					offset, length = r[0], r[1]
@@ -326,7 +326,7 @@ def generateTranslatedFileFortran (txConfig, lines, ACCconstructs, OMPconstructs
 						# If it didn't match, check that there is no other OpenACC statement
 						# in the destination line
 						if fkACCconstruct.bline-1 in ACCconstructs:
-							print ("Error! OpenACC statement already exists in {fkACCconstruct.bline-1}. Cannot add !$omp declare target in there!")
+							print (f"Error! OpenACC statement already exists in {fkACCconstruct.bline-1}. Cannot add !$omp declare target in there!")
 							print ("{}".format(ACCconstructs[fkACCconstruct.bline].openmp))
 							sys.exit (0)
 						# Ok, insert the fake ACC construct

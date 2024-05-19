@@ -5,7 +5,6 @@
 import migrate_openacc_2_openmp_tools as TT
 import migrate_openacc_2_openmp_constants as CONSTANTS
 import migrate_openacc_2_openmp_parser as PARSER
-import os
 import sys
 
 #
@@ -21,7 +20,7 @@ class accConstruct:
 		self.warnings = None                     # List of warnings associated to this translation
 		self.hasLoop = False                     # Does it include a loop clause/construct?
 		self.AUX = None                          # Auxiliary field. This is specific to the construct
-		self.FakeConstruct = False               # Fake constructs could be copies of constructs that 
+		self.FakeConstruct = False               # Fake constructs could be copies of constructs that
 		                                         # need to be created for special cases in which lines
 		                                         # need to be changed -- and thus OpenACC can't be removed
 		self.needsOMPprefix = True               # Codegen has to prefix with #pragma omp or !$omp ?
@@ -533,7 +532,7 @@ def translate_oacc_2_omp_acc_kernels (lines, txConfig, c, carryOnStatus):
 		# parsing C/C++
 		if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
 			# Look if a BLOCK/END_BLOCK follows.
-			if ' block' in lines[c.eline].lower():
+			if ' block ' in lines[c.eline].lower() or lines[c.eline].lower().endswith(' block'):
 				begin_block = c.eline
 				end_block = 0
 				for l in range(c.eline+1, len(lines)):
@@ -541,7 +540,7 @@ def translate_oacc_2_omp_acc_kernels (lines, txConfig, c, carryOnStatus):
 						end_block = l
 						break
 				if end_block == 0:
-					print (f"Error! Cannot find the matching closing end block for block on line {begin_line+1}")
+					print (f"Error! Cannot find the matching closing end block for block on line {begin_block+1}")
 					sys.exit (-1)
 				else:
 					carryOnStatus["within_kernels_range"] = [ begin_block+1, end_block+1 ]
@@ -677,7 +676,7 @@ def translate_oacc_2_omp_acc_loop(lines, txConfig, c, carryOnStatus, Supplementa
 
 	# EXPERIMENTAL
 	# We can handle loop constructs inside kernel construcs in Fortran by
-	# splitting the region using multiple target regions. 
+	# splitting the region using multiple target regions.
 	if txConfig.experimentalKernelsSupport and \
 	   (txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or txConfig.Lang == CONSTANTS.FileLanguage.FortranFree):
 
@@ -858,7 +857,7 @@ def translate_oacc_2_omp_acc_parallel(txConfig, c, carryOnStatus):
 	warnings = []
 
 	# do we have a worksharing (loop) construct ?
-	if ' loop' in c.construct:
+	if ' loop ' in c.construct:
 		c.hasLoop = True
 		carryOnStatus, _ = translate_oacc_2_omp_acc_loop(None, txConfig, c, carryOnStatus, None)
 
@@ -1063,7 +1062,7 @@ def translate_oacc_2_omp_acc_serial(txConfig, c, carryOnStatus):
 
 	# Process wait clause
 	if ' wait(' in c.construct:
-		if txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.IGNORED:
+		if txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.IGNORE:
 			warnings.append (PREDEFINED_WARNINGS["ignored_wait"])
 		else:
 			pre_constructs = ["taskwait"]
@@ -1194,14 +1193,14 @@ def translate_oacc_2_omp_acc_end_host_data(txConfig, c, carryOnStatus):
 	elif txConfig.HostDataBehavior == CONSTANTS.HostDataBehavior.TARGET_UPDATE:
 		omp_construct = ["target update"]
 		if "host_data" not in carryOnStatus:
-			print (f"Error! Cannot find the matching opening construct for '{construct}'")
+			print (f"Error! Cannot find the matching opening construct for '{omp_construct}'")
 			sys.exit (-1)
 		# Grab the variables used in the opening section
 		variables = carryOnStatus["host_data"]
 		if len(variables) > 0:
 			omp_clauses.append (f"to({variables})")
 		else:
-			print (f"Error! The matching opening construct for '{c.construct}' does not include variables.")
+			print (f"Error! The matching opening construct for '{omp_construct}' does not include variables.")
 			sys.exit (-1)
 		# Remove the key entry in the carryOnStatus dictionary
 		del carryOnStatus["host_data"]
@@ -1212,7 +1211,7 @@ def translate_oacc_2_omp_acc_end_host_data(txConfig, c, carryOnStatus):
 
 	return carryOnStatus
 
-# Translate: ACC END ERNELS [LOOP]
+# Translate: ACC END KERNELS [LOOP]
 def translate_oacc_2_omp_acc_end_kernels(c, carryOnStatus):
 	# Store data back into the construct class
 	c.warnings = []
@@ -1337,10 +1336,10 @@ def translate (txConfig, lines, construct):
 	# information is needed later
 	carryOnStatus = dict ()
 	SupplementaryConstructs = dict()
-	 
-	for line, construct in construct.items():
+
+	for line, con in construct.items():
 		carryOnStatus, SupplementaryConstructs = translate_oacc_2_omp (lines, txConfig,
-		  construct, carryOnStatus, SupplementaryConstructs)
+		  con, carryOnStatus, SupplementaryConstructs)
 
 	APIwarnings = []
 	# Then, check for OpenACC calls in the code - so that we emit

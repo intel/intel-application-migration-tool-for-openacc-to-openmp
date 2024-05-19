@@ -250,7 +250,7 @@ def parseFile_C(filename):
 	return lines, ACCconstructs, OMPconstructs, None # Last None refers to UDT definitions
 
 # getNextStatement_FTN_FX (lines, curline, breakOnPreprocessor):
-#  parses a fortran statement, which can be splitted in multiple lines on a FTN FX form
+#  parses a fortran statement, which can be split in multiple lines on a FTN FX form
 #  if breakOnPreprocessor, would stop parsing when finding a CPP preprocessor
 #  such as #ifdef or #define .
 def getNextStatement_FTN_FX(lines, curline, breakOnPreprocessor = False):
@@ -370,7 +370,7 @@ def getConstructOnMultiline_FTN_FX(sentinel, lines, curline):
 			    l[0] not in ['c','!','*']:
 				print (f"Error! Ill-formed construct around line {begin_line+1} when looking for '{sentinel}' sentinel")
 				sys.exit(-1)
-			# Append into the construct if it contain the sentinel, otherwise the
+			# Append into the construct if it contains the sentinel, otherwise the
 			# line refers to a comment
 			if l.startswith ("c$" + sentinel) or \
 			   l.startswith ("!$" + sentinel) or \
@@ -621,7 +621,7 @@ def getConstructOnMultiline_FTN_FR(sentinel, lines, curline):
 	return original, construct, begin_line, curline
 
 # getNextStatement_FTN_FR (lines, curline, breakOnPreprocessor):
-#  parses a fortran statement, which can be splitted in multiple lines on a FTN FR form
+#  parses a fortran statement, which can be split in multiple lines on a FTN FR form
 #  if breakOnPreprocessor, would stop parsing when finding a CPP preprocessor
 #  such as #ifdef or #define .
 def getNextStatement_FTN_FR(lines, curline, breakOnPreprocessor = False):

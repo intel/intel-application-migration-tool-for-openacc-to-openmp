@@ -13,8 +13,8 @@ def splitEntities (entities):
 			# There is a comma and a parenthesis at least,
 			# check which comes first
 			if comma_pos < open_parenthesis_pos:
-				# Comma first, process entitiy
-				tmp = entities[:comma_pos] # Keep first entitity in comma-separated list
+				# Comma first, process entity
+				tmp = entities[:comma_pos] # Keep first entity in comma-separated list
 				tmp = tmp.strip()
 				if len(tmp) > 0:
 					res = res + [tmp]
@@ -71,7 +71,7 @@ def splitEntities (entities):
 def getUDTMembers (UDT):
 
 	# Process all members found in the user-defined-type
-	# Process them line-by-line, and aggregate results into sentitites -- which is a set of splitted entities
+	# Process them line-by-line, and aggregate results into sentitites -- which is a set of split entities
 	sentities = []
 	for m in UDT.members:
 		if m.startswith ("#"):
