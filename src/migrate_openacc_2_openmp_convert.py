@@ -857,7 +857,7 @@ def translate_oacc_2_omp_acc_parallel(txConfig, c, carryOnStatus):
 	warnings = []
 
 	# do we have a worksharing (loop) construct ?
-	if ' loop ' in c.construct:
+	if ' loop' in c.construct:
 		c.hasLoop = True
 		carryOnStatus, _ = translate_oacc_2_omp_acc_loop(None, txConfig, c, carryOnStatus, None)
 
@@ -1193,14 +1193,14 @@ def translate_oacc_2_omp_acc_end_host_data(txConfig, c, carryOnStatus):
 	elif txConfig.HostDataBehavior == CONSTANTS.HostDataBehavior.TARGET_UPDATE:
 		omp_construct = ["target update"]
 		if "host_data" not in carryOnStatus:
-			print (f"Error! Cannot find the matching opening construct for '{omp_construct}'")
+			print (f"Error! Cannot find the matching opening construct for '{c.construct}'")
 			sys.exit (-1)
 		# Grab the variables used in the opening section
 		variables = carryOnStatus["host_data"]
 		if len(variables) > 0:
 			omp_clauses.append (f"to({variables})")
 		else:
-			print (f"Error! The matching opening construct for '{omp_construct}' does not include variables.")
+			print (f"Error! The matching opening construct for '{c.construct}' does not include variables.")
 			sys.exit (-1)
 		# Remove the key entry in the carryOnStatus dictionary
 		del carryOnStatus["host_data"]
