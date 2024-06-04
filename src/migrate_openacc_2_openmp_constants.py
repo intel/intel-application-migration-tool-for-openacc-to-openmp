@@ -46,7 +46,7 @@ class BindingClauses(IntEnum):
 	NONE = 0                                     # No binding clause translated
 	GANG = 1 << 0                                # gang / num_gangs
 	WORKER = 1 << 1                              # worker / num_workers
-	VECTOR =  1 << 2                             # vector / vector_length
+	VECTOR = 1 << 2                              # vector / vector_length
 	ALL = GANG | WORKER | VECTOR                 # All above
 
 # vim:set noexpandtab tabstop=4:
