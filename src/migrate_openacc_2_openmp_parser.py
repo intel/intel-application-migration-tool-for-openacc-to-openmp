@@ -564,7 +564,9 @@ def getConstructOnMultiline_FTN_FR(sentinel, lines, curline):
 	multiline = True
 
 	while multiline:
-		construct = construct[:-1] # do not include multi-line trailing & char in Fortran/Free form
+		# do not include multi-line trailing & char in Fortran/Free form
+		if len(construct) > 0 and construct[-1] == '&':
+			construct = construct[:-1]
 
 		l = lines[curline].strip()
 		original.append (l)
