@@ -196,7 +196,7 @@ def parseFile_C(filename):
 
 		# Check for inclusion of OpenACC header
 		if re.match ('#\s*include\s*<openacc.h>.*', statements):
-			ACCconstructs[eline] = OACC2OMP.accConstruct( original, '#include <openacc.h>', bline+1, eline+1)
+			ACCconstructs[eline] = OACC2OMP.accConstruct( [ original ], '#include <openacc.h>', bline+1, eline+1)
 
 		# Check for OpenACC statements now - preC99 pragmas
 		if '#' in statements:
