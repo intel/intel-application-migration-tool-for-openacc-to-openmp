@@ -1,6 +1,6 @@
 program test
 implicit none
-integer i
+integer i,j
 real vec(1000)
 
 !$acc parallel loop num_workers(10) copy(vec)
@@ -46,6 +46,25 @@ real vec(1000)
       vec(i) = i+5
     end do
 
+    !$acc parallel loop
+!$omp target teams loop
+    do i = 1, 1000
+      !$acc loop seq
+      do j = 1, 1000
+        vec(i) = i+5
+      end do
+    end do
+
+    !$acc parallel loop
+!$omp target teams loop
+    do i = 1, 1000
+      !$acc loop
+!$omp loop
+      do j = 1, 1000
+        vec(i) = i+5
+      end do
+    end do
+
 end program
 
-! Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -keep-binding-clauses=all -free 0016.f90
+! Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all Fortran
