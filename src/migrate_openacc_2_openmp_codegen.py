@@ -250,7 +250,7 @@ def generateAlternateMDCode_Fortran(f, c, arraySections):
 			varname = varslice[0]
 			slices = varslice[1]
 			# Skip this code generation if the array is only 1D
-			if len(slices) > 1:
+			if slices is not None and len(slices) > 1:
 				slicesm1 = slices[0:len(slices)-1]
 				tailrange = slices[len(slices)-1]
 				f.write ( "! ATTENTION! The following suggested code is an alternative reference implementation\n")
