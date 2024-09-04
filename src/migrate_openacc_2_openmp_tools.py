@@ -123,22 +123,19 @@ def searchForEndOfDeclarationOrImplementation_C (startlineno, lines):
 #     _var[1:_size1][2:_size2][3:_size3] --> [('_var', [('1', '_size1'), ('2', '_size2'), ('3', '_size3')])]
 #
 def extractArraySectionComponents_C(var_component):
-	var_regex = re.compile(r'\w+(\[[-/\+\*\w]*:[-/\+\*\w]+\])+', re.IGNORECASE) # varname[x*:y]
 	array_sections_regex = re.compile(r'\[[-/\+\*\w]*:[-/\+\*\w]+\]', re.IGNORECASE) # [x*:y]
-	result = []
+	result = None
 	if '[' in var_component:
-		v = var_regex.findall (var_component)
-		if '[' in var_component:
-			varname = var_component[0:var_component.find ("[")]
-			array_sections = array_sections_regex.findall (var_component[var_component.find("["):])
-			sections_result = []
-			for s in array_sections:
-				offset = s[s.find("[")+1 : s.find(":")]
-				length = s[s.find(":")+1 : s.find("]")]
-				sections_result.append ( (offset, length) )
-			result.append ( (varname, sections_result) )
-		else:
-			pass # Ignore non-array variables
+		varname = var_component[0:var_component.find ("[")]
+		array_sections = array_sections_regex.findall (var_component[var_component.find("["):])
+		sections_result = []
+		for s in array_sections:
+			offset = s[s.find("[")+1 : s.find(":")]
+			length = s[s.find(":")+1 : s.find("]")]
+			sections_result.append ( (offset, length) )
+		result = [ (varname, sections_result) ]
+	else:
+		result = [ (var_component, None ) ] # the given var_component is the variable name
 	return result
 #
 # extractArraySectionComponents_Fortran(var_component)
@@ -150,23 +147,20 @@ def extractArraySectionComponents_C(var_component):
 #     _var(1:_size1,2:_size2,3:_size3) --> [('_var', [('1', '_size1'), ('2', '_size2'), ('3', '_size3')])]
 #
 def extractArraySectionComponents_Fortran(var_component):
-	var_regex = re.compile(r'\w+\([-/\+\*\w]*:[-/\+\*\w]+(,\([-/\+\*\w]*:[-/\+\*\w]+)\)*', re.IGNORECASE) # varname (x1*:y1,x2*:y2)
-	result = []
+	result = None
 	if '(' in var_component:
-		v = var_regex.findall (var_component)
-		if '(' in var_component:
-			varname = var_component[0:var_component.find ("(")]
-			sections = var_component[var_component.find("(")+1:-1]
-			sections_result = []
-			cnt = 1
-			for s in sections.split(","):
-				offset = s[:s.find(":")]
-				length = s[s.find(":")+1:]
-				sections_result.append ( (offset, length) )
-				cnt = cnt + 1
-			result.append ( (varname, sections_result) )
-		else:
-			pass # Ignore non-array variables
+		varname = var_component[0:var_component.find ("(")]
+		sections = var_component[var_component.find("(")+1:-1]
+		sections_result = []
+		cnt = 1
+		for s in sections.split(","):
+			offset = s[:s.find(":")]
+			length = s[s.find(":")+1:]
+			sections_result.append ( (offset, length) )
+			cnt = cnt + 1
+		result = [ (varname, sections_result) ]
+	else:
+		result = [ (var_component, None ) ] # the given var_component is the variable name
 	return result
 
 #
@@ -226,5 +220,17 @@ def extractArraySections_Fortran (omp_construct):
 				break
 			remaining = remaining[remaining.find(",")+1:]
 	return result
+
+#
+# extractArraySections:
+#  extracts the array (name) the direction and information about array slices provided by
+#  the developer. if isFortran == True then parse the input for Fortran, otherwise for C/C++
+#
+
+def extractArraySections(omp_construct, isFortran):
+	if isFortran:
+		return extractArraySections_Fortran (omp_construct)
+	else:
+		return extractArraySections_C (omp_construct)
 
 # vim:set noexpandtab tabstop=4:
