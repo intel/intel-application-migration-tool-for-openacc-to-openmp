@@ -25,5 +25,17 @@ float foo (int N, float vec[])
 	for (int i = 0; i < N; ++i)
 		vec[i] = i + 4.;
 
+	#pragma acc parallel loop
+	for (int i = 0; i < N; ++i)
+		#pragma acc loop seq
+		for (int j = 0; j < N; ++j)
+			vec[i] = i + j + 4.;
+
+	#pragma acc parallel loop
+	for (int i = 0; i < N; ++i)
+		#pragma acc loop
+		for (int j = 0; j < N; ++j)
+			vec[i] = i + j + 4.;
+
 	return vec[N-1];
 }

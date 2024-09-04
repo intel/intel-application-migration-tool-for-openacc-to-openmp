@@ -47,25 +47,6 @@ integer i
       do i = 1, N
       enddo
 
-!$acc parallel loop
-!$omp target teams loop
-      do i = 1, N
-      enddo
-!$acc end parallel loop
-!$omp end target teams loop
-
-!$acc parallel
-!$omp target teams
-!$acc loop
-!$omp loop
-      do i = 1, N
-      enddo
-!$acc end loop
-!$omp end loop
-!$acc end parallel
-!$omp end target teams
-
-
 end program
 
 ! Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all Fortran

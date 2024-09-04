@@ -1,0 +1,21 @@
+      program main
+      integer :: a(1000),b(1000)
+      integer :: i
+      !$acc data copyin(a,b)
+!$omp target data map(to:a,b)
+        !$acc kernels
+!$omp target
+        do i = 1, 1000
+          a(i) = i
+        enddo
+        !$acc end kernels
+!$omp end target
+        !$acc host_data use_device(a,b)
+!$omp target update from(a,b)
+        !$acc end host_data
+!$omp target update to(a,b)
+      !$acc end data
+!$omp end target data
+      end program
+
+! Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all Fortran

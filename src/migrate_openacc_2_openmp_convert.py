@@ -130,7 +130,7 @@ PREDEFINED_WARNINGS = dict ([
 	( "missing_independent", "The independent directive has no direct translation into OpenMP."),
 	( "loop_auto_not_supported", "The AUTO clause in the loop construct is not currently supported."),
 	( "loop_tile_not_supported", "The TILE clause in the loop construct is not currently supported."),
-	( "loop_seq_not_supported", "The SEQ clause in the loop construct is not currently supported."),
+	( "loop_seq_not_translated", "The SEQ clause in the loop construct is not translated into OpenMP."),
 	( "loop_vector_not_supported", "The VECTOR clause in the loop construct is not currently supported."),
 	( "ignored_wait", "The wait construct has been ignored because of the command-line parameters."),
 	( "missing_serial_reduction", "Cannot translate the reduction clause in a serial section."),
@@ -758,14 +758,6 @@ def translate_oacc_2_omp_acc_loop(lines, txConfig, c, carryOnStatus, Supplementa
 		elif 'vector' in c.construct:
 			warnings.append (PREDEFINED_WARNINGS["loop_vector_not_supported"])
 
-	# Process other clauses
-	if 'auto' in c.construct:
-		warnings.append ( PREDEFINED_WARNINGS["loop_auto_not_supported"] )
-	if 'seq' in c.construct:
-		warnings.append ( PREDEFINED_WARNINGS["loop_seq_not_supported"] )
-	if 'tile' in c.construct:
-		warnings.append ( PREDEFINED_WARNINGS["loop_tile_not_supported"] )
-
 	# Check for independent clause
 	if 'independent' in c.construct:
 		omp_clauses.append ("order(concurrent)")
@@ -782,8 +774,19 @@ def translate_oacc_2_omp_acc_loop(lines, txConfig, c, carryOnStatus, Supplementa
 		if int(depth) >= 1:
 			omp_clauses.append (f"collapse({depth})")
 
-	# Store data back into the construct class
-	c.openmp = pre_constructs + [ " ".join(omp_construct + omp_clauses) ]
+	# Process other clauses
+	if 'auto' in c.construct:
+		warnings.append ( PREDEFINED_WARNINGS["loop_auto_not_supported"] )
+	if 'tile' in c.construct:
+		warnings.append ( PREDEFINED_WARNINGS["loop_tile_not_supported"] )
+
+	if 'seq' in c.construct:
+		# OpenACC loop seq is not translated to OpenMP
+		warnings.append ( PREDEFINED_WARNINGS["loop_seq_not_translated"] )
+		c.openmp = None
+	else:
+		# Store data back into the construct class
+		c.openmp = pre_constructs + [ " ".join(omp_construct + omp_clauses) ]
 	c.warnings = warnings
 
 	return carryOnStatus, SupplementaryConstructs
