@@ -207,7 +207,20 @@ def getSingleParenthesisContents(construct, key):
 # AUXILIARY functions
 #
 
-def translate_oacc2_aux_copy_clauses(txConfig, c):
+def translate_oacc2_aux_copy_clauses_varnamesanddirection(txConfig, arraySections):
+
+	varnames = []
+
+	AS = TT.extractArraySections (arraySections, False)
+	if AS is not None:
+		for part in AS:
+			direction, varslices = part
+			for varslice in varslices:
+				varnames.append ( (varslice[0], direction) )
+
+	return varnames
+
+def translate_oacc2_aux_copy_clauses(txConfig, c, processPresentClause):
 	omp_clauses = []
 	warnings = []
 
@@ -281,8 +294,44 @@ def translate_oacc2_aux_copy_clauses(txConfig, c):
 	if len(variables) > 0:
 		omp_clauses.append (f"map(release:{variables})")
 
-	return omp_clauses, warnings
+	# Process present clause
+	if processPresentClause:
+		variables = getMultiParenthesisContents (c.construct, "present")
+		if len(variables) > 0:
+			if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
+				omp_clauses.append (f"map(alloc:{variables})")
+			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
+				omp_clauses.append (f"map(tofrom:{variables})")
+			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
+				omp_clauses.append (f"map(present,alloc:{variables})")
 
+	# Calculate potential overlappings between mapping/copying clauses.
+	# Issue warnings if those potential overlaps exist
+	varnameAndDirections = translate_oacc2_aux_copy_clauses_varnamesanddirection(txConfig, omp_clauses)
+	varnameAndDirections.sort()
+	varnameFound = []
+	varnameAndDirectionFound = []
+	for v, d in varnameAndDirections:
+		if not v in varnameFound:
+		# if variable has not been before, add it to found list and move fwd
+		# also keep varname and direction for potential future warnings
+			varnameFound.append (v)
+			varnameAndDirectionFound.append ( (v, d) )
+		else:
+		# if variable has been seen before, raise a warning for potential overlap
+		# Check for the same variable, and get the direction from there
+			for prior_v, prior_d in varnameAndDirectionFound:
+				if prior_v == v:
+					if (prior_d == "alloc" and (d != "delete" and d != "release")):
+						warnings.append (f"Potential mapping overlap between map({prior_d}:{prior_v}) and map({d}:{v}). Try to unify to avoid potential data mapping issues, for instance map({d}:{v}).")
+					elif (d == "alloc" and (prior_d != "delete" and prior_d != "release")):
+						warnings.append (f"Potential mapping overlap between map({prior_d}:{prior_v}) and map({d}:{v}). Try to unify to avoid potential data mapping issues, for instance map({prior_d}:{v}).")
+					elif (d == "to" and prior_d == "from") or (d == "from" and prior_d == "to"):
+						warnings.append (f"Potential mapping overlap between map({prior_d}:{prior_v}) and map({d}:{v}). Try to unify to avoid potential data mapping issues, for instance map(tofrom:{v}).")
+					else:
+						warnings.append (f"Potential mapping overlap between map({prior_d}:{prior_v}) and map({d}:{v}). Try to unify to avoid potential data mapping issues.")
+
+	return omp_clauses, warnings
 
 #
 # BEGIN STATEMENTS
@@ -335,18 +384,8 @@ def translate_oacc_2_omp_acc_data(txConfig, c):
 	warnings = []
 
 	# Process create, copy, copyin, copyout clauses
-	omp_clauses, warn_aux = translate_oacc2_aux_copy_clauses (txConfig, c)
+	omp_clauses, warn_aux = translate_oacc2_aux_copy_clauses (txConfig, c, True)
 	warnings.extend (warn_aux)
-
-	# Process present clause
-	variables = getMultiParenthesisContents (c.construct, "present")
-	if len(variables) > 0:
-		if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
-			omp_clauses.append (f"map(alloc:{variables})")
-		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
-			omp_clauses.append (f"map(tofrom:{variables})")
-		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
-			omp_clauses.append (f"map(present,alloc:{variables})")
 
 	# Process deviceptr clause
 	variables = getMultiParenthesisContents (c.construct, "deviceptr")
@@ -404,7 +443,7 @@ def translate_oacc_2_omp_acc_enter_data(txConfig, c):
 	warnings = []
 
 	# Process create, copy, copyin, copyout clauses
-	omp_clauses, warn_aux = translate_oacc2_aux_copy_clauses (txConfig, c)
+	omp_clauses, warn_aux = translate_oacc2_aux_copy_clauses (txConfig, c, False)
 	warnings.extend (warn_aux)
 
 	# Save the copy/creation constructs for its later use
@@ -443,7 +482,7 @@ def translate_oacc_2_omp_acc_exit_data(txConfig, c):
 	warnings = []
 
 	# Process create, copy, copyin, copyout clauses
-	omp_clauses, warn_aux = translate_oacc2_aux_copy_clauses (txConfig, c)
+	omp_clauses, warn_aux = translate_oacc2_aux_copy_clauses (txConfig, c, False)
 	warnings.extend (warn_aux)
 
 	# Save the copy/creation constructs for its later use
@@ -563,18 +602,8 @@ def translate_oacc_2_omp_acc_kernels (lines, txConfig, c, carryOnStatus):
 			pass
 
 	# Process create, copy, copyin, copyout clauses
-	omp_clauses, warn_aux = translate_oacc2_aux_copy_clauses (txConfig, c)
+	omp_clauses, warn_aux = translate_oacc2_aux_copy_clauses (txConfig, c, True)
 	warnings.extend (warn_aux)
-
-	# Process present clause
-	variables = getMultiParenthesisContents (c.construct, "present")
-	if len(variables) > 0:
-		if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
-			omp_clauses.append (f"map(alloc:{variables})")
-		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
-			omp_clauses.append (f"map(tofrom:{variables})")
-		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
-			omp_clauses.append (f"map(present,alloc:{variables})")
 
 	# Process deviceptr clause
 	variables = getMultiParenthesisContents (c.construct, "deviceptr")
@@ -865,18 +894,8 @@ def translate_oacc_2_omp_acc_parallel(txConfig, c, carryOnStatus):
 		carryOnStatus, _ = translate_oacc_2_omp_acc_loop(None, txConfig, c, carryOnStatus, None)
 
 	# Process create, copy, copyin, copyout clauses
-	omp_clauses, warn_aux = translate_oacc2_aux_copy_clauses (txConfig, c)
+	omp_clauses, warn_aux = translate_oacc2_aux_copy_clauses (txConfig, c, True)
 	warnings.extend (warn_aux)
-
-	# Process present clause
-	variables = getMultiParenthesisContents (c.construct, "present")
-	if len(variables) > 0:
-		if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
-			omp_clauses.append (f"map(alloc:{variables})")
-		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
-			omp_clauses.append (f"map(tofrom:{variables})")
-		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
-			omp_clauses.append (f"map(present,alloc:{variables})")
 
 	# Process deviceptr clause
 	variables = getMultiParenthesisContents (c.construct, "deviceptr")
@@ -996,18 +1015,8 @@ def translate_oacc_2_omp_acc_serial(txConfig, c, carryOnStatus):
 		carryOnStatus, _ = translate_oacc_2_omp_acc_loop(None, txConfig, c, carryOnStatus, None)
 
 	# Process create, copy, copyin, copyout clauses
-	omp_clauses, warn_aux = translate_oacc2_aux_copy_clauses (txConfig, c)
+	omp_clauses, warn_aux = translate_oacc2_aux_copy_clauses (txConfig, c, True)
 	warnings.extend (warn_aux)
-
-	# Process present clause
-	variables = getMultiParenthesisContents (c.construct, "present")
-	if len(variables) > 0:
-		if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
-			omp_clauses.append (f"map(alloc:{variables})")
-		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
-			omp_clauses.append (f"map(tofrom:{variables})")
-		elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
-			omp_clauses.append (f"map(present,alloc:{variables})")
 
 	# Process deviceptr clause
 	variables = getMultiParenthesisContents (c.construct, "deviceptr")

@@ -107,13 +107,13 @@ def removeTargetEndTargetBubbles (txConfig, lines, constructs, supplementaryCons
 #  arraySections = description of the array and sections
 def generateAlternateMDCode_C(f, c, arraySections):
 	enter_or_exit = "enter" if c.startswith ("target enter data") else "exit"
-	for part in TT.extractArraySections_C (arraySections):
+	for part in TT.extractArraySections (arraySections, False):
 		direction, varslices = part
 		for varslice in varslices:
 			varname = varslice[0]
 			slices = varslice[1]
 			# Skip this code generation if the array is only 1D
-			if len(slices) > 1:
+			if slices is not None and len(slices) > 1:
 				slicesm1 = slices[0:len(slices)-1]
 				tailrange = slices[len(slices)-1]
 				f.write ( "// ATTENTION! The following suggested code is an alternative reference implementation\n")
@@ -244,13 +244,13 @@ def generateTranslatedFileC (txConfig, lines, ACCconstructs, OMPconstructs, Supp
 #  arraySections = description of the array and slices
 def generateAlternateMDCode_Fortran(f, c, arraySections):
 	enter_or_exit = "enter" if c.startswith ("target enter data") else "exit"
-	for part in TT.extractArraySections_Fortran (arraySections):
+	for part in TT.extractArraySections (arraySections, True):
 		direction, varslices = part
 		for varslice in varslices:
 			varname = varslice[0]
 			slices = varslice[1]
 			# Skip this code generation if the array is only 1D
-			if len(slices) > 1:
+			if slices is not None and len(slices) > 1:
 				slicesm1 = slices[0:len(slices)-1]
 				tailrange = slices[len(slices)-1]
 				f.write ( "! ATTENTION! The following suggested code is an alternative reference implementation\n")
