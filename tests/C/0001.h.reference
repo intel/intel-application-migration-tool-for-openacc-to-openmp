@@ -1,17 +1,17 @@
 #pragma acc kernels
-#pragma omp target
+#pragma omp target defaultmap(tofrom:scalar)
 {
 }
 
 _Pragma("acc kernels")
-#pragma omp target
+#pragma omp target defaultmap(tofrom:scalar)
 {
 }
 
 _Pragma("acc \
  kernels")
-#pragma omp target
+#pragma omp target defaultmap(tofrom:scalar)
 {
 }
 
-// Code was translated using: ../src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup C/0001.h
+// Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all C

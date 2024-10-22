@@ -5,7 +5,7 @@ integer :: i
 integer :: A(N)
 
 !$acc kernels
-!$omp target
+!$omp target defaultmap(tofrom:scalar)
 
 !$acc loop
 !$omp loop
@@ -17,7 +17,7 @@ integer :: A(N)
 !$omp end target
 
 !$acc kernels
-!$omp target
+!$omp target defaultmap(tofrom:scalar)
 !$acc loop
 !$omp loop
    do i = 1,N
@@ -27,7 +27,7 @@ integer :: A(N)
 !$omp end target
 
 !$acc kernels loop
-!$omp target teams loop
+!$omp target teams loop defaultmap(tofrom:scalar)
    do i = 1,N
     a(i) = i+1
    end do
@@ -53,4 +53,4 @@ integer :: A(N)
 
 end program
 
-! Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -free 0009.f90
+! Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all Fortran

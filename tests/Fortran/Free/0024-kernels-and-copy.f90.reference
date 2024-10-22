@@ -6,7 +6,7 @@ subroutine foo(a, b, n)
   integer :: i
 
 !$acc kernels copyout(a)
-!$omp target map(from:a)
+!$omp target map(from:a) defaultmap(tofrom:scalar)
 !$acc loop
 !$omp loop
 do i=1,n
@@ -16,7 +16,7 @@ enddo
 !$omp end target
 
 !$acc kernels copyin(a) copyout(b)
-!$omp target map(to:a) map(from:b)
+!$omp target map(to:a) map(from:b) defaultmap(tofrom:scalar)
 !$acc loop
 !$omp loop
 do i=1,n
@@ -26,7 +26,7 @@ enddo
 !$omp end target
 
 !$acc kernels copyin(a) copyout(b)
-!$omp target map(to:a) map(from:b)
+!$omp target map(to:a) map(from:b) defaultmap(tofrom:scalar)
 !$acc loop
 !$omp loop
 do i=1,n
@@ -41,7 +41,8 @@ enddo
 !$omp end target
 
 !$acc kernels loop copyin(a) copyout(b)
-!$omp target teams loop map(to:a) map(from:b)
+!$omp target teams loop map(to:a) map(from:b)&
+!$omp defaultmap(tofrom:scalar)
 do i=1,n
   b(i) = a(i) + 1
 enddo
@@ -50,4 +51,4 @@ enddo
 
 end subroutine foo
 
-! Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup 0024-kernels-and-copy.f90
+! Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all Fortran

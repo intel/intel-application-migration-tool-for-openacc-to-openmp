@@ -1,7 +1,7 @@
 int main (int argc, char *argv[])
 {
 	#pragma acc kernels
-#pragma omp target
+#pragma omp target defaultmap(tofrom:scalar)
 	{
 		int oneliner_stmt = 0;
 		#pragma acc loop
@@ -70,4 +70,4 @@ int main (int argc, char *argv[])
 	}
 }
 
-// Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup 0012.c
+// Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all C

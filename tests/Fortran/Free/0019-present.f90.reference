@@ -22,7 +22,7 @@ v(:) = 0
 !$omp target data map(alloc:v)
   !$acc parallel loop default(present)
 !$omp target teams loop defaultmap(present:aggregate)&
-!$omp defaultmap(present:pointer) defaultmap(present:allocatable)
+!$omp defaultmap(present:allocatable)
   do i = 1, 10
     v(i) = i
   end do
@@ -35,4 +35,4 @@ v(:) = 0
 
 end program
 
-! Code was translated using: /nfs/pdx/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -free 0019-present.f90
+! Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all Fortran

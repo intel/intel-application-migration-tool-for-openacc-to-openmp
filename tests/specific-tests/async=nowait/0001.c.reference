@@ -3,13 +3,13 @@ int main (int argc, char*argv[])
 	int x;
 
 	#pragma acc kernels async(1)
-#pragma omp target nowait
+#pragma omp target nowait defaultmap(tofrom:scalar)
 	{
 		x = 2;
 	}
 
 	_Pragma("acc kernels async(2)")
-#pragma omp target nowait
+#pragma omp target nowait defaultmap(tofrom:scalar)
 	{
 	x = 3;
 	}
@@ -17,7 +17,7 @@ int main (int argc, char*argv[])
 	_Pragma("acc \
 	 kernels async(3) wait(1)")
 #pragma omp taskwait
-#pragma omp target nowait
+#pragma omp target nowait defaultmap(tofrom:scalar)
 	{
 	x = 4;
 	}
@@ -30,4 +30,4 @@ int main (int argc, char*argv[])
 	return 0;
 }
 
-// Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -keep-binding-clauses=all -async=nowait 0001.c
+// Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -async=nowait specific-tests/async=nowait

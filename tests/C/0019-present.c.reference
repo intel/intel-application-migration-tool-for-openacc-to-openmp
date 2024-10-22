@@ -17,8 +17,7 @@ int main (void)
 #pragma omp target data map(alloc:v)
 	{
 		#pragma acc parallel loop default(present)
-#pragma omp target teams loop defaultmap(present:aggregate)\
-            defaultmap(present:pointer)
+#pragma omp target teams loop defaultmap(present:aggregate)
 		for (unsigned i = 0; i < 10; ++i)
 			v[i] = 2*i;
 		#pragma acc update host(v)
@@ -27,4 +26,4 @@ int main (void)
 	return 0;
 }
 
-// Code was translated using: /nfs/pdx/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all 0019-present.c
+// Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all C

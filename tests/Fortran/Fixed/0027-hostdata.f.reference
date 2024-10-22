@@ -4,7 +4,7 @@
       !$acc data copyin(a,b)
 !$omp target data map(to:a,b)
         !$acc kernels
-!$omp target
+!$omp target defaultmap(tofrom:scalar)
         do i = 1, 1000
           a(i) = i
         enddo
