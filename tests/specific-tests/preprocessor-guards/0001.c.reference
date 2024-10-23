@@ -6,7 +6,7 @@ int main (int argc, char*argv[])
 	#pragma acc kernels
 #endif // defined(OPENACC2OPENMP_OPENACC)
 #if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
-#pragma omp target
+#pragma omp target defaultmap(tofrom:scalar)
 #endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
 	{
 		x = 2;
@@ -16,7 +16,7 @@ int main (int argc, char*argv[])
 	_Pragma("acc kernels")
 #endif // defined(OPENACC2OPENMP_OPENACC)
 #if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
-#pragma omp target
+#pragma omp target defaultmap(tofrom:scalar)
 #endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
 	{
 	x = 3;
@@ -27,7 +27,7 @@ int main (int argc, char*argv[])
 	 kernels")
 #endif // defined(OPENACC2OPENMP_OPENACC)
 #if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
-#pragma omp target
+#pragma omp target defaultmap(tofrom:scalar)
 #endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
 	{
 	x = 4;
@@ -36,4 +36,4 @@ int main (int argc, char*argv[])
 	return 0;
 }
 
-// Code was translated using: /nfs/pdx/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -openacc-conditional-define -translated-openmp-conditional-define 0001.c
+// Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -openacc-conditional-define -translated-openmp-conditional-define specific-tests/preprocessor-guards

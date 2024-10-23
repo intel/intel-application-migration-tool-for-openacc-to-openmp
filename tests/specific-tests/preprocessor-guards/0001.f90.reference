@@ -4,7 +4,7 @@ integer i
 !$acc kernels
 #endif // defined(OPENACC2OPENMP_OPENACC)
 #if defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
-!$omp target
+!$omp target defaultmap(tofrom:scalar)
 #endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
 i = 0
 #if defined(OPENACC2OPENMP_OPENACC)
@@ -15,4 +15,4 @@ i = 0
 #endif // defined(OPENACC2OPENMP_TRANSLATED_OPENMP)
 end program
 
-! Code was translated using: /nfs/pdx/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -openacc-conditional-define -translated-openmp-conditional-define 0001.f90
+! Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -openacc-conditional-define -translated-openmp-conditional-define specific-tests/preprocessor-guards

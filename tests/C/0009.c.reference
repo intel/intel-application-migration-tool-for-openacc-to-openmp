@@ -4,7 +4,7 @@ int main (int argc, char *argv[])
 	int A[N];
 
 	#pragma acc kernels
-#pragma omp target
+#pragma omp target defaultmap(tofrom:scalar)
 	{
 		#pragma acc loop
 #pragma omp loop
@@ -13,12 +13,12 @@ int main (int argc, char *argv[])
 	}
 
 	#pragma acc kernels loop
-#pragma omp target teams loop
+#pragma omp target teams loop defaultmap(tofrom:scalar)
 	for (int i = 0; i < N; ++i)
 		A[i] = i;
 
 	#pragma acc kernels
-#pragma omp target
+#pragma omp target defaultmap(tofrom:scalar)
 	#pragma acc loop
 #pragma omp loop
 	for (int i = 0; i < N; ++i)
@@ -27,4 +27,4 @@ int main (int argc, char *argv[])
 	return 0;
 }
 
-// Code was translated using: /nfs/pdx/home/hservatg/src/openacc2openmp.git/src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup 0009.c
+// Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all C

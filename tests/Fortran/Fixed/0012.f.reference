@@ -3,7 +3,7 @@
       integer i, j, k, l, m
 
 !$acc kernels
-!$omp target
+!$omp target defaultmap(tofrom:scalar)
 !$acc loop
 !$omp loop
         do i = 1, 10
@@ -41,4 +41,4 @@
 
       end program
 
-! Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all -fixed 0012.f
+! Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all Fortran

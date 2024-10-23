@@ -406,30 +406,33 @@ def translate_oacc_2_omp_acc_data(txConfig, c):
 		if defaultv == "present":
 			# We have to honor user's request on how to process the
 			# present clause
+			# According to OpenACC spec (e.g. spec 3.3, page 39, section 2.6, line 1307)
+			# Any default(present) clause visible at the compute construct applies to
+			# aggregate variables
 			if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
 				omp_clauses.append ("defaultmap(alloc:aggregate)")
-				omp_clauses.append ("defaultmap(alloc:pointer)")
 				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
 				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
 					omp_clauses.append ("defaultmap(alloc:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
 				omp_clauses.append ("defaultmap(tofrom:aggregate)")
-				omp_clauses.append ("defaultmap(tofrom:pointer)")
 				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
 				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
 					omp_clauses.append ("defaultmap(tofrom:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
 				omp_clauses.append ("defaultmap(present:aggregate)")
-				omp_clauses.append ("defaultmap(present:pointer)")
 				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
 				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
 					omp_clauses.append ("defaultmap(present:allocatable)")
 		elif defaultv == "none":
+			# According to OpenACC spec (e.g. spec 3.3, page 39, section 2.6, line 1306)
+			# Any default(none) clause visible at the compute construct applies to
+			# both aggregate and scalar variables
 			omp_clauses.append ("defaultmap(none:aggregate)")
-			omp_clauses.append ("defaultmap(none:pointer)")
 			if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
 			   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
-				omp_clauses.append ("defaultmap(none:allocatable)")
+				omp_clauses.append ("defaultmap(present:allocatable)")
+			omp_clauses.append ("defaultmap(none:scalar)")
 
 	# Store data back into the construct class
 	c.openmp = [ " ".join(omp_construct + omp_clauses) ]
@@ -645,30 +648,33 @@ def translate_oacc_2_omp_acc_kernels (lines, txConfig, c, carryOnStatus):
 		if defaultv == "present":
 			# We have to honor user's request on how to process the
 			# present clause
+			# According to OpenACC spec (e.g. spec 3.3, page 39, section 2.6, line 1307)
+			# Any default(present) clause visible at the compute construct applies to
+			# aggregate variables
 			if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
 				omp_clauses.append ("defaultmap(alloc:aggregate)")
-				omp_clauses.append ("defaultmap(alloc:pointer)")
 				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
 				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
 					omp_clauses.append ("defaultmap(alloc:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
 				omp_clauses.append ("defaultmap(tofrom:aggregate)")
-				omp_clauses.append ("defaultmap(tofrom:pointer)")
 				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
 				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
 					omp_clauses.append ("defaultmap(tofrom:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
 				omp_clauses.append ("defaultmap(present:aggregate)")
-				omp_clauses.append ("defaultmap(present:pointer)")
 				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
 				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
 					omp_clauses.append ("defaultmap(present:allocatable)")
 		elif defaultv == "none":
+			# According to OpenACC spec (e.g. spec 3.3, page 39, section 2.6, line 1306)
+			# Any default(none) clause visible at the compute construct applies to
+			# both aggregate and scalar variables
 			omp_clauses.append ("defaultmap(none:aggregate)")
-			omp_clauses.append ("defaultmap(none:pointer)")
 			if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
 			   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
-				omp_clauses.append ("defaultmap(none:allocatable)")
+				omp_clauses.append ("defaultmap(present:allocatable)")
+			omp_clauses.append ("defaultmap(none:scalar)")
 
 	# Process wait clause
 	if ' wait(' in c.construct:
@@ -685,6 +691,11 @@ def translate_oacc_2_omp_acc_kernels (lines, txConfig, c, carryOnStatus):
 		elif txConfig.AsyncBehavior == CONSTANTS.AsyncBehavior.NOWAIT:
 			omp_clauses.append ("nowait")
 		warnings.append (PREDEFINED_WARNINGS["missing_async"])
+
+	# According to OpenACC spec (e.g. spec 3.3, page 39, section 2.6, line 1304)
+	#  a scalar variable will be treated as if it appears in a copy clause if the compute
+	#  construct is is a kernels construct
+	omp_clauses.append ("defaultmap(tofrom:scalar)")
 
 	# Store data back into the construct class
 	#  keep those already collected in c.openmp/warnings if this
@@ -953,30 +964,33 @@ def translate_oacc_2_omp_acc_parallel(txConfig, c, carryOnStatus):
 		if defaultv == "present":
 			# We have to honor user's request on how to process the
 			# present clause
+			# According to OpenACC spec (e.g. spec 3.3, page 39, section 2.6, line 1307)
+			# Any default(present) clause visible at the compute construct applies to
+			# aggregate variables
 			if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
 				omp_clauses.append ("defaultmap(alloc:aggregate)")
-				omp_clauses.append ("defaultmap(alloc:pointer)")
 				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
 				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
 					omp_clauses.append ("defaultmap(alloc:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
 				omp_clauses.append ("defaultmap(tofrom:aggregate)")
-				omp_clauses.append ("defaultmap(tofrom:pointer)")
 				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
 				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
 					omp_clauses.append ("defaultmap(tofrom:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
 				omp_clauses.append ("defaultmap(present:aggregate)")
-				omp_clauses.append ("defaultmap(present:pointer)")
 				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
 				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
 					omp_clauses.append ("defaultmap(present:allocatable)")
 		elif defaultv == "none":
+			# According to OpenACC spec (e.g. spec 3.3, page 39, section 2.6, line 1306)
+			# Any default(none) clause visible at the compute construct applies to
+			# both aggregate and scalar variables
 			omp_clauses.append ("defaultmap(none:aggregate)")
-			omp_clauses.append ("defaultmap(none:pointer)")
 			if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
 			   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
-				omp_clauses.append ("defaultmap(none:allocatable)")
+				omp_clauses.append ("defaultmap(present:allocatable)")
+			omp_clauses.append ("defaultmap(none:scalar)")
 
 	# Process wait clause
 	if ' wait(' in c.construct:
@@ -1047,30 +1061,33 @@ def translate_oacc_2_omp_acc_serial(txConfig, c, carryOnStatus):
 		if defaultv == "present":
 			# We have to honor user's request on how to process the
 			# present clause
+			# According to OpenACC spec (e.g. spec 3.3, page 39, section 2.6, line 1307)
+			# Any default(present) clause visible at the compute construct applies to
+			# aggregate variables
 			if txConfig.PresentBehavior == CONSTANTS.PresentBehavior.ALLOC:
 				omp_clauses.append ("defaultmap(alloc:aggregate)")
-				omp_clauses.append ("defaultmap(alloc:pointer)")
 				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
 				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
 					omp_clauses.append ("defaultmap(alloc:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.TOFROM:
 				omp_clauses.append ("defaultmap(tofrom:aggregate)")
-				omp_clauses.append ("defaultmap(tofrom:pointer)")
 				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
 				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
 					omp_clauses.append ("defaultmap(tofrom:allocatable)")
 			elif txConfig.PresentBehavior == CONSTANTS.PresentBehavior.KEEP:
 				omp_clauses.append ("defaultmap(present:aggregate)")
-				omp_clauses.append ("defaultmap(present:pointer)")
 				if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
 				   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
 					omp_clauses.append ("defaultmap(present:allocatable)")
 		elif defaultv == "none":
+			# According to OpenACC spec (e.g. spec 3.3, page 39, section 2.6, line 1306)
+			# Any default(none) clause visible at the compute construct applies to
+			# both aggregate and scalar variables
 			omp_clauses.append ("defaultmap(none:aggregate)")
-			omp_clauses.append ("defaultmap(none:pointer)")
 			if txConfig.Lang == CONSTANTS.FileLanguage.FortranFixed or \
 			   txConfig.Lang == CONSTANTS.FileLanguage.FortranFree:
-				omp_clauses.append ("defaultmap(none:allocatable)")
+				omp_clauses.append ("defaultmap(present:allocatable)")
+			omp_clauses.append ("defaultmap(none:scalar)")
 
 	# Process wait clause
 	if ' wait(' in c.construct:

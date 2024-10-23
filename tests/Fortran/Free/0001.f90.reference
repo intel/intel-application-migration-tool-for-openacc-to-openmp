@@ -1,10 +1,10 @@
 program test
 integer i
 !$acc kernels
-!$omp target
+!$omp target defaultmap(tofrom:scalar)
 i = 0
 !$acc end kernels
 !$omp end target
 end program
 
-! Code was translated using: ../src/openacc2openmp.py -no-generate-multidimensional-alternate-code -no-conditional-define -force-backup -free Fortran/Free/0001.f90
+! Code was translated using: /nfs/site/home/hservatg/src/intel-application-migration-tool-for-openacc-to-openmp/src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all Fortran
