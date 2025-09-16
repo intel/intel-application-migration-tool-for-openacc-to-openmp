@@ -150,7 +150,7 @@ Go to [top](#top)
 
 ## Copyrights
 
-&copy; 2022 Harald Servat, Intel Corporation
+&copy; 2025 Harald Servat, Intel Corporation
 
 Intel is a trademark of Intel Corporation or its subsidiaries.
 
