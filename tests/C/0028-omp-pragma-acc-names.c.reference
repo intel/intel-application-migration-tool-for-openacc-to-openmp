@@ -1,0 +1,34 @@
+#include <stdio.h>
+#include "pragma_acc.h"
+
+int main(void)
+{
+	double accum = 0.0, vacc = 0.0, a[100];
+
+	#pragma acc parallel loop copyout(a)
+#pragma omp target teams loop map(from:a)
+	for (int i = 0; i < 100; i++)
+		a[i] = i;
+
+#if defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+	#pragma omp parallel for reduction(+:accum)
+#endif // defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+	for (int i = 0; i < 100; i++)
+		accum += a[i];
+
+#if defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+	_Pragma("omp parallel for reduction(+:vacc)")
+#endif // defined(OPENACC2OPENMP_ORIGINAL_OPENMP)
+	for (int i = 0; i < 100; i++)
+		vacc += a[i];
+
+	_Pragma("acc parallel loop copy(a)")
+#pragma omp target teams loop map(tofrom:a)
+	for (int i = 0; i < 100; i++)
+		a[i] = a[i] * 2;
+
+	printf("%f %f\n", accum, vacc);
+	return 0;
+}
+
+// Code was translated using: ../src/intel-application-migration-tool-for-openacc-to-openmp -force-backup -keep-binding-clauses=all C

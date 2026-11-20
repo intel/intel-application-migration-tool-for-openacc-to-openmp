@@ -201,17 +201,15 @@ def parseFile_C(filename):
 		# Check for OpenACC statements now - preC99 pragmas
 		if '#' in statements:
 			tmp = statements[statements.find("#")+len("#"):].strip()
-			# ... followed by pragma
-			if 'pragma' in tmp:
-				tmp = tmp[tmp.find ("pragma")+len("pragma"):].strip()
-				# ... and acc
-				if 'acc' in tmp:
-					construct = tmp[tmp.find("acc")+len("acc"):].strip()
+			# ... followed by pragma and acc or omp as the directive name
+			m = re.match ('pragma\\s+(acc|omp)(?!\\w)(.*)', tmp)
+			if m:
+				construct = m.group(2).strip()
+				if m.group(1) == 'acc':
 					# Append to construct to be processed
 					ACCconstructs[eline] = OACC2OMP.accConstruct( [ original ], construct, bline+1, eline+1)
 					# print (bline+1, eline+1, construct)
-				elif 'omp' in tmp:
-					construct = tmp[tmp.find("omp")+len("omp"):].strip()
+				else:
 					# Add two construct "markers", one on begin and one on end lines
 					OMPconstructs[bline] = OACC2OMP.ompConstruct( [ original ], construct, bline+1, eline+1)
 					OMPconstructs[eline] = OACC2OMP.ompConstruct( [ original ], construct, bline+1, eline+1)
@@ -232,14 +230,15 @@ def parseFile_C(filename):
 			cq = tmp.rfind ("\"")
 			if cq >= 0 and oq >= 0 and oq < cq:
 				tmp = tmp[oq+1:cq].strip()
-				# ... and acc
-				if 'acc' in tmp:
-					construct = tmp[tmp.find("acc")+len("acc"):].strip()
+				# ... and acc or omp as the directive name
+				m = re.match ('(acc|omp)(?!\\w)(.*)', tmp)
+				if m and m.group(1) == 'acc':
+					construct = m.group(2).strip()
 					# Append to construct to be processed
 					ACCconstructs[eline] = OACC2OMP.accConstruct( [ original ], construct, bline+1, eline+1)
 					# print (bline+1, eline+1, construct)
-				elif 'omp' in tmp:
-					construct = tmp[tmp.find("omp")+len("omp"):].strip()
+				elif m:
+					construct = m.group(2).strip()
 					# Add two construct "markers", one on begin and one on end lines
 					OMPconstructs[bline] = OACC2OMP.ompConstruct( [ original ], construct, bline+1, eline+1)
 					OMPconstructs[eline] = OACC2OMP.ompConstruct( [ original ], construct, bline+1, eline+1)
